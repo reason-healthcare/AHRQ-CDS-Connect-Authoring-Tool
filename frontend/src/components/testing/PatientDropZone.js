@@ -48,7 +48,7 @@ const PatientDropZone = () => {
       setShowUploadError(false);
 
       const reader = new FileReader();
-      reader.onload = event => {
+      reader.onload = async event => {
         try {
           const parsedPatientData = JSON.parse(event.target.result);
 
