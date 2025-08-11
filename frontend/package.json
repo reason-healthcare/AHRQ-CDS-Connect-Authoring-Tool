@@ -86,7 +86,8 @@
     "stylelint-config-standard-scss": "^13.1.0"
   },
   "overrides": {
-    "nth-check": "2.1.1"
+    "nth-check": "2.1.1",
+    "postcss": "8.4.31"
   },
   "scripts": {
     "build": "craco build",
