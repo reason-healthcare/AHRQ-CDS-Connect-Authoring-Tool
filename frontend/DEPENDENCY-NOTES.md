@@ -32,3 +32,4 @@ dependencies are currently fixed to older versions:
 | React Helmet Async     |                  | New           | Replaced with React Helmet Async with better support for React 18 concurrent features                                                                               |
 | @testing-library/react | 15.0.6           | 12.1.5        | [Testing Library v13+ Breaking Changes](https://github.com/testing-library/react-testing-library/blob/main/CHANGELOG.md) - Requires React 18, new render API        |
 | React Side Effects     | Removed override |               | React helmet required an older version that caused a conflicting peer dependency error. Removed override with react helmet migration                                |
+| Express | 4.19.2 | 5.1.0 | |
