@@ -7,7 +7,7 @@ dependencies are currently fixed to older versions:
 
 - **antlr4**: ANTLR4 versions after 4.8.0 generate code that uses ESM style imports instead of Common JS requires statements. Since the JavaScript runtime must match the version of ANTLR4 used to generate the classes, we cannot upgrade the antlr4 JavaScript runtime module past version 4.8.0.
 
-## Dependency Upgrades
+## Dependency Upgrades August 2025
 
 | Dependency | Current Version | Prior Version | Notes |
 |------------|----------------|---------------|-------|
