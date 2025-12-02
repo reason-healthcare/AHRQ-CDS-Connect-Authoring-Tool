@@ -15,3 +15,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 src/cql-merge/import/grammar/.antlr
+
+# TypeScript compiled output
+dist/
