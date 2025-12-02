@@ -74,6 +74,39 @@ npm install --save @types/fhir
 - Configure nodemon/ts-node for backend development
 - Ensure frontend build process supports TypeScript
 
+### 1.4 Phase 1 Quality Assurance
+
+**Before proceeding to Phase 2, complete:**
+
+1. **Run Tests**
+   ```bash
+   # Backend
+   cd api && npm test
+   
+   # Frontend
+   cd frontend && npm test
+   ```
+
+2. **Lint Code**
+   ```bash
+   # Backend
+   cd api && npm run lint
+   
+   # Frontend
+   cd frontend && npm run lint
+   ```
+
+3. **Format Code**
+   ```bash
+   # Backend
+   cd api && npm run prettier:fix
+   
+   # Frontend
+   cd frontend && npm run prettier:fix
+   ```
+
+**Ensure all tests pass, linting passes, and code is properly formatted before continuing.**
+
 ## Phase 2: Backend Core Migration (Days 3-10)
 
 **AI Strategy**: Batch convert similar files, apply consistent patterns, use AI for type inference
@@ -212,6 +245,27 @@ export default router;
 
 **Final backend integration and testing**
 
+### 2.8 Phase 2 Quality Assurance
+
+**Before proceeding to Phase 3, complete:**
+
+1. **Run Tests**
+   ```bash
+   cd api && npm test
+   ```
+
+2. **Lint Code**
+   ```bash
+   cd api && npm run lint
+   ```
+
+3. **Format Code**
+   ```bash
+   cd api && npm run prettier:fix
+   ```
+
+**Ensure all backend tests pass, linting passes, and code is properly formatted before continuing.**
+
 ## Phase 3: Backend Advanced & Testing (Days 11-13)
 
 ### 3.1 CQL Merge & Import (Day 11)
@@ -240,6 +294,27 @@ export default router;
 - Ensure all tests pass
 
 **AI Batch Conversion**: Convert test files in parallel with handler/router conversions
+
+### 3.4 Phase 3 Quality Assurance
+
+**Before proceeding to Phase 4, complete:**
+
+1. **Run Tests**
+   ```bash
+   cd api && npm test
+   ```
+
+2. **Lint Code**
+   ```bash
+   cd api && npm run lint
+   ```
+
+3. **Format Code**
+   ```bash
+   cd api && npm run prettier:fix
+   ```
+
+**Ensure all backend tests pass, linting passes, and code is properly formatted before continuing.**
 
 ## Phase 4: Frontend Migration (Days 14-24)
 
@@ -312,6 +387,39 @@ Convert all [component type] components in [directory]:
 - Update test utilities
 - Ensure all tests pass
 
+### 4.5 Phase 4 Quality Assurance
+
+**Before proceeding to Phase 5, complete:**
+
+1. **Run Tests**
+   ```bash
+   # Backend
+   cd api && npm test
+   
+   # Frontend
+   cd frontend && npm test
+   ```
+
+2. **Lint Code**
+   ```bash
+   # Backend
+   cd api && npm run lint
+   
+   # Frontend
+   cd frontend && npm run lint
+   ```
+
+3. **Format Code**
+   ```bash
+   # Backend
+   cd api && npm run prettier:fix
+   
+   # Frontend
+   cd frontend && npm run prettier:fix
+   ```
+
+**Ensure all tests pass, linting passes, and code is properly formatted before continuing.**
+
 ## Phase 5: Integration & Polish (Days 25-28)
 
 ### 5.1 Type Safety Across Boundaries (Day 25)
@@ -355,6 +463,8 @@ Convert all [component type] components in [directory]:
 
    - Run tests
    - Fix type errors
+   - Run linting
+   - Format with prettier
    - Verify functionality
    - Commit working state
 
@@ -431,12 +541,46 @@ const ModelSchema = new Schema<IModel>({ /* ... */ });
 export default mongoose.model<IModel>('Model', ModelSchema);
 ```
 
+## Quality Assurance Between Phases
+
+**After each phase completion, before moving to the next phase:**
+
+1. **Run Tests**: Ensure all existing tests pass
+   ```bash
+   # Backend
+   cd api && npm test
+   
+   # Frontend
+   cd frontend && npm test
+   ```
+
+2. **Lint Code**: Fix any linting errors
+   ```bash
+   # Backend
+   cd api && npm run lint
+   
+   # Frontend
+   cd frontend && npm run lint
+   ```
+
+3. **Format Code**: Ensure consistent code formatting
+   ```bash
+   # Backend
+   cd api && npm run prettier:fix
+   
+   # Frontend
+   cd frontend && npm run prettier:fix
+   ```
+
+**Do not proceed to the next phase until all QA steps pass.**
+
 ## Risk Mitigation
 
 1. **Incremental Migration**: Use `allowJs: true` to support mixed codebases
 2. **Version Control**: Commit after each successful file/group migration
-3. **Testing**: Run full test suite after each phase
-4. **Rollback**: Keep original JS files until migration complete (Git handles this)
+3. **Quality Gates**: Run tests, lint, and format between each phase
+4. **Testing**: Run full test suite after each phase
+5. **Rollback**: Keep original JS files until migration complete (Git handles this)
 
 ## Success Metrics
 
