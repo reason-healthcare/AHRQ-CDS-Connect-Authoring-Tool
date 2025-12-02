@@ -7,7 +7,7 @@ import https from 'https';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import migrate from './migrations/migrate-mongo.js';
-import config from './config.js';
+import config from './config.ts';
 import configPassport from './auth/configPassport.js';
 import routes from './routes.js';
 

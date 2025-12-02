@@ -2,7 +2,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import mongoose from 'mongoose';
 
-import codeSystems from '../data/codeSystems.js';
+import codeSystems from '../data/codeSystems.ts';
 import contextMappings from '../data/contextMappings.js';
 
 // Import JSON files from frontend using fs.readFileSync

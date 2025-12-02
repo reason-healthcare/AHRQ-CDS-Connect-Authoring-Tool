@@ -1,5 +1,5 @@
 import Patient from '../models/patient.js';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 export default {
   allGet,

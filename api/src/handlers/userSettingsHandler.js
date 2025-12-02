@@ -1,5 +1,5 @@
 import UserSettings from '../models/userSettings.js';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 export default {
   get,

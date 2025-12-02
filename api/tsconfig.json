@@ -23,5 +23,9 @@
     "checkJs": false
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*.test.js"]
+  "exclude": ["node_modules", "dist", "test", "**/*.test.js"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

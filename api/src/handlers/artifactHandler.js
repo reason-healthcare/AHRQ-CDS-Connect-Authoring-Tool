@@ -1,6 +1,6 @@
 import { default as Artifact } from '../models/artifact.js';
 import { default as CQLLibrary } from '../models/cqlLibrary.js';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 export default {
   allGet,

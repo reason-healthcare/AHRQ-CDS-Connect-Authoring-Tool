@@ -1,6 +1,6 @@
 import FHIRClient from '../vsac/FHIRClient.js';
 import auth from 'basic-auth';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 function login(req, res) {
   const user = auth(req);

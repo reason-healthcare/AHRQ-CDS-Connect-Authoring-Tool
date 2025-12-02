@@ -3,7 +3,7 @@ import unzipper from 'unzipper';
 import CQLLibrary from '../models/cqlLibrary.js';
 import Artifact from '../models/artifact.js';
 import * as cqlHandler from '../handlers/cqlHandler.js';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 const supportedFHIRVersions = ['1.0.2', '3.0.0', '4.0.0', '4.0.1'];
 

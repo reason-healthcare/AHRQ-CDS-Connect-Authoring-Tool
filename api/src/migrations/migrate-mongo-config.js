@@ -1,7 +1,7 @@
 // In this file you can configure migrate-mongo
 import path from 'path';
 import { fileURLToPath } from 'url';
-import config from '../config.js';
+import config from '../config.ts';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 

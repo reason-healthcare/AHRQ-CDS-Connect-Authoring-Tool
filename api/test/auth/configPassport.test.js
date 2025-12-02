@@ -63,7 +63,7 @@ describe('configPassport', () => {
 
       // Use esmock to create a version of configPassport with mocked dependencies (replaces rewire)
       const configPassportModule = await esmock('../../src/auth/configPassport.js', {
-        '../../src/config.js': mockConfig.default,
+        '../../src/config.ts': mockConfig.default,
         fs: mockFs.default
       });
 

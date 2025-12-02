@@ -1,6 +1,6 @@
-import modifiers from '../data/modifiers.js';
+import modifiers from '../data/modifiers.ts';
 import CQLLibrary from '../models/cqlLibrary.js';
-import { sendUnauthorized } from './common.js';
+import { sendUnauthorized } from './common.ts';
 
 export default {
   allGet

@@ -4,10 +4,10 @@ import validator from 'validator';
 import json5 from 'json5';
 import fs from 'fs';
 
-function laxUrl(...protocols) {
-  return val => {
+function laxUrl(...protocols: string[]): (val: string) => void {
+  return (val: string): void => {
     if (!validator.isURL(val, { protocols, require_tld: false, allow_underscores: true })) {
-      throw new Error(`must be a URL with protocol from {${protocols}}`);
+      throw new Error(`must be a URL with protocol from {${protocols.join(', ')}}`);
     }
   };
 }
@@ -180,7 +180,7 @@ const config = convict({
 });
 
 // Load environment dependent configuration
-const files = [];
+const files: string[] = [];
 // Look for an environment-based file (e.g., config/production.json)
 const envFile = path.join(process.cwd(), 'config', `${config.get('env')}.json`);
 if (fs.existsSync(envFile)) {

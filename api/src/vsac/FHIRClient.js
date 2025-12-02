@@ -1,6 +1,6 @@
 import axios from 'axios';
 import _ from 'lodash';
-import config from '../config.js';
+import config from '../config.ts';
 
 const VSAC_FHIR_ENDPOINT = config.get('terminologyService');
 

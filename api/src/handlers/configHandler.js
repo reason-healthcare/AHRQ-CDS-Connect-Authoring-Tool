@@ -1,5 +1,5 @@
 import Templates from '../data/formTemplates.js';
-import ValueSets from '../data/valueSets.js';
+import ValueSets from '../data/valueSets.ts';
 import fs from 'fs';
 
 // Import JSON files using fs.readFileSync
