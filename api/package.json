@@ -78,6 +78,7 @@
     "start-dev": "nodemon",
     "start": "node dist/server.js",
     "start:ts": "ts-node --esm src/server.ts",
+    "dev:ts": "nodemon --exec \"node --loader ts-node/esm src/server.js\"",
     "test-ci": "mocha --reporter spec --recursive --no-colors",
     "test-cov": "nyc --reporter=html --reporter=text --report-dir=./.nyc_output/coverage mocha --reporter spec --recursive",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" mocha --require @babel/register --reporter spec --recursive",

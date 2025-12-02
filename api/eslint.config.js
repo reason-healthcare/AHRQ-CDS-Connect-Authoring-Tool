@@ -7,6 +7,9 @@ const config = [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaVersion: 2022
+      },
       globals: {
         ...globals.es2015,
         ...globals.node,
