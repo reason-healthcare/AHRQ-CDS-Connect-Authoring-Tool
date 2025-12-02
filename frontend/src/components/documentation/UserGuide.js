@@ -2339,7 +2339,7 @@ const UserGuide = () => {
             <div>
               The detailed execution results popup shows the primary CQL from the artifact with the syntax highlighted.
               The results of executing each CQL statement in the artifact against the selected patient are displayed
-              preceded with the characters "==>". Results can include boolean values, numerical values, strings,
+              preceded with the characters {'"==>"'}. Results can include boolean values, numerical values, strings,
               quantities, codes, and FHIR object type and ID references.
             </div>
             <div>The detailed execution results can be closed using the "close" button at the bottom of the popup.</div>
