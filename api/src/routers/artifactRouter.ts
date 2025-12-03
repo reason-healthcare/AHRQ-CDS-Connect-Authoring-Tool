@@ -17,4 +17,3 @@ ArtifactRouter.route('/:artifact')
 ArtifactRouter.route('/:artifact/duplicate').post(artifact.duplicate as RequestHandler);
 
 export default ArtifactRouter;
-

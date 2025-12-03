@@ -15,4 +15,3 @@ ExternalCQLRouter.route('/details/:id').get(externalCQL.singleGet as RequestHand
 ExternalCQLRouter.route('/:id').delete(externalCQL.singleDelete as RequestHandler);
 
 export default ExternalCQLRouter;
-

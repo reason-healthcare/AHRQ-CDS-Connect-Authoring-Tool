@@ -13,4 +13,3 @@ QueryRouter.route('/operator').get(queryHandler.operatorQuery);
 QueryRouter.route('/resources/:resourceName').get(queryHandler.resourceQuery);
 
 export default QueryRouter;
-

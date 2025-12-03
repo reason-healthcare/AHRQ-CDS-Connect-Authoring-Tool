@@ -10,4 +10,3 @@ CQLRouter.route('/validate').post(cqlHandler.objToELM as RequestHandler);
 CQLRouter.route('/viewCql').post(cqlHandler.objToViewableCql as RequestHandler);
 
 export default CQLRouter;
-

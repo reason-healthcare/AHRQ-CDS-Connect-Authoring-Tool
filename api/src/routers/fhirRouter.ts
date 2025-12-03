@@ -12,4 +12,3 @@ FHIRRouter.route('/vs/:id').get(fhir.getValueSet);
 FHIRRouter.route('/code').get(fhir.getCode);
 
 export default FHIRRouter;
-
