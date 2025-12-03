@@ -1,24 +1,74 @@
 import fs from 'fs';
 import _ from 'lodash';
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
+import fhir4 from 'fhir/r4';
 
-import codeSystems from '../data/codeSystems.ts';
+import codeSystems from '../data/codeSystems.js';
 import contextMappings from '../data/contextMappings.js';
 
 // Import JSON files from frontend using fs.readFileSync
 const nuccProviderTaxonomy = JSON.parse(
-  fs.readFileSync(new URL('../../../frontend/src/data/nuccProviderTaxonomyV20.0.json', import.meta.url))
-); // http://nucc.org/
+  fs.readFileSync(new URL('../../../frontend/src/data/nuccProviderTaxonomyV20.0.json', import.meta.url), 'utf-8')
+) as Array<{ Code: string; Classification: string; Specialization?: string }>; // http://nucc.org/
 const fhirWorkflowTaskCodes = JSON.parse(
-  fs.readFileSync(new URL('../../../frontend/src/data/fhirWorkflowTaskCodesV3.json', import.meta.url))
-); // https://terminology.hl7.org/1.0.0/ValueSet-v3-ActTaskCode.html
+  fs.readFileSync(new URL('../../../frontend/src/data/fhirWorkflowTaskCodesV3.json', import.meta.url), 'utf-8')
+) as Array<{ Code: string; Display: string }>; // https://terminology.hl7.org/1.0.0/ValueSet-v3-ActTaskCode.html
 const fhirClinicalVenueCodes = JSON.parse(
-  fs.readFileSync(new URL('../../../frontend/src/data/fhirClinicalVenueCodesV3.json', import.meta.url))
-); // https://terminology.hl7.org/1.0.0/ValueSet-v3-ServiceDeliveryLocationRoleType.html
+  fs.readFileSync(new URL('../../../frontend/src/data/fhirClinicalVenueCodesV3.json', import.meta.url), 'utf-8')
+) as Array<{ Code: string; Display: string }>; // https://terminology.hl7.org/1.0.0/ValueSet-v3-ServiceDeliveryLocationRoleType.html
 
-const Schema = mongoose.Schema;
+export interface IArtifact extends Document {
+  name?: string;
+  version?: string;
+  description?: string;
+  url?: string;
+  status?: string;
+  experimental?: boolean;
+  publisher?: string;
+  context?: Array<Record<string, unknown>>;
+  purpose?: string;
+  usage?: string;
+  copyright?: string;
+  approvalDate?: Date;
+  lastReviewDate?: Date;
+  effectivePeriod?: {
+    start?: Date;
+    end?: Date;
+  };
+  topic?: Array<{ system: string; code: string; other?: string }>;
+  author?: Array<Record<string, unknown>>;
+  reviewer?: Array<Record<string, unknown>>;
+  endorser?: Array<Record<string, unknown>>;
+  relatedArtifact?: Array<Record<string, unknown>>;
+  strengthOfRecommendation?: {
+    strengthOfRecommendation?: string;
+    system?: string;
+    code?: string;
+    other?: string;
+  };
+  qualityOfEvidence?: {
+    qualityOfEvidence?: string;
+    system?: string;
+    code?: string;
+    other?: string;
+  };
+  fhirVersion?: string;
+  expTreeInclude?: Record<string, unknown>;
+  expTreeExclude?: Record<string, unknown>;
+  recommendations?: Array<unknown>;
+  subpopulations?: Array<unknown>;
+  baseElements?: Array<unknown>;
+  parameters?: Array<unknown>;
+  errorStatement?: Record<string, unknown>;
+  user?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  toPublishableLibrary(): fhir4.Library;
+  mapContact(contactType: string): Array<{ name: string }> | undefined;
+  convertContext(): Array<fhir4.UsageContext | Record<string, unknown>> | undefined;
+}
 
-const ArtifactSchema = new Schema(
+const ArtifactSchema = new Schema<IArtifact>(
   {
     name: String,
     version: String,
@@ -60,9 +110,9 @@ const ArtifactSchema = new Schema(
 );
 
 //Convert the schema into an CPG Publishable Library JSON object
-ArtifactSchema.methods.toPublishableLibrary = function () {
+ArtifactSchema.methods.toPublishableLibrary = function (): fhir4.Library {
   //the ultimate value to return
-  let retVal = {};
+  const retVal: Record<string, unknown> = {};
 
   retVal['resourceType'] = 'Library';
 
@@ -73,7 +123,7 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
   ) {
     retVal['extension'] = [];
     if (this.strengthOfRecommendation && this.strengthOfRecommendation.strengthOfRecommendation) {
-      retVal['extension'].push({
+      (retVal['extension'] as Array<unknown>).push({
         url: 'http://hl7.org/fhir/StructureDefinition/cqf-strengthOfRecommendation',
         valueCodeableConcept: {
           coding: [
@@ -81,7 +131,7 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
               ? {
                   system:
                     this.strengthOfRecommendation.system !== 'Other'
-                      ? codeSystems.find(x => x.value === this.strengthOfRecommendation.system)['id']
+                      ? codeSystems.find(x => x.value === this.strengthOfRecommendation.system)?.['id']
                       : this.strengthOfRecommendation.other,
                   code: this.strengthOfRecommendation.code
                 }
@@ -94,7 +144,7 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
       });
     }
     if (this.qualityOfEvidence && this.qualityOfEvidence.qualityOfEvidence) {
-      retVal['extension'].push({
+      (retVal['extension'] as Array<unknown>).push({
         url: 'http://hl7.org/fhir/StructureDefinition/cqf-qualityOfEvidence',
         valueCodeableConcept: {
           coding: [
@@ -102,7 +152,7 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
               ? {
                   system:
                     this.qualityOfEvidence.system !== 'Other'
-                      ? codeSystems.find(x => x.value === this.qualityOfEvidence.system)['id']
+                      ? codeSystems.find(x => x.value === this.qualityOfEvidence.system)?.['id']
                       : this.qualityOfEvidence.other,
                   code: this.qualityOfEvidence.code
                 }
@@ -147,27 +197,31 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
     retVal['lastReviewDate'] = this.lastReviewDate.toISOString().split('T')[0];
   }
   //handle the effective period, which SHALL NOT have time as per the spec (similar to date fields above)
-  if (!_.matches(this.effectivePeriod, {})) {
+  if (this.effectivePeriod && !_.isMatch(this.effectivePeriod, {})) {
     retVal['effectivePeriod'] = {};
-    if (this.effectivePeriod.start) {
-      retVal['effectivePeriod']['start'] = this.effectivePeriod.start.toISOString().split('T')[0];
+    if (this.effectivePeriod?.start) {
+      (retVal['effectivePeriod'] as Record<string, unknown>)['start'] = this.effectivePeriod.start
+        .toISOString()
+        .split('T')[0];
     }
-    if (this.effectivePeriod.end) {
-      retVal['effectivePeriod']['end'] = this.effectivePeriod.end.toISOString().split('T')[0];
+    if (this.effectivePeriod?.end) {
+      (retVal['effectivePeriod'] as Record<string, unknown>)['end'] = this.effectivePeriod.end
+        .toISOString()
+        .split('T')[0];
     }
   }
   //handle the topic as a CodeableConcept
   if (this.topic && this.topic.length > 0) {
     //filter any null input
     retVal['topic'] = this.topic
-      .filter(function (t) {
+      .filter(function (t: { system: string; code: string; other?: string }) {
         return !(t.system === null);
       })
-      .map(function (t) {
+      .map(function (t: { system: string; code: string; other?: string }) {
         return {
           coding: [
             {
-              system: t.system !== 'Other' ? codeSystems.find(x => x.value === t.system)['id'] : t.other,
+              system: t.system !== 'Other' ? codeSystems.find(x => x.value === t.system)?.['id'] : t.other,
               code: t.code
             }
           ]
@@ -188,10 +242,10 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
   if (this.relatedArtifact && this.relatedArtifact.length > 0) {
     //remove any null fields
     retVal['relatedArtifact'] = this.relatedArtifact
-      .filter(function (artifact) {
+      .filter(function (artifact: Record<string, unknown>) {
         return !(artifact['relatedArtifactType'] === null);
       })
-      .map(function (artifact) {
+      .map(function (artifact: Record<string, unknown>) {
         return {
           type: artifact['relatedArtifactType'],
           display: artifact['description'],
@@ -204,51 +258,64 @@ ArtifactSchema.methods.toPublishableLibrary = function () {
 
   //remove any fields that have empty/null/undefined values
   //modified from: https://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
-  const removeEmpty = retVal =>
-    Object.keys(retVal).forEach(key => {
-      if (retVal[key] && typeof retVal[key] === 'object') removeEmpty(retVal[key]);
+  const removeEmpty = (obj: Record<string, unknown>): void => {
+    Object.keys(obj).forEach(key => {
+      if (obj[key] && typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+        removeEmpty(obj[key] as Record<string, unknown>);
+      }
       // recurse
-      else if (_.isEmpty(retVal[key]) || _.isUndefined(retVal[key]) || _.isNull(retVal[key])) delete retVal[key];
+      else if (_.isEmpty(obj[key]) || _.isUndefined(obj[key]) || _.isNull(obj[key])) {
+        delete obj[key];
+      }
     });
+  };
   removeEmpty(retVal);
-  return retVal;
+  return retVal as unknown as fhir4.Library;
 };
 
 //helper function to map contacts into CPG form.  used by toPublishableLibrary()
-ArtifactSchema.methods.mapContact = function (contactType) {
+ArtifactSchema.methods.mapContact = function (contactType: string): Array<{ name: string }> | undefined {
   if (this[contactType] && this[contactType].length > 0) {
     //remove any empty string contacts, then map the contacts
     return this[contactType]
-      .filter(function (ct) {
+      .filter(function (ct: Record<string, unknown>) {
         return ct[contactType] !== '';
       })
-      .map(function (contact) {
+      .map(function (contact: Record<string, unknown>): { name: string } | undefined {
         if (contact[contactType] !== '') {
-          return { name: contact[contactType] };
+          return { name: contact[contactType] as string };
         }
-      });
+        return undefined;
+      })
+      .filter((item: { name: string } | undefined): item is { name: string } => item !== undefined);
   }
+  return undefined;
 };
 
 //Handling context can be gnarly, so we're separating that into its own function
-ArtifactSchema.methods.convertContext = function () {
-  if (this.context.length > 0) {
+ArtifactSchema.methods.convertContext = function (): Array<fhir4.UsageContext> | undefined {
+  if (this.context && this.context.length > 0) {
+    const result = this.context;
     //filter out invalid inputs
     return this.context
-      .filter(function (ctx) {
+      .filter(function (ctx: Record<string, unknown>) {
         return !(
-          ctx[ctx['contextType']] === null ||
+          ctx[ctx['contextType'] as string] === null ||
           ctx['program'] === '' ||
           ctx['system'] === null ||
           ctx['ageRangeUnitOfTime'] === null
         );
       })
-      .map(function (context) {
-        let type = context['contextType'];
-        let ctxMap = contextMappings.find(x => x.type === type);
+      .map(function (context: Record<string, unknown>) {
+        const type = context['contextType'] as string;
+        const ctxMap = contextMappings.find((x: { type: string }) => x.type === type);
         //the object we'll build into CPG format
-        let tmpCtx = {};
-        let code, tax, display, workflowDef, venueDef;
+        let tmpCtx: Record<string, unknown> = {};
+        let code: string,
+          tax: { Code: string; Classification: string; Specialization?: string },
+          display: string,
+          workflowDef: { Code: string; Display: string },
+          venueDef: { Code: string; Display: string };
         switch (type) {
           case 'ageRange':
             tmpCtx = {
@@ -261,13 +328,13 @@ ArtifactSchema.methods.convertContext = function () {
                   value: new Number(context['ageRangeMin']),
                   unit: context['ageRangeUnitOfTime'],
                   system: 'http://unitsofmeasure.org',
-                  code: ctxMap['codes'][context['ageRangeUnitOfTime']]
+                  code: (ctxMap as { codes: Record<string, string> })['codes'][context['ageRangeUnitOfTime'] as string]
                 },
                 high: {
                   value: new Number(context['ageRangeMax']),
                   unit: context['ageRangeUnitOfTime'],
                   system: 'http://unitsofmeasure.org',
-                  code: ctxMap['codes'][context['ageRangeUnitOfTime']]
+                  code: (ctxMap as { codes: Record<string, string> })['codes'][context['ageRangeUnitOfTime'] as string]
                 }
               }
             };
@@ -283,20 +350,27 @@ ArtifactSchema.methods.convertContext = function () {
                   {
                     system:
                       context['system'] !== 'Other'
-                        ? codeSystems.find(x => x.value === context['system']).id
-                        : context['other'],
-                    code: context['code']
+                        ? codeSystems.find(x => x.value === context['system'])?.id
+                        : (context['other'] as string),
+                    code: context['code'] as string
                   }
                 ]
               }
             };
             break;
           case 'userType':
-            code = context['userType'].split('user-')[1];
-            tax = _.find(nuccProviderTaxonomy, { Code: code });
-            display = tax['Classification'];
-            if (!_.isEmpty(tax['Specialization'])) {
-              display = tax['Specialization'];
+            code = (context['userType'] as string).split('user-')[1];
+            const foundTax = _.find(nuccProviderTaxonomy, { Code: code }) as
+              | { Code: string; Classification: string; Specialization?: string }
+              | undefined;
+            if (foundTax) {
+              tax = foundTax;
+              display = tax['Classification'] || '';
+              if (!_.isEmpty(tax['Specialization'])) {
+                display = tax['Specialization'] || '';
+              }
+            } else {
+              display = '';
             }
             tmpCtx = {
               code: {
@@ -306,7 +380,7 @@ ArtifactSchema.methods.convertContext = function () {
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: ctxMap['system'],
+                    system: (ctxMap as { system: string })['system'],
                     code: code,
                     display: display
                   }
@@ -315,7 +389,7 @@ ArtifactSchema.methods.convertContext = function () {
             };
             break;
           case 'workflowSetting':
-            code = context['workflowSetting'];
+            code = context['workflowSetting'] as string;
             tmpCtx = {
               code: {
                 system: 'http://terminology.hl7.org/CodeSystem/usage-context-type',
@@ -324,17 +398,19 @@ ArtifactSchema.methods.convertContext = function () {
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: ctxMap['system'],
-                    code: ctxMap[code]['code'],
-                    display: ctxMap[code]['display']
+                    system: (ctxMap as { system: string })['system'],
+                    code:
+                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[code]?.['code'] || '',
+                    display:
+                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[code]?.['display'] || ''
                   }
                 ]
               }
             };
             break;
           case 'workflowTask':
-            code = context['workflowTask'];
-            workflowDef = _.find(fhirWorkflowTaskCodes, { Code: code });
+            code = context['workflowTask'] as string;
+            workflowDef = _.find(fhirWorkflowTaskCodes, { Code: code }) as { Code: string; Display: string };
             tmpCtx = {
               code: {
                 system: 'http://terminology.hl7.org/CodeSystem/usage-context-type',
@@ -343,7 +419,7 @@ ArtifactSchema.methods.convertContext = function () {
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: ctxMap['system'],
+                    system: (ctxMap as { system: string })['system'],
                     code: workflowDef['Code'],
                     display: workflowDef['Display']
                   }
@@ -352,8 +428,8 @@ ArtifactSchema.methods.convertContext = function () {
             };
             break;
           case 'clinicalVenue':
-            code = context['clinicalVenue'];
-            venueDef = _.find(fhirClinicalVenueCodes, { Code: code });
+            code = context['clinicalVenue'] as string;
+            venueDef = _.find(fhirClinicalVenueCodes, { Code: code }) as { Code: string; Display: string };
             tmpCtx = {
               code: {
                 system: 'http://terminology.hl7.org/CodeSystem/usage-context-type',
@@ -362,7 +438,7 @@ ArtifactSchema.methods.convertContext = function () {
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: ctxMap['system'],
+                    system: (ctxMap as { system: string })['system'],
                     code: venueDef['Code'],
                     display: venueDef['Display']
                   }
@@ -381,9 +457,9 @@ ArtifactSchema.methods.convertContext = function () {
                   {
                     system:
                       context['system'] !== 'Other'
-                        ? codeSystems.find(x => x.value === context['system']).id
-                        : context['other'],
-                    code: context['code']
+                        ? codeSystems.find(x => x.value === context['system'])?.id
+                        : (context['other'] as string),
+                    code: context['code'] as string
                   }
                 ]
               }
@@ -396,7 +472,7 @@ ArtifactSchema.methods.convertContext = function () {
                 code: 'program'
               },
               valueCodeableConcept: {
-                text: context['program']
+                text: context['program'] as string
               }
             };
             break;
@@ -412,16 +488,25 @@ ArtifactSchema.methods.convertContext = function () {
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: ctxMap['system'],
-                    code: ctxMap[context[type]]['code'],
-                    display: ctxMap[context[type]]['display']
+                    system: (ctxMap as { system: string })['system'],
+                    code:
+                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[
+                        context[type] as string
+                      ]?.['code'] || '',
+                    display:
+                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[
+                        context[type] as string
+                      ]?.['display'] || ''
                   }
                 ]
               }
             };
         }
-        return tmpCtx;
+        return tmpCtx as unknown as fhir4.UsageContext;
       });
+    return result;
   }
+  return undefined;
 };
-export default mongoose.model('Artifact', ArtifactSchema);
+
+export default mongoose.model<IArtifact>('Artifact', ArtifactSchema);

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import unzipper from 'unzipper';
-import CQLLibrary from '../models/cqlLibrary.js';
-import Artifact from '../models/artifact.js';
+import CQLLibrary from '../models/cqlLibrary.ts';
+import Artifact from '../models/artifact.ts';
 import * as cqlHandler from '../handlers/cqlHandler.js';
 import { sendUnauthorized } from './common.ts';
 

@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-import Artifact from '../../src/models/artifact.js';
+import Artifact from '../../src/models/artifact.ts';
 
 // JSON imports will be handled dynamically in the tests
 import { importChaiExpect } from '../utils.js';

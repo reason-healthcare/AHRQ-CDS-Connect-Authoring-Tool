@@ -5,7 +5,6 @@
   "homepage": "https://github.com/HL7-Quality/cds-connect-authoring-tool",
   "license": "Apache-2.0",
   "dependencies": {
-    "@types/fhir": "^3.0.2",
     "antlr4": "4.13.2",
     "archiver": "^7.0.1",
     "axios": "^1.11.0",
@@ -42,6 +41,7 @@
     "@types/busboy": "^1.5.4",
     "@types/convict": "^6.1.6",
     "@types/express": "^4.17.21",
+    "@types/fhir": "^0.0.41",
     "@types/lodash": "^4.17.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.14.12",

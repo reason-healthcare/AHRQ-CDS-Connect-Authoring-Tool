@@ -6,7 +6,7 @@ const sandbox = sinon.createSandbox();
 const { replace, mock, fake } = sandbox;
 
 import { setupExpressApp, importChaiExpect } from '../utils.js';
-import Artifact from '../../src/models/artifact.js';
+import Artifact from '../../src/models/artifact.ts';
 import CQLLibrary from '../../src/models/cqlLibrary.js';
 
 describe('Route: /authoring/api/artifacts/', () => {

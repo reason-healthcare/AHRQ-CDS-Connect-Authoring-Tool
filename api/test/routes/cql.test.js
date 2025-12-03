@@ -3,7 +3,7 @@ import path from 'path';
 import unzipper from 'unzipper';
 import request from 'supertest';
 import sinon from 'sinon';
-import Artifact from '../../src/models/artifact.js';
+import Artifact from '../../src/models/artifact.ts';
 import CQLLibrary from '../../src/models/cqlLibrary.js';
 import cqlHandler from '../../src/handlers/cqlHandler.js';
 import { expect } from 'chai';

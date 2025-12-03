@@ -1,5 +1,5 @@
 import modifiers from '../data/modifiers.ts';
-import CQLLibrary from '../models/cqlLibrary.js';
+import CQLLibrary from '../models/cqlLibrary.ts';
 import { sendUnauthorized } from './common.ts';
 
 export default {

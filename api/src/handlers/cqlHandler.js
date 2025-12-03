@@ -11,8 +11,8 @@ import FormData from 'form-data';
 import busboy from 'busboy';
 
 import config from '../config.ts';
-import Artifact from '../models/artifact.js';
-import CQLLibrary from '../models/cqlLibrary.js';
+import Artifact from '../models/artifact.ts';
+import CQLLibrary from '../models/cqlLibrary.ts';
 import exportCQL from '../cql-merge/export/exportCQL.js';
 import importCQL from '../cql-merge/import/importCQL.js';
 import RawCQL from '../cql-merge/utils/RawCQL.js';

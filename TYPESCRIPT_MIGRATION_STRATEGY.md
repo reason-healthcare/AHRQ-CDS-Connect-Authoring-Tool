@@ -151,6 +151,20 @@ Convert [file] to TypeScript:
 - `api/src/models/patient.js` → `patient.ts`
 - `api/src/models/userSettings.js` → `userSettings.ts`
 
+**Status**: ✅ **COMPLETE** (Commit: pending)
+- Converted all 4 Mongoose models to TypeScript with proper interfaces
+- Created `IArtifact`, `ICQLLibrary`, `IPatient`, `IUserSettings` interfaces extending `Document`
+- Typed all schema fields and methods
+- Updated to use `@types/fhir@^0.0.41` which provides `fhir4` namespace via `fhir/r4` import
+- Used `fhir4.Library`, `fhir4.Patient`, `fhir4.UsageContext` for FHIR R4 types
+- Fixed method signatures for `toPublishableLibrary()`, `mapContact()`, and `convertContext()`
+- Updated all imports in handlers and tests to use `.ts` extensions
+- Fixed `_.matches` to `_.isMatch` for proper boolean comparison
+- Added `@types/fhir@^0.0.41` to frontend devDependencies
+- Fixed frontend installation by adding TypeScript override in package.json
+- All tests passing (249 passing, 5 pending)
+- Linting and formatting pass
+
 **Pattern to apply:**
 
 ```typescript
