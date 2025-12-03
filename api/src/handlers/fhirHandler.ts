@@ -1,11 +1,13 @@
+import { Request, Response } from 'express';
 import FHIRClient from '../vsac/FHIRClient.js';
 import auth from 'basic-auth';
-import { sendUnauthorized } from './common.ts';
+import { sendUnauthorized } from './common.js';
 
-function login(req, res) {
+function login(req: Request, res: Response): void {
   const user = auth(req);
   if (user == null) {
-    return sendUnauthorized(res);
+    sendUnauthorized(res);
+    return;
   }
 
   // Since NLM uses basic auth, try to get one value set with username/password. Success means correct credentials.
@@ -23,10 +25,11 @@ function login(req, res) {
     });
 }
 
-function getValueSet(req, res) {
+function getValueSet(req: Request, res: Response): void {
   const user = auth(req);
   if (user == null) {
-    return sendUnauthorized(res);
+    sendUnauthorized(res);
+    return;
   }
   const id = req.params.id;
   FHIRClient.getValueSet(id, user.name, user.pass)
@@ -38,12 +41,13 @@ function getValueSet(req, res) {
     });
 }
 
-function searchForValueSets(req, res) {
+function searchForValueSets(req: Request, res: Response): void {
   const user = auth(req);
   if (user == null) {
-    return sendUnauthorized(res);
+    sendUnauthorized(res);
+    return;
   }
-  const keyword = req.query.keyword;
+  const keyword = req.query.keyword as string;
   FHIRClient.searchForValueSets(keyword, user.name, user.pass)
     .then(t => {
       res.json(t);
@@ -53,13 +57,14 @@ function searchForValueSets(req, res) {
     });
 }
 
-function getCode(req, res) {
+function getCode(req: Request, res: Response): void {
   const user = auth(req);
   if (user == null) {
-    return sendUnauthorized(res);
+    sendUnauthorized(res);
+    return;
   }
-  const code = req.query.code;
-  const system = req.query.system;
+  const code = req.query.code as string;
+  const system = req.query.system as string;
   FHIRClient.getCode(code, system, user.name, user.pass)
     .then(t => {
       res.json(t);
