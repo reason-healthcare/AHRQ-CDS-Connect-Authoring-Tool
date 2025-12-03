@@ -151,7 +151,7 @@ Convert [file] to TypeScript:
 - `api/src/models/patient.js` → `patient.ts`
 - `api/src/models/userSettings.js` → `userSettings.ts`
 
-**Status**: ✅ **COMPLETE** (Commit: pending)
+**Status**: ✅ **COMPLETE** (Commit: 11e589f9)
 - Converted all 4 Mongoose models to TypeScript with proper interfaces
 - Created `IArtifact`, `ICQLLibrary`, `IPatient`, `IUserSettings` interfaces extending `Document`
 - Typed all schema fields and methods
@@ -161,7 +161,7 @@ Convert [file] to TypeScript:
 - Updated all imports in handlers and tests to use `.ts` extensions
 - Fixed `_.matches` to `_.isMatch` for proper boolean comparison
 - Added `@types/fhir@^0.0.41` to frontend devDependencies
-- Fixed frontend installation by adding TypeScript override in package.json
+- Fixed frontend installation by adding TypeScript override in package.json (resolves react-scripts peer dependency conflict)
 - All tests passing (249 passing, 5 pending)
 - Linting and formatting pass
 
