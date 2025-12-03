@@ -224,7 +224,9 @@ export async function getValueSet(
 
 ### 2.4 Authentication (Day 6)
 
-**Files:**
+**Status**: ⏭️ **SKIPPED** - Auth method is subject to change (likely migrating to OAuth), so authentication files will be migrated later when the new auth system is implemented.
+
+**Files (deferred):**
 
 - `api/src/auth/configPassport.js` → `configPassport.ts`
 - `api/src/auth/localAuthUsers.js` → `localAuthUsers.ts`
