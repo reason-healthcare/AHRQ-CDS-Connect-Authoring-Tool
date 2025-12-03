@@ -1,13 +1,15 @@
+import { CQLLibraryGroup } from '../import/CQLLibraryGroup.js';
+
 class CQLExporter {
-  export(libraryGroup) {
-    const functions = new Map();
-    const concepts = new Map();
-    const codes = new Map();
-    const codesystems = new Map();
+  export(libraryGroup: CQLLibraryGroup): string {
+    const functions = new Map<string, string>();
+    const concepts = new Map<string, string>();
+    const codes = new Map<string, string>();
+    const codesystems = new Map<string, string>();
     libraryGroup.dependencies.forEach(dependency => {
       // Collect all functions needed from dependencies
       dependency.rawFunctions.forEach((functionText, functionName) => {
-        const localIdentifier = libraryGroup.library.includeNames.get(dependency.libraryName);
+        const localIdentifier = libraryGroup.library.includeNames.get(dependency.libraryName || '');
         const localFunctionName = `${localIdentifier}.${functionName}`;
         const localFunctionRegex = new RegExp(`${localFunctionName}\\s*\\(`, 'g');
 
@@ -21,7 +23,7 @@ class CQLExporter {
       // Collect all functions needed from functions
       // TODO: This only goes one level deep, but we want it to be deeply recursive
       dependency.rawFunctions.forEach((functionText, functionName) => {
-        const localIdentifier = libraryGroup.library.includeNames.get(dependency.libraryName);
+        const localIdentifier = libraryGroup.library.includeNames.get(dependency.libraryName || '');
         const localFunctionName = `${localIdentifier}.${functionName}`;
         functions.forEach(outerFunctionText => {
           if (new RegExp(`${functionName}\\s*\\(`, 'g').test(outerFunctionText)) {
@@ -69,7 +71,7 @@ class CQLExporter {
 
     // Replace namespaced function names with local names
     Array.from(functions.keys()).forEach(functionName => {
-      const functionNameWithoutNamespace = functionName.split('.').pop();
+      const functionNameWithoutNamespace = functionName.split('.').pop() || '';
       output = output.replace(new RegExp(functionName, 'g'), functionNameWithoutNamespace);
     });
 

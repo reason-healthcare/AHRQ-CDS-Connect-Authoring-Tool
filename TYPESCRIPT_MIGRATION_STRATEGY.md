@@ -340,19 +340,37 @@ export default router;
 
 ### 3.1 CQL Merge & Import (Day 11)
 
+**Status**: ✅ **COMPLETE**
+
 **Files in:**
 
-- `api/src/cql-merge/import/` - CQL parsing logic
-- `api/src/cql-merge/export/` - CQL export logic
+- `api/src/cql-merge/import/` - CQL parsing logic ✅
+- `api/src/cql-merge/export/` - CQL export logic ✅
+- `api/src/cql-merge/utils/` - Utility files ✅
 
-**Note**: ANTLR-generated files may remain JavaScript or need special handling
+**Note**: ANTLR-generated files (grammar-1.3 and grammar-1.5 directories) remain JavaScript as they are auto-generated
+
+**Completion Notes:**
+- ✅ Converted all non-ANTLR files to TypeScript
+- ✅ Added proper types for ANTLR contexts (using `any` with eslint-disable comments)
+- ✅ Created type-safe interfaces for CQLLibrary, CQLLibraryGroup, RawCQL
+- ✅ All tests passing, type checking passing
 
 ### 3.2 Migrations (Day 11)
 
+**Status**: ✅ **COMPLETE**
+
 **Files:**
 
-- `api/src/migrations/migrate-mongo.js` → `migrate-mongo.ts`
-- Migration scripts in `api/src/migrations/migrations/`
+- `api/src/migrations/migrate-mongo.js` → `migrate-mongo.ts` ✅
+- `api/src/migrations/migrate-mongo-config.js` → `migrate-mongo-config.ts` ✅
+- Migration scripts in `api/src/migrations/migrations/` - Remain JavaScript (dynamically loaded by migrate-mongo)
+
+**Completion Notes:**
+- ✅ Converted main migration files to TypeScript
+- ✅ Created type declaration file for `migrate-mongo` library
+- ✅ Migration scripts remain JavaScript as they're loaded dynamically at runtime
+- ✅ All tests passing, type checking passing
 
 ### 3.3 Backend Tests (Days 12-13)
 

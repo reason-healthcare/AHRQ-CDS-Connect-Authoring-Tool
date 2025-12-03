@@ -1,13 +1,13 @@
 // In this file you can configure migrate-mongo
 import path from 'path';
 import { fileURLToPath } from 'url';
-import config from '../config.ts';
+import config from '../config.js';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 const mmConfig = {
   mongodb: {
-    url: config.get('mongo.url'),
+    url: config.get('mongo.url') as string,
     options: {
       //   connectTimeoutMS: 3600000, // increase connection timeout to 1 hour
       //   socketTimeoutMS: 3600000, // increase socket timeout to 1 hour
