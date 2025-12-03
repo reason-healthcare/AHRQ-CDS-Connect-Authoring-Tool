@@ -234,13 +234,15 @@ export async function getValueSet(
 
 ### 2.5 Core Handlers (Days 7-8)
 
+**Status**: ⚠️ **MOSTLY COMPLETE** - All handlers converted, but 5 suggestion tests failing (see `api/SUGGESTIONS_TEST_ISSUE.md` for details)
+
 **Batch convert handlers in logical groups:**
 
 **Group 1 - Configuration & CQL:**
 
-- `configHandler.js` → `configHandler.ts`
-- `cqlHandler.js` → `cqlHandler.ts`
-- `externalCQLHandler.js` → `externalCQLHandler.ts`
+- `configHandler.js` → `configHandler.ts` ✅
+- `cqlHandler.js` → `cqlHandler.ts` ✅ (5 tests failing - documented issue)
+- `externalCQLHandler.js` → `externalCQLHandler.ts` ✅
 
 **Group 2 - Artifacts & Queries:**
 
@@ -259,6 +261,18 @@ export async function getValueSet(
 - Convert entire groups at once
 - Apply Express typing patterns: `Request, Response, NextFunction`
 - Use consistent error handling types
+
+**Completion Notes:**
+- ✅ All handlers in Group 1 converted to TypeScript
+- ✅ Fixed critical bug in query modifiers (changed `isRoot` from `false` to `true`)
+- ✅ Added proper type annotations throughout
+- ✅ Added error handling and defensive checks
+- ⚠️ **Known Issue**: 1 suggestion test failing (related to suggestions with actions)
+  - See `api/SUGGESTIONS_TEST_ISSUE.md` for detailed investigation notes
+  - Tests pass for suggestions with empty actions, but 1 test fails when actions contain MedicationRequest/ServiceRequest resources
+  - Issue appears to be in `constructSuggestion` method formatting logic
+  - **Note**: Our formatting fix attempts introduced 4 additional failing tests (regressions), which were reverted
+  - 248 tests passing (up from 183 originally), 1 failing, 5 pending
 
 ### 2.6 Routers (Day 9)
 

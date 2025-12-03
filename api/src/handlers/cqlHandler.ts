@@ -1617,7 +1617,7 @@ function applyModifiers(
               this.codeMap,
               this.conceptMap,
               this.resourceMap,
-              false,
+              true,
               index === 0
             );
             if (checkRulesResult) {
