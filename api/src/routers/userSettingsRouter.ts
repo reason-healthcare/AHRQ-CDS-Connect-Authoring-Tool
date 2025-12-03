@@ -7,3 +7,4 @@ const UserSettingsRouter = express.Router();
 UserSettingsRouter.route('/').get(settings.get).put(settings.put);
 
 export default UserSettingsRouter;
+

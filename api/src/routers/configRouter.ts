@@ -29,3 +29,4 @@ ConfigRouter.route('/query/resources/r4').get(config.getR4Resources);
 ConfigRouter.route('/query/resources/operators').get(config.getResourceOperators);
 
 export default ConfigRouter;
+

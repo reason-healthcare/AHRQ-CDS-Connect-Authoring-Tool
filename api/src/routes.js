@@ -1,14 +1,14 @@
-import artifactRouter from './routers/artifactRouter.js';
-import testingRouter from './routers/testingRouter.js';
-import externalCQLRouter from './routers/externalCQLRouter.js';
-import configRouter from './routers/configRouter.js';
-import cqlRouter from './routers/cqlRouter.js';
-import authRouter from './routers/authRouter.js';
-import fhirRouter from './routers/fhirRouter.js';
+import artifactRouter from './routers/artifactRouter.ts';
+import testingRouter from './routers/testingRouter.ts';
+import externalCQLRouter from './routers/externalCQLRouter.ts';
+import configRouter from './routers/configRouter.ts';
+import cqlRouter from './routers/cqlRouter.ts';
+import authRouter from './routers/authRouter.ts';
+import fhirRouter from './routers/fhirRouter.ts';
 import foreseeHandler from './handlers/foreseeHandler.js';
-import modifiersRouter from './routers/modifiersRouter.js';
-import queryRouter from './routers/queryRouter.js';
-import userSettingsRouter from './routers/userSettingsRouter.js';
+import modifiersRouter from './routers/modifiersRouter.ts';
+import queryRouter from './routers/queryRouter.ts';
+import userSettingsRouter from './routers/userSettingsRouter.ts';
 
 export default app => {
   // Routing for API check

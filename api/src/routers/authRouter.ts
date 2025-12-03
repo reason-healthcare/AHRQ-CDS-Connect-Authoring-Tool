@@ -10,3 +10,4 @@ AuthRouter.route('/logout').get(auth.logout);
 AuthRouter.route('/user').get(auth.currentUser);
 
 export default AuthRouter;
+

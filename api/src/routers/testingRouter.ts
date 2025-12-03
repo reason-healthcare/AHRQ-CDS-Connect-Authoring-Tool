@@ -10,3 +10,4 @@ TestingRouter.route('/').get(testing.allGet).post(testing.singlePost);
 TestingRouter.route('/:patient').get(testing.singleGet).delete(testing.singleDelete);
 
 export default TestingRouter;
+

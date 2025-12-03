@@ -6,3 +6,4 @@ const ModifiersRouter = express.Router();
 ModifiersRouter.route('/:artifact').get(modifiers.allGet);
 
 export default ModifiersRouter;
+
