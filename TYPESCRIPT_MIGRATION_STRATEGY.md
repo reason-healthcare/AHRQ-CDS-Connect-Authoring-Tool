@@ -75,7 +75,7 @@ npm install --save @types/fhir
 - Configure React JSX support
 - Set up path aliases if used
 
-**Status**: ✅ **COMPLETE** (Commit: pending)
+**Status**: ✅ **COMPLETE** (Commit: 032dff37)
 - Created `frontend/tsconfig.json` with React JSX support and path aliases
 - Removed `jsconfig.json` (Create React App requirement when using TypeScript)
 - Installed TypeScript and type definitions including `@types/fhir`
@@ -93,7 +93,7 @@ npm install --save @types/fhir
 - Configure nodemon/ts-node for backend development
 - Ensure frontend build process supports TypeScript
 
-**Status**: ✅ **COMPLETE** (Commit: pending)
+**Status**: ✅ **COMPLETE** (Commit: 64bad365)
 - Backend build script compiles TypeScript to `dist/` directory
 - Backend start script uses compiled output from `dist/`
 - Added `dev:ts` script for TypeScript development with ts-node
@@ -119,7 +119,7 @@ npm install --save @types/fhir
 - `api/src/data/modifiers.js` → `modifiers.ts`
 - `api/src/handlers/common.js` → `common.ts` - Shared handler utilities
 
-**Status**: ✅ **COMPLETE** (Commit: pending)
+**Status**: ✅ **COMPLETE** (Commit: 07569908)
 - Converted `config.js` to `config.ts` with proper types for convict configuration
 - Converted `codeSystems.js` to `codeSystems.ts` with `CodeSystem` interface
 - Converted `valueSets.js` to `valueSets.ts` with `ValueSetEntry` and `ValueSets` interfaces
@@ -234,7 +234,7 @@ export async function getValueSet(
 
 ### 2.5 Core Handlers (Days 7-8)
 
-**Status**: ✅ **COMPLETE** - All groups converted
+**Status**: ✅ **COMPLETE** - All groups converted (Commits: 7b3d2453 for Group 1, 66489703 for Groups 2 & 3)
 
 **Batch convert handlers in logical groups:**
 
@@ -278,7 +278,7 @@ export async function getValueSet(
 
 ### 2.6 Routers (Day 9)
 
-**Status**: ✅ **COMPLETE**
+**Status**: ✅ **COMPLETE** (Commit: 7c30e9d9)
 
 **Files:** All 10 files in `api/src/routers/` ✅
 
@@ -301,7 +301,7 @@ export default router;
 
 ### 2.7 Server Entry Point (Day 10)
 
-**Status**: ✅ **COMPLETE**
+**Status**: ✅ **COMPLETE** (Commit: 66489703)
 
 **Files:**
 
@@ -340,7 +340,7 @@ export default router;
 
 ### 3.1 CQL Merge & Import (Day 11)
 
-**Status**: ✅ **COMPLETE**
+**Status**: ✅ **COMPLETE** (Commit: 2341e216)
 
 **Files in:**
 
@@ -358,7 +358,7 @@ export default router;
 
 ### 3.2 Migrations (Day 11)
 
-**Status**: ✅ **COMPLETE**
+**Status**: ✅ **COMPLETE** (Commit: 2341e216)
 
 **Files:**
 
