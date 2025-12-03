@@ -1,20 +1,22 @@
+import { Response } from 'express';
 import _ from 'lodash';
+// @ts-ignore - unzipper doesn't have type definitions
 import unzipper from 'unzipper';
-import CQLLibrary from '../models/cqlLibrary.ts';
-import Artifact from '../models/artifact.ts';
+import CQLLibrary from '../models/cqlLibrary.js';
+import Artifact from '../models/artifact.js';
 import * as cqlHandler from '../handlers/cqlHandler.js';
-import { sendUnauthorized } from './common.ts';
+import { AuthenticatedRequest, sendUnauthorized } from './common.js';
 
-const supportedFHIRVersions = ['1.0.2', '3.0.0', '4.0.0', '4.0.1'];
+const supportedFHIRVersions: string[] = ['1.0.2', '3.0.0', '4.0.0', '4.0.1'];
 
-const authoringToolExports = [
+const authoringToolExports: Array<{ name: string; version: string }> = [
   { name: 'FHIRHelpers', version: '1.0.2' },
   { name: 'FHIRHelpers', version: '3.0.0' },
   { name: 'FHIRHelpers', version: '4.0.0' },
   { name: 'FHIRHelpers', version: '4.0.1' }
 ];
 
-const singularTypeMap = {
+const singularTypeMap: Record<string, string> = {
   Boolean: 'boolean',
   Code: 'system_code',
   Concept: 'system_concept',
@@ -38,7 +40,7 @@ const singularTypeMap = {
   Any: 'any'
 };
 
-const listTypeMap = {
+const listTypeMap: Record<string, string> = {
   Observation: 'list_of_observations',
   Condition: 'list_of_conditions',
   MedicationStatement: 'list_of_medication_statements',
@@ -62,14 +64,14 @@ const listTypeMap = {
   ServiceRequest: 'list_of_service_requests'
 };
 
-const intervalTypeMap = {
+const intervalTypeMap: Record<string, string> = {
   Integer: 'interval_of_integer',
   DateTime: 'interval_of_datetime',
   Decimal: 'interval_of_decimal',
   Quantity: 'interval_of_quantity'
 };
 
-const getTypeFromELMString = string => {
+const getTypeFromELMString = (string: string): { elmType: string; isValidType: boolean } => {
   const namespace = string.split('}')[0].substring(1);
   const elmType = string.substring(string.indexOf('}') + 1);
   const typesFromFHIR = [
@@ -91,12 +93,14 @@ const getTypeFromELMString = string => {
   return { elmType, isValidType };
 };
 
-const areChoicesKnownTypes = choices => {
+const areChoicesKnownTypes = (
+  choices: Array<{ type: string; name?: string }>
+): { allChoicesKnown: boolean; typesOfChoices: string[] } => {
   let allChoicesKnown = true;
-  const typesOfChoices = [];
+  const typesOfChoices: string[] = [];
   choices.forEach(choice => {
     if (choice.type === 'NamedTypeSpecifier') {
-      const { elmType, isValidType } = getTypeFromELMString(choice.name);
+      const { elmType, isValidType } = getTypeFromELMString(choice.name || '');
       const convertedType = isValidType ? singularTypeMap[elmType] : null;
       if (!convertedType) {
         allChoicesKnown = false;
@@ -114,21 +118,26 @@ const areChoicesKnownTypes = choices => {
   return { allChoicesKnown, typesOfChoices };
 };
 
-function calculateType(definition) {
-  let elmType, elmDisplay, isValidType;
+function calculateType(definition: Record<string, unknown>): { elmType: string; elmDisplay?: string } {
+  let elmType: string;
+  let elmDisplay: string | undefined;
+  let isValidType: boolean;
 
   if (definition.resultTypeName || definition.operandType) {
-    ({ elmType, isValidType } = getTypeFromELMString(definition.resultTypeName || definition.operandType));
+    ({ elmType, isValidType } = getTypeFromELMString((definition.resultTypeName || definition.operandType) as string));
     const convertedType = isValidType ? singularTypeMap[elmType] : null;
     if (!convertedType) elmDisplay = `Other (${elmType})`;
     if (elmType === 'MedicationRequest') elmDisplay = 'Medication Request';
     if (elmType === 'MedicationOrder') elmDisplay = 'Medication Order';
     elmType = convertedType ? convertedType : 'other';
   } else if (definition.resultTypeSpecifier || definition.operandTypeSpecifier) {
-    const typeSpecifier = definition.resultTypeSpecifier || definition.operandTypeSpecifier;
-    switch (typeSpecifier.type) {
+    const typeSpecifier = (definition.resultTypeSpecifier || definition.operandTypeSpecifier) as Record<
+      string,
+      unknown
+    >;
+    switch (typeSpecifier.type as string) {
       case 'NamedTypeSpecifier': {
-        ({ elmType, isValidType } = getTypeFromELMString(typeSpecifier.name));
+        ({ elmType, isValidType } = getTypeFromELMString(typeSpecifier.name as string));
         const convertedType = isValidType ? singularTypeMap[elmType] : null;
         if (!convertedType) elmDisplay = `Other (${elmType})`;
         if (elmType === 'MedicationRequest') elmDisplay = 'Medication Request';
@@ -137,33 +146,36 @@ function calculateType(definition) {
         break;
       }
       case 'IntervalTypeSpecifier': {
-        ({ elmType, isValidType } = getTypeFromELMString(typeSpecifier.pointType.name));
+        ({ elmType, isValidType } = getTypeFromELMString((typeSpecifier.pointType as { name: string }).name));
         const convertedType = isValidType ? intervalTypeMap[elmType] : null;
         if (!convertedType) elmDisplay = `Interval of Others (${elmType})`;
         elmType = convertedType ? convertedType : 'interval_of_other';
         break;
       }
       case 'ListTypeSpecifier': {
-        if (typeSpecifier.elementType.type === 'ChoiceTypeSpecifier') {
-          const { allChoicesKnown, typesOfChoices } = areChoicesKnownTypes(typeSpecifier.elementType.choice);
+        const elementType = typeSpecifier.elementType as Record<string, unknown>;
+        if (elementType.type === 'ChoiceTypeSpecifier') {
+          const { allChoicesKnown, typesOfChoices } = areChoicesKnownTypes(
+            (elementType.choice as Array<{ type: string; name?: string }>) || []
+          );
           elmType = allChoicesKnown ? 'list_of_any' : 'list_of_others';
           if (!allChoicesKnown) elmDisplay = `List of Others (${typesOfChoices.join(', ')})`;
           else elmDisplay = `List of Any (${typesOfChoices.join(', ')})`;
-        } else if (typeSpecifier.elementType.type === 'TupleTypeSpecifier') {
+        } else if (elementType.type === 'TupleTypeSpecifier') {
           elmType = 'list_of_others';
           elmDisplay = 'List of Others (Tuple)';
-        } else if (typeSpecifier.elementType.type === 'NamedTypeSpecifier') {
-          ({ elmType, isValidType } = getTypeFromELMString(typeSpecifier.elementType.name));
+        } else if (elementType.type === 'NamedTypeSpecifier') {
+          ({ elmType, isValidType } = getTypeFromELMString((elementType.name as string) || ''));
           const convertedType = isValidType ? listTypeMap[elmType] : null;
           if (!convertedType) elmDisplay = `List of Others (${elmType})`;
           if (elmType === 'MedicationRequest') elmDisplay = 'List of Medication Requests';
           if (elmType === 'MedicationOrder') elmDisplay = 'List of Medication Orders';
           if (elmType === 'ServiceRequest') elmDisplay = 'List of Service Requests';
           elmType = convertedType ? convertedType : 'list_of_others';
-        } else if (typeSpecifier.elementType.type === 'ListTypeSpecifier') {
+        } else if (elementType.type === 'ListTypeSpecifier') {
           elmType = 'list_of_others';
           elmDisplay = 'List of Lists';
-        } else if (typeSpecifier.elementType.type === 'IntervalTypeSpecifier') {
+        } else if (elementType.type === 'IntervalTypeSpecifier') {
           elmType = 'list_of_others';
           elmDisplay = 'List of Intervals';
         } else {
@@ -178,7 +190,9 @@ function calculateType(definition) {
         break;
       }
       case 'ChoiceTypeSpecifier': {
-        const { allChoicesKnown, typesOfChoices } = areChoicesKnownTypes(typeSpecifier.choice);
+        const { allChoicesKnown, typesOfChoices } = areChoicesKnownTypes(
+          (typeSpecifier.choice as Array<{ type: string; name?: string }>) || []
+        );
         elmType = allChoicesKnown ? 'any' : 'other';
         if (!allChoicesKnown) elmDisplay = `Other (Choice of ${typesOfChoices.join(', ')})`;
         break;
@@ -197,29 +211,33 @@ function calculateType(definition) {
   return { elmType, elmDisplay };
 }
 
-function mapTypes(definitions) {
+function mapTypes(definitions: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
   const mappedDefinitions = definitions;
   mappedDefinitions.map(definition => {
     const { elmType, elmDisplay } = calculateType(definition);
     definition.calculatedReturnType = elmType || 'other';
     definition.displayReturnType = elmDisplay;
 
-    if (definition.operand && definition.operand.length > 0) {
-      const argumentTypes = [];
-      definition.operand.forEach(operand => {
+    if (definition.operand && Array.isArray(definition.operand) && definition.operand.length > 0) {
+      const argumentTypes: Array<{ calculated: string; display?: string }> = [];
+      (definition.operand as Array<Record<string, unknown>>).forEach(operand => {
         const { elmType, elmDisplay } = calculateType(operand);
         argumentTypes.push({ calculated: elmType || 'other', display: elmDisplay });
       });
       definition.argumentTypes = argumentTypes;
       // The inputTypes should only be equivalent to the input type of the first argument
       // so that external CQL modifiers can use the element return type as this input
-      definition.inputTypes = definition.argumentTypes.length > 0 ? [definition.argumentTypes[0].calculated] : [];
+      const argTypes = definition.argumentTypes as Array<{ calculated: string }> | undefined;
+      definition.inputTypes = argTypes && argTypes.length > 0 ? [argTypes[0].calculated] : [];
     }
   });
   return mappedDefinitions;
 }
 
-function checkMatch(elmResults, files) {
+function checkMatch(
+  elmResults: { name: string; version: string },
+  files: Array<{ text: string }>
+): { text: string } | undefined {
   const libraryAndVersionRegex = /library\s+(([A-Za-z_][A-Za-z0-9_]*)|"(.+)")\s+version\s+'(.+)'/m;
   const fileForELMResult = files.find(file => {
     const matches = libraryAndVersionRegex.exec(file.text);
@@ -232,15 +250,16 @@ function checkMatch(elmResults, files) {
   return fileForELMResult;
 }
 
-const filterDefinition = def => def.name !== 'Patient' && def.accessLevel === 'Public';
+const filterDefinition = (def: Record<string, unknown>): boolean =>
+  (def.name as string) !== 'Patient' && (def.accessLevel as string) === 'Public';
 
-const filterCQLFiles = file => {
+const filterCQLFiles = (file: { path: string; type: string }): boolean => {
   const filePathArray = file.path.split('/');
   const fileName = filePathArray[filePathArray.length - 1];
   return file.type === 'File' && file.path.endsWith('.cql') && !fileName.startsWith('.');
 };
 
-function getCurrentFHIRVersion(libraries) {
+function getCurrentFHIRVersion(libraries: Array<{ fhirVersion?: string }>): string {
   let currentFHIRVersion = ''; // Empty string means no FHIR version set yet;
   libraries.forEach(lib => {
     if (lib.fhirVersion) currentFHIRVersion = lib.fhirVersion;
@@ -248,45 +267,73 @@ function getCurrentFHIRVersion(libraries) {
   return currentFHIRVersion;
 }
 
-const collectLibraryElementsFromElement = (element, libraryName, libraryElements, modifierElements) => {
+const collectLibraryElementsFromElement = (
+  element: Record<string, unknown>,
+  libraryName: string,
+  libraryElements: Array<Record<string, unknown>>,
+  modifierElements: Array<Record<string, unknown>>
+): void => {
   // Collect external CQL elements associated with this library
   if (element.type === 'externalCqlElement') {
-    const referenceField = element.fields.find(f => f.id === 'externalCqlReference');
-    if (_.get(referenceField, 'value.library') === libraryName) libraryElements.push(element);
+    const fields = (element.fields as Array<{ id: string; value?: Record<string, unknown> }>) || [];
+    const referenceField = fields.find((f: { id: string }) => f.id === 'externalCqlReference');
+    if (referenceField && _.get(referenceField, 'value.library') === libraryName) libraryElements.push(element);
   }
 
   // Collect any elements that have external CQL functions associated with this library.
-  if (element.modifiers) {
-    element.modifiers.forEach(modifier => {
+  const modifiers = (element.modifiers as Array<Record<string, unknown>>) || [];
+  if (modifiers.length > 0) {
+    modifiers.forEach((modifier: Record<string, unknown>) => {
       if (modifier.type === 'ExternalModifier' && modifier.libraryName === libraryName) modifierElements.push(element);
     });
   }
 };
 
-const collectLibraryElementsFromTree = (element, libraryName, libraryElements, modifierElements) => {
-  let children = element.childInstances ? element.childInstances : [];
-  children = children.map(child => {
+const collectLibraryElementsFromTree = (
+  element: Record<string, unknown>,
+  libraryName: string,
+  libraryElements: Array<Record<string, unknown>>,
+  modifierElements: Array<Record<string, unknown>>
+): Record<string, unknown> => {
+  let children = (element.childInstances as Array<Record<string, unknown>>) || [];
+  children = children.map((child: Record<string, unknown>) => {
     if (child.childInstances) {
       return collectLibraryElementsFromTree(child, libraryName, libraryElements, modifierElements);
     } else {
-      return collectLibraryElementsFromElement(child, libraryName, libraryElements, modifierElements);
+      collectLibraryElementsFromElement(child, libraryName, libraryElements, modifierElements);
+      return child;
     }
   });
   element.childInstances = children;
   return element;
 };
 
-const getExternalLibraryAndModifierElements = (artifact, libraryName) => {
-  const libraryElements = [];
-  const modifierElements = [];
-  collectLibraryElementsFromTree(artifact.expTreeInclude, libraryName, libraryElements, modifierElements);
-  collectLibraryElementsFromTree(artifact.expTreeExclude, libraryName, libraryElements, modifierElements);
-  artifact.subpopulations.forEach(subpopulation => {
-    if (!subpopulation.special) {
-      collectLibraryElementsFromTree(subpopulation, libraryName, libraryElements, modifierElements);
+const getExternalLibraryAndModifierElements = (
+  artifact: Record<string, unknown>,
+  libraryName: string
+): { libraryElements: Array<Record<string, unknown>>; modifierElements: Array<Record<string, unknown>> } => {
+  const libraryElements: Array<Record<string, unknown>> = [];
+  const modifierElements: Array<Record<string, unknown>> = [];
+  collectLibraryElementsFromTree(
+    artifact.expTreeInclude as Record<string, unknown>,
+    libraryName,
+    libraryElements,
+    modifierElements
+  );
+  collectLibraryElementsFromTree(
+    artifact.expTreeExclude as Record<string, unknown>,
+    libraryName,
+    libraryElements,
+    modifierElements
+  );
+  ((artifact.subpopulations as Array<Record<string, unknown>>) || []).forEach(
+    (subpopulation: Record<string, unknown>) => {
+      if (!(subpopulation.special as boolean | undefined)) {
+        collectLibraryElementsFromTree(subpopulation, libraryName, libraryElements, modifierElements);
+      }
     }
-  });
-  artifact.baseElements.forEach(baseElement => {
+  );
+  ((artifact.baseElements as Array<Record<string, unknown>>) || []).forEach((baseElement: Record<string, unknown>) => {
     if (baseElement.childInstances) {
       collectLibraryElementsFromTree(baseElement, libraryName, libraryElements, modifierElements);
     } else {
@@ -296,40 +343,48 @@ const getExternalLibraryAndModifierElements = (artifact, libraryName) => {
   return { libraryElements, modifierElements };
 };
 
-const shouldLibraryBeUpdated = (library, artifact) => {
-  const statementReturnTypes = {};
-  const elementReturnTypes = {};
-  const statementArgs = {};
-  const elementArgs = {};
+const shouldLibraryBeUpdated = (library: Record<string, unknown>, artifact: Record<string, unknown>): boolean => {
+  const statementReturnTypes: Record<string, unknown> = {};
+  const elementReturnTypes: Record<string, unknown> = {};
+  const statementArgs: Record<string, unknown> = {};
+  const elementArgs: Record<string, unknown> = {};
   // In this situation, definitions and parameters behave identically, so they are bucketed together
-  library.details.definitions.concat(library.details.parameters).forEach(def => {
-    statementReturnTypes[def.name] = def.calculatedReturnType;
+  const libraryDetails = library.details as {
+    definitions?: Array<Record<string, unknown>>;
+    parameters?: Array<Record<string, unknown>>;
+    functions?: Array<Record<string, unknown>>;
+  };
+  (libraryDetails.definitions || []).concat(libraryDetails.parameters || []).forEach((def: Record<string, unknown>) => {
+    statementReturnTypes[def.name as string] = def.calculatedReturnType;
   });
 
   // The prefix for functions is added to delineate names from definitions, since both can have the
   // same name legally in CQL
-  library.details.functions.forEach(func => {
+  (libraryDetails.functions || []).forEach((func: Record<string, unknown>) => {
     statementReturnTypes[`func:${func.name}`] = func.calculatedReturnType;
     statementArgs[`func:${func.name}`] = func.operand;
   });
 
-  const { libraryElements, modifierElements } = getExternalLibraryAndModifierElements(artifact, library.name);
+  const { libraryElements, modifierElements } = getExternalLibraryAndModifierElements(artifact, library.name as string);
 
   // It's possible in the following calculation for elementReturnTypes and elementArgs that some of the fields
   // may be overwritten, but this is okay because all instances that we collect will be identical within the
   // same artifact
-  libraryElements.forEach(el => {
-    const referenceField = el.fields.find(f => f.id === 'externalCqlReference');
-    const referenceFieldValueElement = referenceField.value.element;
-    if (el.template === 'GenericFunction') {
-      elementReturnTypes[`func:${referenceFieldValueElement}`] = el.returnType;
-      elementArgs[`func:${referenceFieldValueElement}`] = referenceField.value.arguments;
-    } else {
-      elementReturnTypes[referenceFieldValueElement] = el.returnType;
+  libraryElements.forEach((el: Record<string, unknown>) => {
+    const fields = (el.fields as Array<{ id: string; value?: Record<string, unknown> }>) || [];
+    const referenceField = fields.find((f: { id: string }) => f.id === 'externalCqlReference');
+    if (referenceField && referenceField.value) {
+      const referenceFieldValueElement = referenceField.value.element as string;
+      if (el.template === 'GenericFunction') {
+        elementReturnTypes[`func:${referenceFieldValueElement}`] = el.returnType;
+        elementArgs[`func:${referenceFieldValueElement}`] = referenceField.value.arguments;
+      } else {
+        elementReturnTypes[referenceFieldValueElement] = el.returnType;
+      }
     }
   });
-  modifierElements.forEach(el => {
-    el.modifiers.forEach(mod => {
+  modifierElements.forEach((el: Record<string, unknown>) => {
+    ((el.modifiers as Array<Record<string, unknown>>) || []).forEach((mod: Record<string, unknown>) => {
       if (mod.type === 'ExternalModifier') {
         elementReturnTypes[`func:${mod.functionName}`] = mod.returnType;
         elementArgs[`func:${mod.functionName}`] = mod.arguments;
@@ -341,23 +396,23 @@ const shouldLibraryBeUpdated = (library, artifact) => {
   // artifact is using these contents, we cannot update it and we shouldn't make any upload/update
   let returnTypesMatch = true;
   let argsMatch = true;
-  const deleteNestedMetadataProps = obj => {
+  const deleteNestedMetadataProps = (obj: Record<string, unknown>): Record<string, unknown> => {
     for (const prop in obj) {
       // These fields are not useful for comparison and can cause false differences between
       // data since they are only for metadata
       if (['annotation', 'localId', 'locator'].includes(prop)) {
         delete obj[prop];
-      } else if (typeof obj[prop] === 'object') {
-        deleteNestedMetadataProps(obj[prop]);
+      } else if (typeof obj[prop] === 'object' && obj[prop] !== null) {
+        deleteNestedMetadataProps(obj[prop] as Record<string, unknown>);
       }
     }
     return obj;
   };
 
-  Object.keys(elementReturnTypes).forEach(key => {
+  Object.keys(elementReturnTypes).forEach((key: string) => {
     returnTypesMatch = returnTypesMatch && statementReturnTypes[key] === elementReturnTypes[key];
-    const statementArgsToMatch = deleteNestedMetadataProps(_.cloneDeep(statementArgs[key]));
-    const elementArgsToMatch = deleteNestedMetadataProps(_.cloneDeep(elementArgs[key]));
+    const statementArgsToMatch = deleteNestedMetadataProps(_.cloneDeep(statementArgs[key]) as Record<string, unknown>);
+    const elementArgsToMatch = deleteNestedMetadataProps(_.cloneDeep(elementArgs[key]) as Record<string, unknown>);
     argsMatch = argsMatch && _.isEqual(statementArgsToMatch, elementArgsToMatch);
   });
 
@@ -365,7 +420,7 @@ const shouldLibraryBeUpdated = (library, artifact) => {
 };
 
 // Get all libraries for a given artifact
-async function allGet(req, res) {
+async function allGet(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     try {
       const libraries = await CQLLibrary.find({ user: req.user.uid, linkedArtifactId: req.params.artifactId }).exec();
@@ -379,7 +434,7 @@ async function allGet(req, res) {
 }
 
 // Get a single external CQL library
-async function singleGet(req, res) {
+async function singleGet(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const { id } = req.params;
     try {
@@ -393,40 +448,53 @@ async function singleGet(req, res) {
   }
 }
 
-function parseELMFiles(elmFiles, artifactId, userId, files) {
-  const elmResultsToSave = [];
-  let elmErrors = [];
+function parseELMFiles(
+  elmFiles: Array<{ content: string; name?: string }>,
+  artifactId: string,
+  userId: string,
+  files: Array<{ text: string; filename?: string }>
+): { elmErrors: Array<unknown>; elmResultsToSave: Array<Record<string, unknown>>; notFHIR: boolean } {
+  const elmResultsToSave: Array<Record<string, unknown>> = [];
+  let elmErrors: Array<Record<string, unknown>> = [];
   let notFHIR = false;
   for (const file of elmFiles) {
-    let elmResults = {
+    let elmResults: Record<string, unknown> = {
       linkedArtifactId: artifactId,
       user: userId
     };
-    const parsedContent = JSON.parse(file.content);
-    const annotations = _.get(parsedContent, 'library.annotation', []);
-    elmErrors = elmErrors.concat(annotations.filter(a => a.errorSeverity === 'error'));
+    const parsedContent = JSON.parse(file.content) as Record<string, unknown>;
+    const annotations = (_.get(parsedContent, 'library.annotation', []) as Array<Record<string, unknown>>) || [];
+    elmErrors = elmErrors.concat(annotations.filter((a: Record<string, unknown>) => a.errorSeverity === 'error'));
 
-    const { library } = parsedContent;
-    elmResults.name = library.identifier.id || '';
-    elmResults.version = library.identifier.version || '';
+    const library = parsedContent.library as Record<string, unknown>;
+    const identifier = (library.identifier as { id?: string; version?: string }) || {};
+    elmResults.name = identifier.id || '';
+    elmResults.version = identifier.version || '';
 
-    const fileForELMResult = checkMatch(elmResults, files);
+    const fileForELMResult = checkMatch(elmResults as { name: string; version: string }, files);
 
     // Make sure there is no data model that isn't default System or FHIR.
     // If there is, we can break since none of this will be uploaded.
-    const elmDefs = _.get(library, 'usings.def', []);
-    notFHIR = elmDefs.some(def => !['System', 'FHIR'].includes(def.localIdentifier));
+    const elmDefs = (_.get(library, 'usings.def', []) as Array<Record<string, unknown>>) || [];
+    notFHIR = elmDefs.some(
+      (def: Record<string, unknown>) => !['System', 'FHIR'].includes(def.localIdentifier as string)
+    );
     if (notFHIR) break;
 
     // Find FHIR version used by library
-    const fhirDef = _.find(elmDefs, { localIdentifier: 'FHIR' });
-    elmResults.fhirVersion = _.get(fhirDef, 'version', '');
+    const fhirDef = _.find(elmDefs, { localIdentifier: 'FHIR' }) as { version?: string } | undefined;
+    elmResults.fhirVersion = fhirDef?.version || '';
 
-    const details = {};
+    const details: Record<string, unknown> = {};
     details.cqlFileText = fileForELMResult ? fileForELMResult.text : '';
-    details.fileName = fileForELMResult ? fileForELMResult.filename : '';
-    let elmParameters = _.get(library, 'parameters.def', []).filter(filterDefinition);
-    let elmDefinitions = _.get(library, 'statements.def', []).filter(filterDefinition);
+    const fileForELMResultWithFilename = fileForELMResult as { text: string; filename?: string } | undefined;
+    details.fileName = fileForELMResultWithFilename ? fileForELMResultWithFilename.filename || '' : '';
+    let elmParameters = ((_.get(library, 'parameters.def', []) as Array<Record<string, unknown>>) || []).filter(
+      filterDefinition
+    );
+    let elmDefinitions = ((_.get(library, 'statements.def', []) as Array<Record<string, unknown>>) || []).filter(
+      filterDefinition
+    );
     const allowedAttributes = [
       'accessLevel',
       'name',
@@ -436,18 +504,18 @@ function parseELMFiles(elmFiles, artifactId, userId, files) {
       'resultTypeSpecifier',
       'operand'
     ];
-    elmParameters = elmParameters.map(def => {
+    elmParameters = elmParameters.map((def: Record<string, unknown>) => {
       return _.pick(def, allowedAttributes);
     });
-    elmDefinitions = elmDefinitions.map(def => {
+    elmDefinitions = elmDefinitions.map((def: Record<string, unknown>) => {
       return _.pick(def, allowedAttributes);
     });
-    const defineStatements = elmDefinitions.filter(def => def.type !== 'FunctionDef');
-    const functionStatements = elmDefinitions.filter(def => def.type === 'FunctionDef');
+    const defineStatements = elmDefinitions.filter((def: Record<string, unknown>) => def.type !== 'FunctionDef');
+    const functionStatements = elmDefinitions.filter((def: Record<string, unknown>) => def.type === 'FunctionDef');
     details.parameters = mapTypes(elmParameters);
     details.definitions = mapTypes(defineStatements);
     details.functions = mapTypes(functionStatements);
-    const fileDependencies = _.get(library, 'includes.def', []);
+    const fileDependencies = (_.get(library, 'includes.def', []) as Array<unknown>) || [];
     details.dependencies = fileDependencies;
     elmResults.details = details;
     elmResultsToSave.push(elmResults);
@@ -456,7 +524,7 @@ function parseELMFiles(elmFiles, artifactId, userId, files) {
   return { elmErrors, elmResultsToSave, notFHIR };
 }
 
-function doesUploadedLibraryMatchArtifactName(libraryName, artifactName) {
+function doesUploadedLibraryMatchArtifactName(libraryName: string, artifactName: string): boolean {
   //the artifact may have spaces, which will be replace by a '-' upon export
   //therefore we will compare the uploaded library with a modified artifact name
   let tmpArtifactName = artifactName.replace(/\s/g, '-');
@@ -466,7 +534,7 @@ function doesUploadedLibraryMatchArtifactName(libraryName, artifactName) {
 }
 
 // Post a single external CQL library
-function singlePost(req, res) {
+function singlePost(req: AuthenticatedRequest, res: Response): void {
   if (req.user) {
     const { cqlFileName, cqlFileContent, fileType, artifact } = req.body.library;
     const artifactId = artifact._id;
@@ -477,14 +545,16 @@ function singlePost(req, res) {
 
     if (fileType === 'application/zip') {
       unzipper.Open.buffer(decodedBuffer)
-        .then(async directory => {
+        .then(async (directory: { files: Array<{ path: string; type: string; buffer: () => Promise<Buffer> }> }) => {
           const files = await Promise.all(
-            directory.files.filter(filterCQLFiles).map(async file => {
-              const buffer = await file.buffer();
-              const filePathArray = file.path.split('/');
-              const fileName = filePathArray[filePathArray.length - 1];
-              return Promise.resolve({ filename: fileName, type: 'text/plain', text: buffer.toString() });
-            })
+            directory.files
+              .filter(filterCQLFiles)
+              .map(async (file: { path: string; buffer: () => Promise<Buffer> }) => {
+                const buffer = await file.buffer();
+                const filePathArray = file.path.split('/');
+                const fileName = filePathArray[filePathArray.length - 1];
+                return Promise.resolve({ filename: fileName, type: 'text/plain', text: buffer.toString() });
+              })
           );
           cqlHandler.makeCQLtoELMRequest(files, [], false, async (err, elmFiles) => {
             if (err) {
@@ -492,13 +562,19 @@ function singlePost(req, res) {
               return;
             }
 
-            const { elmErrors, elmResultsToSave, notFHIR } = parseELMFiles(elmFiles, artifactId, req.user.uid, files);
+            const { elmErrors, elmResultsToSave, notFHIR } = parseELMFiles(
+              (elmFiles as Array<{ content: string; name?: string }>) || [],
+              artifactId,
+              req.user?.uid || '',
+              files
+            );
 
-            elmResultsToSave.forEach(elmResult => {
-              if (doesUploadedLibraryMatchArtifactName(elmResult.name, artifact.name)) {
+            elmResultsToSave.forEach((elmResult: Record<string, unknown>) => {
+              if (doesUploadedLibraryMatchArtifactName(elmResult.name as string, artifact.name as string)) {
                 duplicateLib.flag = true;
-                duplicateLib.libraryName = elmResult.name;
-                duplicateLib.fileName = elmResult.details.fileName;
+                duplicateLib.libraryName = elmResult.name as string;
+                const details = elmResult.details as { fileName?: string } | undefined;
+                (duplicateLib as { fileName?: string }).fileName = details?.fileName || '';
               }
             });
 
@@ -507,7 +583,7 @@ function singlePost(req, res) {
                 .status(400)
                 .send(
                   `Unable to upload external CQL because the library '${duplicateLib.libraryName}' in the file ` +
-                    `'${duplicateLib.fileName}' shares the same name as the artifact itself. To fix this, either ` +
+                    `'${(duplicateLib as { fileName?: string }).fileName || ''}' shares the same name as the artifact itself. To fix this, either ` +
                     'rename this artifact in the CDS Authoring Tool or rename the external CQL library and try again.'
                 );
               return;
@@ -524,7 +600,10 @@ function singlePost(req, res) {
             }
 
             try {
-              const libraries = await CQLLibrary.find({ user: req.user.uid, linkedArtifactId: artifactId }).exec();
+              const libraries = await CQLLibrary.find({
+                user: req.user?.uid || '',
+                linkedArtifactId: artifactId
+              }).exec();
               const nonAuthoringToolExportLibraries = _.differenceWith(
                 elmResultsToSave,
                 authoringToolExports,
@@ -621,7 +700,7 @@ function singlePost(req, res) {
                 if (shouldUpdate) {
                   Promise.allSettled(
                     librariesToUpdate.map(library => {
-                      return CQLLibrary.updateOne({ user: req.user.uid, name: library.name }, library).exec();
+                      return CQLLibrary.updateOne({ user: req.user?.uid || '', name: library.name }, library).exec();
                     })
                   );
 
@@ -640,10 +719,10 @@ function singlePost(req, res) {
                     }
                     if (newLibFHIRVersion) {
                       const response = await Artifact.updateOne(
-                        { user: req.user.uid, _id: artifactId },
+                        { user: req.user?.uid || '', _id: artifactId },
                         { fhirVersion: newLibFHIRVersion }
                       ).exec();
-                      response.n === 0 ? res.sendStatus(404) : res.status(201).send(message);
+                      response.matchedCount === 0 ? res.sendStatus(404) : res.status(201).send(message);
                     } else {
                       res.status(201).send(message);
                     }
@@ -651,10 +730,10 @@ function singlePost(req, res) {
                     if (exportLibrariesNotUploaded.length > 0) {
                       if (newLibFHIRVersion) {
                         const response = await Artifact.updateOne(
-                          { user: req.user.uid, _id: artifactId },
+                          { user: req.user?.uid || '', _id: artifactId },
                           { fhirVersion: newLibFHIRVersion }
                         ).exec();
-                        response.n === 0
+                        response.matchedCount === 0
                           ? res.sendStatus(404)
                           : res.status(201).send(exportLibrariesNotUploadedMessage);
                       } else {
@@ -666,10 +745,10 @@ function singlePost(req, res) {
                         updateMessage = 'One or more of the libraries in this artifact have been updated.';
                       if (newLibFHIRVersion) {
                         const response = await Artifact.updateOne(
-                          { user: req.user.uid, _id: artifactId },
+                          { user: req.user?.uid || '', _id: artifactId },
                           { fhirVersion: newLibFHIRVersion }
                         ).exec();
-                        if (response.n === 0) {
+                        if (response.matchedCount === 0) {
                           res.sendStatus(404);
                         } else if (updateMessage) {
                           res.status(201).send(updateMessage);
@@ -699,7 +778,7 @@ function singlePost(req, res) {
             }
           });
         })
-        .catch(err => res.status(500).send(err));
+        .catch((err: unknown) => res.status(500).send(err));
     } else {
       const cqlJson = {
         filename: cqlFileName,
@@ -715,7 +794,12 @@ function singlePost(req, res) {
           return;
         }
 
-        const { elmErrors, elmResultsToSave, notFHIR } = parseELMFiles(elmFiles, artifactId, req.user.uid, files);
+        const { elmErrors, elmResultsToSave, notFHIR } = parseELMFiles(
+          (elmFiles as Array<{ content: string; name?: string }>) || [],
+          artifactId,
+          req.user?.uid || '',
+          files
+        );
 
         if (notFHIR) {
           res
@@ -727,10 +811,10 @@ function singlePost(req, res) {
           return;
         }
 
-        elmResultsToSave.forEach(elmResult => {
-          if (doesUploadedLibraryMatchArtifactName(elmResult.name, artifact.name)) {
+        elmResultsToSave.forEach((elmResult: Record<string, unknown>) => {
+          if (doesUploadedLibraryMatchArtifactName(elmResult.name as string, artifact.name as string)) {
             duplicateLib.flag = true;
-            duplicateLib.libraryName = elmResult.name;
+            duplicateLib.libraryName = elmResult.name as string;
           }
         });
 
@@ -746,16 +830,21 @@ function singlePost(req, res) {
         }
 
         try {
-          const libraries = await CQLLibrary.find({ user: req.user.uid, linkedArtifactId: artifactId }).exec();
-          const elmResult = elmResultsToSave[0]; // This is the single file upload case, so elmResultsToSave will only ever have one item.
-          const defaultLibrary = authoringToolExports.map(l => l.name).includes(elmResult.name);
-          const dupName = libraries.find(lib => lib.name === elmResult.name);
-          const dupVersion = libraries.find(lib => lib.version === elmResult.version);
-          const newLibFHIRVersion = elmResult.fhirVersion;
+          const libraries = await CQLLibrary.find({ user: req.user?.uid || '', linkedArtifactId: artifactId }).exec();
+          const elmResult = elmResultsToSave[0] as Record<string, unknown>; // This is the single file upload case, so elmResultsToSave will only ever have one item.
+          const defaultLibrary = authoringToolExports.map(l => l.name).includes(elmResult.name as string);
+          const librariesArray = libraries as unknown as Array<Record<string, unknown>>;
+          const dupName = librariesArray.find(
+            (lib: Record<string, unknown>) => (lib.name as string) === (elmResult.name as string)
+          );
+          const dupVersion = librariesArray.find(
+            (lib: Record<string, unknown>) => (lib.version as string) === (elmResult.version as string)
+          );
+          const newLibFHIRVersion = elmResult.fhirVersion as string | undefined;
           const fhirVersion = getCurrentFHIRVersion(libraries);
           // If the artifact FHIR version is R4 wildcard, set it to whatever R4 is being used.
           if (artifactFHIRVersion === '4.0.x') {
-            if (newLibFHIRVersion && newLibFHIRVersion.startsWith('4.0.')) {
+            if (newLibFHIRVersion && typeof newLibFHIRVersion === 'string' && newLibFHIRVersion.startsWith('4.0.')) {
               artifactFHIRVersion = newLibFHIRVersion;
             } else if (fhirVersion && fhirVersion.startsWith('4.0.')) {
               artifactFHIRVersion = fhirVersion;
@@ -811,7 +900,10 @@ function singlePost(req, res) {
                 );
             } else {
               if (shouldLibraryBeUpdated(elmResult, artifact)) {
-                await CQLLibrary.updateOne({ user: req.user.uid, name: elmResult.name }, elmResult).exec();
+                await CQLLibrary.updateOne(
+                  { user: req.user?.uid || '', name: elmResult.name as string },
+                  elmResult
+                ).exec();
                 const message = `Library ${elmResult.name} successfully updated to version ${elmResult.version}.`;
                 res.status(200).send(message);
               } else {
@@ -829,10 +921,10 @@ function singlePost(req, res) {
             // or it matches so update the artifact to that FHIR version
             if (newLibFHIRVersion) {
               const updateResponse = await Artifact.updateOne(
-                { user: req.user.uid, _id: artifactId },
+                { user: req.user?.uid || '', _id: artifactId },
                 { fhirVersion: newLibFHIRVersion }
               ).exec();
-              updateResponse.n === 0 ? res.sendStatus(404) : res.status(201).json(updateResponse);
+              updateResponse.matchedCount === 0 ? res.sendStatus(404) : res.status(201).json(updateResponse);
             } else {
               res.status(201).json(response);
             }
@@ -847,60 +939,76 @@ function singlePost(req, res) {
   }
 }
 
-const artifactHasCustomModifiers = artifact => {
-  const parseElementTree = instance => {
-    if (!instance.childInstances) return instance.modifiers && instance.modifiers.some(({ where }) => Boolean(where));
+const artifactHasCustomModifiers = (artifact: Record<string, unknown>): boolean => {
+  const parseElementTree = (instance: Record<string, unknown>): boolean => {
+    const childInstances = instance.childInstances as Array<Record<string, unknown>> | undefined;
+    if (!childInstances) {
+      const modifiers = (instance.modifiers as Array<Record<string, unknown>>) || [];
+      return modifiers.some((mod: Record<string, unknown>) => Boolean(mod.where));
+    }
 
     return Boolean(
-      instance.childInstances.some(child =>
-        child.conjunction ? parseElementTree(child) : child.modifiers?.some(({ where }) => Boolean(where))
+      childInstances.some((child: Record<string, unknown>) =>
+        child.conjunction
+          ? parseElementTree(child)
+          : ((child.modifiers as Array<Record<string, unknown>>) || []).some((mod: Record<string, unknown>) =>
+              Boolean(mod.where)
+            )
       )
     );
   };
 
   return (
-    parseElementTree(artifact.expTreeInclude) ||
-    parseElementTree(artifact.expTreeExclude) ||
-    artifact.subpopulations.some(subpopulation => parseElementTree(subpopulation)) ||
-    artifact.baseElements.some(baseElement => parseElementTree(baseElement))
+    parseElementTree(artifact.expTreeInclude as Record<string, unknown>) ||
+    parseElementTree(artifact.expTreeExclude as Record<string, unknown>) ||
+    ((artifact.subpopulations as Array<Record<string, unknown>>) || []).some((subpopulation: Record<string, unknown>) =>
+      parseElementTree(subpopulation)
+    ) ||
+    ((artifact.baseElements as Array<Record<string, unknown>>) || []).some((baseElement: Record<string, unknown>) =>
+      parseElementTree(baseElement)
+    )
   );
 };
 
-const artifactHasServiceRequest = artifact => {
-  const parseElementTree = instance => {
+const artifactHasServiceRequest = (artifact: Record<string, unknown>): boolean => {
+  const parseElementTree = (instance: Record<string, unknown>): boolean => {
+    const childInstances = instance.childInstances as Array<Record<string, unknown>> | undefined;
     return Boolean(
-      instance.childInstances &&
-        instance.childInstances.some(child =>
-          child.conjunction ? parseElementTree(child) : child.name === 'Service Request'
+      childInstances &&
+        childInstances.some((child: Record<string, unknown>) =>
+          child.conjunction ? parseElementTree(child) : (child.name as string) === 'Service Request'
         )
     );
   };
 
   let serviceRequestFound = false;
 
-  serviceRequestFound = parseElementTree(artifact.expTreeInclude) || parseElementTree(artifact.expTreeExclude);
+  serviceRequestFound =
+    parseElementTree(artifact.expTreeInclude as Record<string, unknown>) ||
+    parseElementTree(artifact.expTreeExclude as Record<string, unknown>);
 
-  artifact.subpopulations
-    .filter(elem => !elem.special)
-    .forEach(subpopulation => {
-      serviceRequestFound |= parseElementTree(subpopulation);
+  ((artifact.subpopulations as Array<Record<string, unknown>>) || [])
+    .filter((elem: Record<string, unknown>) => !(elem.special as boolean | undefined))
+    .forEach((subpopulation: Record<string, unknown>) => {
+      serviceRequestFound = serviceRequestFound || parseElementTree(subpopulation);
     });
 
-  artifact.baseElements.forEach(instance => {
-    if (instance.name === 'Service Request') serviceRequestFound = true;
+  ((artifact.baseElements as Array<Record<string, unknown>>) || []).forEach((instance: Record<string, unknown>) => {
+    if ((instance.name as string) === 'Service Request') serviceRequestFound = true;
   });
 
-  artifact.baseElements.forEach(instance => {
+  ((artifact.baseElements as Array<Record<string, unknown>>) || []).forEach((instance: Record<string, unknown>) => {
     const conjunctions = ['Union', 'And', 'Or', 'Intersect'];
-    if (instance.name === 'Service Request') serviceRequestFound = true;
-    else if (conjunctions.includes(instance.name)) serviceRequestFound |= parseElementTree(instance);
+    if ((instance.name as string) === 'Service Request') serviceRequestFound = true;
+    else if (conjunctions.includes(instance.name as string))
+      serviceRequestFound = serviceRequestFound || parseElementTree(instance);
   });
 
   return serviceRequestFound;
 };
 
 // Delete a single external CQL library
-async function singleDelete(req, res) {
+async function singleDelete(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const { id } = req.params;
     try {
@@ -912,11 +1020,12 @@ async function singleDelete(req, res) {
         const libraries = await CQLLibrary.find({ user: req.user.uid, linkedArtifactId }).exec();
         const artifactResponse = await Artifact.findById(linkedArtifactId).exec();
         if (artifactResponse) {
-          let currentFHIRVersion;
-          if (artifactHasServiceRequest(artifactResponse)) {
+          let currentFHIRVersion: string;
+          const artifactRecord = artifactResponse as unknown as Record<string, unknown>;
+          if (artifactHasServiceRequest(artifactRecord)) {
             currentFHIRVersion = '4.0.x';
-          } else if (artifactHasCustomModifiers(artifactResponse)) {
-            currentFHIRVersion = artifactResponse.fhirVersion;
+          } else if (artifactHasCustomModifiers(artifactRecord)) {
+            currentFHIRVersion = (artifactResponse.fhirVersion as string) || '';
           } else {
             currentFHIRVersion = getCurrentFHIRVersion(libraries);
           }
@@ -929,7 +1038,7 @@ async function singleDelete(req, res) {
             { user: req.user.uid, _id: linkedArtifactId },
             { fhirVersion: currentFHIRVersion }
           ).exec();
-          updateResponse.n === 0 ? res.sendStatus(404) : res.sendStatus(200);
+          updateResponse.matchedCount === 0 ? res.sendStatus(404) : res.sendStatus(200);
         } else {
           res.sendStatus(200);
         }

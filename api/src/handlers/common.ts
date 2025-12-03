@@ -1,4 +1,11 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    uid: string;
+    [key: string]: unknown;
+  };
+}
 
 function sendUnauthorized(res: Response): Response {
   // A 401 should always be accompanied by a WWW-Authenticate header. There is no standard value
