@@ -210,7 +210,7 @@ export async function getValueSet(
 }
 ```
 
-**Status**: ✅ **COMPLETE** (Commit: pending)
+**Status**: ✅ **COMPLETE** (Commit: ae98311d)
 - Converted `FHIRClient.js` to `FHIRClient.ts` with full TypeScript typing
 - Converted `fhirHandler.js` to `fhirHandler.ts` with Express types
 - Used `fhir4` namespace from `fhir/r4` import for all FHIR R4 types
@@ -218,6 +218,7 @@ export async function getValueSet(
 - Created interfaces for return types: `ValueSetResult`, `ValueSetSearchResult`, `ValueSetSearchResponse`, `CodeResult`, `ParsedPurpose`
 - Added proper type annotations for all function parameters and return types
 - Typed Express handlers with `Request` and `Response` types
+- Used `AxiosRequestConfig` and `AxiosResponse` for API calls
 - All tests passing (249 passing, 5 pending)
 - Linting and formatting pass
 
