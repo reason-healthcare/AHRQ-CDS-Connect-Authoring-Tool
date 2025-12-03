@@ -1,5 +1,6 @@
-import Patient from '../models/patient.ts';
-import { sendUnauthorized } from './common.ts';
+import { Response } from 'express';
+import Patient from '../models/patient.js';
+import { AuthenticatedRequest, sendUnauthorized } from './common.js';
 
 export default {
   allGet,
@@ -9,7 +10,7 @@ export default {
 };
 
 // Get all patients
-async function allGet(req, res) {
+async function allGet(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     try {
       const patients = await Patient.find({ user: req.user.uid }).exec();
@@ -23,7 +24,7 @@ async function allGet(req, res) {
 }
 
 // Get a single patient
-async function singleGet(req, res) {
+async function singleGet(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const id = req.params.patient;
     try {
@@ -38,7 +39,7 @@ async function singleGet(req, res) {
 }
 
 // Post a single patient
-async function singlePost(req, res) {
+async function singlePost(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const newPatient = req.body;
     newPatient.user = req.user.uid;
@@ -54,12 +55,17 @@ async function singlePost(req, res) {
 }
 
 // Delete a single patient
-async function singleDelete(req, res) {
+async function singleDelete(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const id = req.params.patient;
     try {
       const response = await Patient.deleteMany({ user: req.user.uid, _id: id }).exec();
-      response.n === 0 ? res.sendStatus(404) : res.sendStatus(200);
+      // Support both old (n) and new (deletedCount) Mongoose API
+      const deleted =
+        (response as { n?: number; deletedCount?: number }).n ??
+        (response as { deletedCount: number }).deletedCount ??
+        0;
+      deleted === 0 ? res.sendStatus(404) : res.sendStatus(200);
     } catch (err) {
       res.status(500).send(err);
     }

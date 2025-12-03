@@ -1,6 +1,7 @@
-import config from '../config.ts';
+import { Response } from 'express';
+import config from '../config.js';
 
-export default (req, res) => {
+export default (_req: unknown, res: Response): void => {
   res.type('js');
   // If ForeSee is not active, just send a (mostly) blank response.
   if (!config.get('foreSee.active')) {
@@ -14,7 +15,7 @@ export default (req, res) => {
 ;(function (g) {
 var d = document, am = d.createElement('script'), h = d.head || d.getElementsByTagName("head")[0], fsr = 'fsReady',
 aex = {
-  "src": "${config.get('foreSee.src').trim()}",
+  "src": "${(config.get('foreSee.src') as string).trim()}",
   "type": "text/javascript",
   "async": "true",
   "data-vendor": "fs",

@@ -1,12 +1,13 @@
-import modifiers from '../data/modifiers.ts';
-import CQLLibrary from '../models/cqlLibrary.ts';
-import { sendUnauthorized } from './common.ts';
+import { Response } from 'express';
+import modifiers from '../data/modifiers.js';
+import CQLLibrary from '../models/cqlLibrary.js';
+import { AuthenticatedRequest, sendUnauthorized } from './common.js';
 
 export default {
   allGet
 };
 
-async function allGet(req, res) {
+async function allGet(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const editorTypes = [
       'boolean',
@@ -27,9 +28,10 @@ async function allGet(req, res) {
     try {
       const libraries = await CQLLibrary.find({ user: req.user.uid, linkedArtifactId: parentID }).exec();
       if (libraries.length !== 0) {
-        const externalModifiers = [];
-        libraries.map(lib => {
+        const externalModifiers: Array<Record<string, unknown>> = [];
+        libraries.forEach(lib => {
           if (
+            !lib.name ||
             [
               'CDS_Connect_Commons_for_FHIRv102',
               'CDS_Connect_Commons_for_FHIRv300',
@@ -40,7 +42,18 @@ async function allGet(req, res) {
             ].includes(lib.name)
           )
             return;
-          lib.details.functions.forEach(func => {
+          if (!lib.details) return;
+          const functions = lib.details.functions as
+            | Array<{
+                operand: Array<unknown>;
+                argumentTypes: Array<{ calculated: string }>;
+                name: string;
+                inputTypes: unknown;
+                calculatedReturnType: unknown;
+              }>
+            | undefined;
+          if (!functions) return;
+          functions.forEach(func => {
             // The ExternalModifier requires a functionName, libraryName,
             // arguments, and argumentTypes field that is not on other modifiers.
             // This is needed for the sake of testing whether external CQL libraries
@@ -69,7 +82,7 @@ async function allGet(req, res) {
             }
           });
         });
-        res.json(modifiers.concat(externalModifiers));
+        res.json([...modifiers, ...externalModifiers]);
       } else {
         res.json(modifiers);
       }

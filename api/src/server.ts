@@ -1,7 +1,7 @@
 // Import Dependencies
 import fs from 'fs';
 import process from 'process';
-import express from 'express';
+import express, { Express } from 'express';
 import helmet from 'helmet';
 import https from 'https';
 import morgan from 'morgan';
@@ -13,7 +13,7 @@ import routes from './routes.js';
 
 // This uses the same evironment variables as documented for Create React App:
 // https://create-react-app.dev/docs/using-https-in-development/
-const useHTTPS = /^true$/i.test(process.env.HTTPS);
+const useHTTPS = /^true$/i.test(process.env.HTTPS || '');
 const sslKeyFile = process.env.SSL_KEY_FILE;
 const sslCrtFile = process.env.SSL_CRT_FILE;
 if (useHTTPS) {
@@ -27,16 +27,17 @@ if (useHTTPS) {
 }
 
 // Turn on/off strict SSL (turn off in dev only, use with caution!)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = config.get('tlsRejectUnauthorized');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = config.get('tlsRejectUnauthorized') as string;
 
 // Create App
-const app = express();
+const app: Express = express();
 
 // Use Helmet, a module that "helps secure Express apps by setting HTTP response headers."
 // See: https://helmetjs.github.io/
 app.use(helmet());
 
-const logRequests = /^true$/i.test(process.env.LOG_REQUESTS) || /^true$/i.test(process.env.LOG_API_REQUESTS);
+const logRequests =
+  /^true$/i.test(process.env.LOG_REQUESTS || '') || /^true$/i.test(process.env.LOG_API_REQUESTS || '');
 if (logRequests) {
   // Log HTTP requests and responses
   app.use(morgan('combined'));
@@ -47,7 +48,7 @@ const port = process.env.API_PORT || 3001;
 
 // MongoDB Configuration
 mongoose.set('strictQuery', true); // Suppress warning. See: https://mongoosejs.com/docs/guide.html#strictQuery
-mongoose.connect(config.get('mongo.url'));
+mongoose.connect(config.get('mongo.url') as string);
 
 // Configure API to use BodyParser and handle json data
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -57,7 +58,7 @@ app.use(express.json({ limit: '50mb' }));
 configPassport(app);
 
 // Setting headers to handle cache-control
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   // Remove caching and set to private, as recommended by AHRQ
   res.setHeader('Cache-Control', 'private, no-store');
   next();
@@ -68,8 +69,8 @@ routes(app);
 
 // Starts Server
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const startServer = () => {
-    if (useHTTPS) {
+  const startServer = (): void => {
+    if (useHTTPS && sslKeyFile && sslCrtFile) {
       https
         .createServer({ key: fs.readFileSync(sslKeyFile), cert: fs.readFileSync(sslCrtFile) }, app)
         .listen(port, () => {
@@ -90,7 +91,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       .then(() => {
         startServer();
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         console.error('Migration Error:', err);
         process.exit(1);
       });

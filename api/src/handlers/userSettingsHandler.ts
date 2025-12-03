@@ -1,5 +1,6 @@
-import UserSettings from '../models/userSettings.ts';
-import { sendUnauthorized } from './common.ts';
+import { Response } from 'express';
+import UserSettings from '../models/userSettings.js';
+import { AuthenticatedRequest, sendUnauthorized } from './common.js';
 
 export default {
   get,
@@ -7,7 +8,7 @@ export default {
 };
 
 // Get current user's settings
-async function get(req, res) {
+async function get(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     try {
       const results = await UserSettings.find({ user: req.user.uid }).exec();
@@ -31,7 +32,7 @@ async function get(req, res) {
 }
 
 // Update current user's settings
-async function put(req, res) {
+async function put(req: AuthenticatedRequest, res: Response): Promise<void> {
   if (req.user) {
     const settings = { ...req.body };
     try {
