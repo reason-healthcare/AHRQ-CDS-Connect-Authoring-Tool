@@ -2,7 +2,8 @@ import CQLLibrary from '../../src/models/cqlLibrary.js';
 import { importChaiExpect } from '../utils.js';
 
 describe('CQLLibrary', () => {
-  let expect;
+  let expect: typeof import('chai').expect;
+
   before(async () => {
     expect = await importChaiExpect();
   });

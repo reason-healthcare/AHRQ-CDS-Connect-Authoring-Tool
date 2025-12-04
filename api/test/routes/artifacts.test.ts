@@ -1,16 +1,19 @@
 import request from 'supertest';
 import sinon from 'sinon';
 import mongoose from 'mongoose';
+import express from 'express';
 
 const sandbox = sinon.createSandbox();
 const { replace, mock, fake } = sandbox;
 
-import { setupExpressApp, importChaiExpect } from '../utils.js';
-import Artifact from '../../src/models/artifact.ts';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
+import Artifact from '../../src/models/artifact.js';
 import CQLLibrary from '../../src/models/cqlLibrary.js';
 
 describe('Route: /authoring/api/artifacts/', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -122,7 +125,7 @@ describe('Route: /authoring/api/artifacts/', () => {
         'updateOne',
         mock('updateOne')
           .withArgs({ user: 'bob', _id: '123' }, { $set: { _id: '123', name: 'Artifact A' } })
-          .returns({ exec: fake.resolves({ n: 1 }) })
+          .returns({ exec: fake.resolves({ n: 1, matchedCount: 1 }) })
       );
       request(app)
         .put('/authoring/api/artifacts')
@@ -137,7 +140,7 @@ describe('Route: /authoring/api/artifacts/', () => {
         'updateOne',
         mock('updateOne')
           .withArgs({ user: 'bob', _id: '123' }, { $set: { _id: '123', name: 'Artifact A' } })
-          .returns({ exec: fake.resolves({ n: 0 }) })
+          .returns({ exec: fake.resolves({ n: 0, matchedCount: 0 }) })
       );
       request(app)
         .put('/authoring/api/artifacts')
@@ -174,7 +177,9 @@ describe('Route: /authoring/api/artifacts/', () => {
 });
 
 describe('Route: /authoring/api/artifacts/:artifact', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -246,14 +251,14 @@ describe('Route: /authoring/api/artifacts/:artifact', () => {
         'deleteMany',
         mock('deleteMany')
           .withArgs({ user: 'bob', _id: '123' })
-          .returns({ exec: fake.resolves({ n: 1 }) })
+          .returns({ exec: fake.resolves({ n: 1, deletedCount: 1 }) })
       );
       replace(
         CQLLibrary,
         'deleteMany',
         mock('deleteMany')
           .withArgs({ user: 'bob', linkedArtifactId: '123' })
-          .returns({ exec: fake.resolves({ n: 2 }) })
+          .returns({ exec: fake.resolves({ n: 2, deletedCount: 2 }) })
       );
       request(app).delete('/authoring/api/artifacts/123').expect(200, done);
     });
@@ -264,14 +269,14 @@ describe('Route: /authoring/api/artifacts/:artifact', () => {
         'deleteMany',
         mock('deleteMany')
           .withArgs({ user: 'bob', _id: '123' })
-          .returns({ exec: fake.resolves({ n: 1 }) })
+          .returns({ exec: fake.resolves({ n: 1, deletedCount: 1 }) })
       );
       replace(
         CQLLibrary,
         'deleteMany',
         mock('deleteMany')
           .withArgs({ user: 'bob', linkedArtifactId: '123' })
-          .returns({ exec: fake.resolves({ n: 0 }) })
+          .returns({ exec: fake.resolves({ n: 0, deletedCount: 0 }) })
       );
       request(app).delete('/authoring/api/artifacts/123').expect(200, done);
     });
@@ -282,7 +287,7 @@ describe('Route: /authoring/api/artifacts/:artifact', () => {
         'deleteMany',
         mock('deleteMany')
           .withArgs({ user: 'bob', _id: '123' })
-          .returns({ exec: fake.resolves({ n: 0 }) })
+          .returns({ exec: fake.resolves({ n: 0, deletedCount: 0 }) })
       );
       request(app).delete('/authoring/api/artifacts/123').expect(404, done);
     });
@@ -318,7 +323,9 @@ describe('Route: /authoring/api/artifacts/:artifact', () => {
 });
 
 describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -518,7 +525,7 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
         'findById',
         mock('findById')
           .withArgs('456')
-          .returns({ exec: fake.resolves([]) })
+          .returns({ exec: fake.resolves(null) })
       );
       request(app).post('/authoring/api/artifacts/456/duplicate').set('Accept', 'application/json').expect(404, done);
     });
@@ -540,11 +547,13 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
         'find',
         mock('find')
           .withArgs({ user: 'bob' })
-          .resolves([
-            new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
-            new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
-            new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
-          ])
+          .returns({
+            exec: fake.resolves([
+              new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
+              new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
+              new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
+            ])
+          })
       );
       replace(
         Artifact,
@@ -562,26 +571,30 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
         'find',
         mock('find')
           .withArgs({ user: 'bob' })
-          .resolves([
-            new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
-            new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
-            new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
-          ])
+          .returns({
+            exec: fake.resolves([
+              new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
+              new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
+              new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
+            ])
+          })
       );
       replace(
         Artifact,
         'findById',
         mock('findById')
           .withArgs('456')
-          .resolves(
-            new Artifact({
-              _id: '456',
-              user: 'bob',
-              name: 'Artifact B',
-              createdAt: new Date('2021-04-20T12:16:46.683Z'),
-              updatedAt: new Date('2023-02-06T08:56:17.508Z')
-            })
-          )
+          .returns({
+            exec: fake.resolves(
+              new Artifact({
+                _id: '456',
+                user: 'bob',
+                name: 'Artifact B',
+                createdAt: new Date('2021-04-20T12:16:46.683Z'),
+                updatedAt: new Date('2023-02-06T08:56:17.508Z')
+              })
+            )
+          })
       );
       const fakeArtifactCreate = fake.rejects(new Error('Unexpected Error'));
       replace(Artifact, 'create', fakeArtifactCreate);
@@ -595,26 +608,30 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
         'find',
         mock('find')
           .withArgs({ user: 'bob' })
-          .resolves([
-            new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
-            new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
-            new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
-          ])
+          .returns({
+            exec: fake.resolves([
+              new Artifact({ _id: '123', user: 'bob', name: 'Artifact A' }),
+              new Artifact({ _id: '456', user: 'bob', name: 'Artifact B' }),
+              new Artifact({ _id: '789', user: 'bob', name: 'Artifact C' })
+            ])
+          })
       );
       replace(
         Artifact,
         'findById',
         mock('findById')
           .withArgs('456')
-          .resolves(
-            new Artifact({
-              _id: '456',
-              user: 'bob',
-              name: 'Artifact B',
-              createdAt: new Date('2021-04-20T12:16:46.683Z'),
-              updatedAt: new Date('2023-02-06T08:56:17.508Z')
-            })
-          )
+          .returns({
+            exec: fake.resolves(
+              new Artifact({
+                _id: '456',
+                user: 'bob',
+                name: 'Artifact B',
+                createdAt: new Date('2021-04-20T12:16:46.683Z'),
+                updatedAt: new Date('2023-02-06T08:56:17.508Z')
+              })
+            )
+          })
       );
       const fakeArtifactCreate = fake.resolves(new Artifact({ user: 'bob', name: 'Copy of Artifact B' }));
       replace(Artifact, 'create', fakeArtifactCreate);
@@ -623,15 +640,17 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
         'find',
         mock('find')
           .withArgs({ linkedArtifactId: '456' })
-          .resolves([
-            new CQLLibrary({
-              _id: 'lib1-for-456',
-              linkedArtifactId: '456',
-              createdAt: new Date('2021-04-22T13:56:45.673Z'),
-              updatedAt: new Date('2023-02-06T09:42:17.008Z'),
-              name: 'CQL Library X'
-            })
-          ])
+          .returns({
+            exec: fake.resolves([
+              new CQLLibrary({
+                _id: 'lib1-for-456',
+                linkedArtifactId: '456',
+                createdAt: new Date('2021-04-22T13:56:45.673Z'),
+                updatedAt: new Date('2023-02-06T09:42:17.008Z'),
+                name: 'CQL Library X'
+              })
+            ])
+          })
       );
       const fakeLibraryCreate = fake.rejects(new Error('Connection Error'));
       replace(CQLLibrary, 'create', fakeLibraryCreate);

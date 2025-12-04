@@ -3,20 +3,25 @@ import sinon from 'sinon';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import express from 'express';
 
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 import CQLLibrary from '../../src/models/cqlLibrary.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dir = dirname(filename);
 
-const multiFunctionLib = JSON.parse(readFileSync(join(dir, './fixtures/multifunction-external-lib.json'), 'utf-8'));
+const multiFunctionLib = JSON.parse(
+  readFileSync(join(dir, './fixtures/multifunction-external-lib.json'), 'utf-8')
+) as Record<string, unknown>;
 
 const sandbox = sinon.createSandbox();
 const { replace, mock, fake } = sandbox;
 
 describe('Route: /authoring/api/modifiers/:artifact', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -132,7 +137,7 @@ describe('Route: /authoring/api/modifiers/:artifact', () => {
             argumentTypes: [{ calculated: 'integer' }]
           });
           // Just check names of the rest
-          const names = res.body.map(m => m.name);
+          const names = res.body.map((m: { name: string }) => m.name);
           expect(names).to.include('SumTwo (from FunctionsMultiTest)');
           expect(names).to.include('SumThree (from FunctionsMultiTest)');
           expect(names).to.include('UseAll (from FunctionsMultiTest)');

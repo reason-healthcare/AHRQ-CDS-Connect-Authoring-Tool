@@ -351,6 +351,7 @@ const ValueSet = {
   meta: { versionId: '1' },
   name: 'foo',
   expansion: {
+    total: 1,
     contains: [
       {
         system: 'http://hl7.org/fhir/sid/icd-9-cm',

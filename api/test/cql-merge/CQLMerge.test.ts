@@ -17,12 +17,13 @@ const dependencyRawCQLs = [
 ];
 
 describe('cql-merge', () => {
-  let expect;
+  let expect: typeof import('chai').expect;
+
   before(async () => {
     expect = await importChaiExpect();
   });
 
-  const assertCQLOutput = inputName => {
+  const assertCQLOutput = (inputName: string): void => {
     const inputText = fs.readFileSync(path.join(currentDirPath, 'fixtures', 'in', inputName), 'utf-8');
     const outputText = fs.readFileSync(path.join(currentDirPath, 'fixtures', 'out', inputName), 'utf-8');
     const mergedCQL = exportCQL(importCQL(new RawCQL(inputText), dependencyRawCQLs));

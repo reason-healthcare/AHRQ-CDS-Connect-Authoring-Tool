@@ -1,13 +1,16 @@
 import request from 'supertest';
 import sinon from 'sinon';
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import express from 'express';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 
 // NOTE: Most of the data exposed by /config is NOT user-dependent; therefore
 // authentication is not required. In normal use, however, the use will be
 // authenticated; so we test w/ authentication, but don't worry about testing
 // without authentication since no sensitive data is at risk.
 describe('Route: /authoring/api/config/templates', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -27,7 +30,7 @@ describe('Route: /authoring/api/config/templates', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          const idsAndNames = res.body.map(item => ({ id: item.id, name: item.name }));
+          const idsAndNames = res.body.map((item: { id: number; name: string }) => ({ id: item.id, name: item.name }));
           expect(idsAndNames).to.eql([
             { id: 0, name: 'Generic' },
             { id: 1, name: 'Demographics' },
@@ -53,7 +56,9 @@ describe('Route: /authoring/api/config/templates', () => {
 });
 
 describe('Route: /authoring/api/config/valuesets', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -74,9 +79,11 @@ describe('Route: /authoring/api/config/valuesets', () => {
         .expect(200)
         .expect(res => {
           // I think the only things we still care about are genders and time units
-          const genders = res.body.demographics.gender.expansion.map(item => item.id);
+          const genders = (res.body.demographics.gender.expansion as Array<{ id: string }>).map(item => item.id);
           expect(genders).to.eql(['male', 'female', 'other', 'unknown']);
-          const timeUnits = res.body.demographics.units_of_time.expansion.map(item => item.id);
+          const timeUnits = (res.body.demographics.units_of_time.expansion as Array<{ id: string }>).map(
+            item => item.id
+          );
           expect(timeUnits).to.eql(['a', 'mo', 'wk', 'd', 'h', 'min', 's']);
         })
         .end(done);
@@ -85,7 +92,9 @@ describe('Route: /authoring/api/config/valuesets', () => {
 });
 
 describe('Route: /authoring/api/config/valuesets/:valueset*', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -106,7 +115,7 @@ describe('Route: /authoring/api/config/valuesets/:valueset*', () => {
         .expect(200)
         .expect(res => {
           // I think the only things we still care about are genders and time units
-          const genders = res.body.expansion.map(item => item.id);
+          const genders = (res.body.expansion as Array<{ id: string }>).map(item => item.id);
           expect(genders).to.eql(['male', 'female', 'other', 'unknown']);
         })
         .end(done);
@@ -129,7 +138,8 @@ describe('Route: /authoring/api/config/valuesets/:valueset*', () => {
 });
 
 describe('Route: /authoring/api/config/conversions', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -161,7 +171,9 @@ describe('Route: /authoring/api/config/conversions', () => {
 });
 
 describe('Route: /authoring/api/config/query/resources/dstu2', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -181,7 +193,7 @@ describe('Route: /authoring/api/config/query/resources/dstu2', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          const resourceNames = res.body.resources.map(r => r.name);
+          const resourceNames = (res.body.resources as Array<{ name: string }>).map(r => r.name);
           expect(resourceNames).to.include('MedicationOrder'); // DSTU2 only
           expect(resourceNames).not.to.include('MedicationRequest'); // STU3 and R4
           expect(resourceNames).not.to.include('ServiceRequest'); // R4 only
@@ -192,7 +204,9 @@ describe('Route: /authoring/api/config/query/resources/dstu2', () => {
 });
 
 describe('Route: /authoring/api/config/query/resources/stu3', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -212,7 +226,7 @@ describe('Route: /authoring/api/config/query/resources/stu3', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          const resourceNames = res.body.resources.map(r => r.name);
+          const resourceNames = (res.body.resources as Array<{ name: string }>).map(r => r.name);
           expect(resourceNames).not.to.include('MedicationOrder'); // DSTU2 only
           expect(resourceNames).to.include('MedicationRequest'); // STU3 and R4
           expect(resourceNames).not.to.include('ServiceRequest'); // R4 only
@@ -223,7 +237,9 @@ describe('Route: /authoring/api/config/query/resources/stu3', () => {
 });
 
 describe('Route: /authoring/api/config/query/resources/r4', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -243,7 +259,7 @@ describe('Route: /authoring/api/config/query/resources/r4', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          const resourceNames = res.body.resources.map(r => r.name);
+          const resourceNames = (res.body.resources as Array<{ name: string }>).map(r => r.name);
           expect(resourceNames).not.to.include('MedicationOrder'); // DSTU2 only
           expect(resourceNames).to.include('MedicationRequest'); // STU3 and R4
           expect(resourceNames).to.include('ServiceRequest'); // R4 only
@@ -254,7 +270,9 @@ describe('Route: /authoring/api/config/query/resources/r4', () => {
 });
 
 describe('Route: /authoring/api/config/query/resources/operators', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();

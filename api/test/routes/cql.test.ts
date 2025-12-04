@@ -3,17 +3,20 @@ import path from 'path';
 import unzipper from 'unzipper';
 import request from 'supertest';
 import sinon from 'sinon';
-import Artifact from '../../src/models/artifact.ts';
+import express from 'express';
+import Artifact from '../../src/models/artifact.js';
 import CQLLibrary from '../../src/models/cqlLibrary.js';
 import cqlHandler from '../../src/handlers/cqlHandler.js';
 import { expect } from 'chai';
-import { setupExpressApp } from '../utils.js';
+import { setupExpressApp, Options } from '../utils.js';
 import { fileURLToPath } from 'url';
 import nock from 'nock';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-const SimpleArtifact = JSON.parse(fs.readFileSync(path.join(dirname, './fixtures/SimpleArtifact.json'), 'utf8'));
+const SimpleArtifact = JSON.parse(
+  fs.readFileSync(path.join(dirname, './fixtures/SimpleArtifact.json'), 'utf8')
+) as Record<string, unknown>;
 
 const simpleArtifactWithDataModel = Object.assign({ dataModel: { name: 'FHIR', version: '4.0.1' } }, SimpleArtifact);
 
@@ -21,7 +24,9 @@ const simpleArtifactWithDataModel = Object.assign({ dataModel: { name: 'FHIR', v
 // TODO: More tests when CQL-to-ELM returns ELM w/ errors in annotations
 
 describe('Route: /authoring/api/cql/', () => {
-  let app, options, sandbox;
+  let app: express.Application;
+  let options: Options;
+  let sandbox: sinon.SinonSandbox;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -56,7 +61,7 @@ describe('Route: /authoring/api/cql/', () => {
 
           unzipper.Open.buffer(res.body)
             .then(directory => {
-              const files = directory.files.map(f => f.path);
+              const files = directory.files.map((f: { path: string }) => f.path);
               expect(files).to.have.length(7);
               expect(files).to.contain('Library-SimpleArtifact.json');
               expect(files).to.contain('SimpleArtifact.cql');
@@ -89,7 +94,7 @@ describe('Route: /authoring/api/cql/', () => {
           if (err) return done(err);
           unzipper.Open.buffer(res.body)
             .then(directory => {
-              const files = directory.files.map(f => f.path);
+              const files = directory.files.map((f: { path: string }) => f.path);
               expect(files).to.have.length(7);
               expect(files).to.contain('Library-SimpleArtifact.json');
               expect(files).to.contain('SimpleArtifact.cql');
@@ -122,7 +127,7 @@ describe('Route: /authoring/api/cql/', () => {
           if (err) return done(err);
           unzipper.Open.buffer(res.body)
             .then(directory => {
-              const files = directory.files.map(f => f.path);
+              const files = directory.files.map((f: { path: string }) => f.path);
               expect(files).to.have.length(6);
               expect(files).to.contain('SimpleArtifact.cql');
               expect(files).to.contain('SimpleArtifact.json');
@@ -179,7 +184,9 @@ describe('Route: /authoring/api/cql/', () => {
 });
 
 describe('Route: /authoring/api/cql/validate', () => {
-  let app, options, sandbox;
+  let app: express.Application;
+  let options: Options;
+  let sandbox: sinon.SinonSandbox;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -297,7 +304,9 @@ describe('Route: /authoring/api/cql/validate', () => {
 });
 
 describe('Route: /authoring/api/cql/viewCql', () => {
-  let app, options, sandbox;
+  let app: express.Application;
+  let options: Options;
+  let sandbox: sinon.SinonSandbox;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -377,14 +386,18 @@ describe('Route: /authoring/api/cql/viewCql', () => {
   });
 });
 
-function mockMakeCQLtoELMRequestForSimpleArtifact(sandbox, includeXML = true, err) {
-  let results;
+function mockMakeCQLtoELMRequestForSimpleArtifact(
+  sandbox: sinon.SinonSandbox,
+  includeXML = true,
+  err?: Error | null
+): void {
+  let results: Array<{ name: string; content: string }> | undefined;
   if (!err) {
     results = [];
     const formats = includeXML ? ['json', 'xml'] : ['json'];
     ['FHIRHelpers', 'SimpleArtifact'].forEach(name => {
       formats.forEach(format => {
-        results.push({
+        results!.push({
           name,
           content: fs.readFileSync(path.join(dirname, 'fixtures', `${name}.elm.${format}`), 'utf-8')
         });
@@ -392,29 +405,40 @@ function mockMakeCQLtoELMRequestForSimpleArtifact(sandbox, includeXML = true, er
     });
   }
 
-  sandbox.stub(cqlHandler, 'makeCQLtoELMRequest').callsFake((cqlFiles, libraries, includeXMLParam, callback) => {
-    callback(err, results);
-  });
+  sandbox
+    .stub(cqlHandler, 'makeCQLtoELMRequest')
+    .callsFake(
+      (
+        _cqlFiles: unknown,
+        _libraries: unknown,
+        _includeXMLParam: unknown,
+        callback: (err: Error | null, results?: Array<{ name: string; content: string }>) => void
+      ) => {
+        callback(err || null, results);
+      }
+    );
 }
 
-function mockArtifactFindOneForSimpleArtifact(sandbox, err) {
+function mockArtifactFindOneForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
   sandbox.stub(Artifact, 'findOne').returns({
     exec: err ? sandbox.stub().rejects(err) : sandbox.stub().resolves(new Artifact(SimpleArtifact))
   });
 }
 
-function mockFormatCQLForSimpleArtifact(sandbox, err) {
+function mockFormatCQLForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
   const result = err ? undefined : fs.readFileSync(path.join(dirname, 'fixtures', 'SimpleArtifact.cql'), 'utf-8');
-  sandbox.stub(cqlHandler, 'formatCQL').callsFake((cqlText, callback) => {
-    callback(err, result);
-  });
+  sandbox
+    .stub(cqlHandler, 'formatCQL')
+    .callsFake((_cqlText: unknown, callback: (err: Error | null, result?: string) => void) => {
+      callback(err || null, result);
+    });
 }
 
-function mockCQLTranslatorForError() {
+function mockCQLTranslatorForError(): void {
   nock('http://localhost:8080').post('/cql/translator').query(true).reply(500, 'Connection Error');
 }
 
-function mockDatabaseForSuccess(sandbox) {
+function mockDatabaseForSuccess(sandbox: sinon.SinonSandbox): void {
   // Mock CQL Library query
   sandbox.stub(CQLLibrary, 'find').returns({
     exec: sandbox.stub().resolves([])
@@ -440,17 +464,20 @@ function mockDatabaseForSuccess(sandbox) {
   });
 }
 
-function mockCQLLibraryFindForSimpleArtifact(sandbox, err) {
+function mockCQLLibraryFindForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
   sandbox.stub(CQLLibrary, 'find').returns({
     exec: err ? sandbox.stub().rejects(err) : sandbox.stub().resolves([])
   });
 }
 
 // Special parser to convert binary stream to a buffer
-function binaryParser(res, callback) {
+function binaryParser(
+  res: { setEncoding: (encoding: string) => void; data: string; on: (event: string, callback: () => void) => void },
+  callback: (err: null, buffer: Buffer) => void
+): void {
   res.setEncoding('binary');
   res.data = '';
-  res.on('data', function (chunk) {
+  res.on('data', function (chunk: string) {
     res.data += chunk;
   });
   res.on('end', function () {

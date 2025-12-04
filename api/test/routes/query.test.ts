@@ -1,6 +1,7 @@
 import request from 'supertest';
 import sinon from 'sinon';
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import express from 'express';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 
 const sandbox = sinon.createSandbox();
 
@@ -9,7 +10,8 @@ const sandbox = sinon.createSandbox();
 // authenticated; so we test w/ authentication, but don't worry about testing
 // without authentication since no sensitive data is at risk.
 describe('Route: /authoring/api/query/implicitconversion', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -52,7 +54,9 @@ describe('Route: /authoring/api/query/implicitconversion', () => {
 
 // Usage: /authoring/api/query/operator?typeSpecifier=<Type>&elementType=<elementType>
 describe('Route: /authoring/api/query/operator', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -109,7 +113,7 @@ describe('Route: /authoring/api/query/operator', () => {
             ]
           });
           // Check that they're all there
-          const opIds = res.body.map(op => op.id);
+          const opIds = res.body.map((op: { id: string }) => op.id);
           expect(opIds).to.eql(['isNull', 'isNotNull', 'quantityComparison', 'quantityIsBetweenQuantities']);
         })
         .end(done);
@@ -122,7 +126,7 @@ describe('Route: /authoring/api/query/operator', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          const opIds = res.body.map(op => op.id);
+          const opIds = res.body.map((op: { id: string }) => op.id);
           expect(opIds).to.eql(['isNull', 'isNotNull']);
         })
         .end(done);
@@ -153,7 +157,8 @@ describe('Route: /authoring/api/query/operator', () => {
 
 // Usage: /authoring/api/query/resources/<resourceName>?fhirVersion=<1.0.2|3.0.0|4.0.0|4.0.1>
 describe('Route: /resources/:resourceName', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();

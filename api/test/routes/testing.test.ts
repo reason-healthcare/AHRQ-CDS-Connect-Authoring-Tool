@@ -4,21 +4,30 @@ import _ from 'lodash';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import express from 'express';
 
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 import Patient from '../../src/models/patient.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dir = dirname(filename);
 
-const patientIncluded = JSON.parse(readFileSync(join(dir, 'fixtures/patient-included.json'), 'utf-8'));
-const patientExcluded = JSON.parse(readFileSync(join(dir, 'fixtures/patient-excluded.json'), 'utf-8'));
+const patientIncluded = JSON.parse(readFileSync(join(dir, 'fixtures/patient-included.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
+const patientExcluded = JSON.parse(readFileSync(join(dir, 'fixtures/patient-excluded.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
 
 const sandbox = sinon.createSandbox();
 const { replace, mock, fake } = sandbox;
 
 describe('Route: /authoring/api/testing', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();
@@ -79,30 +88,37 @@ describe('Route: /authoring/api/testing', () => {
 
   describe('POST', () => {
     it('should create a new test patient for authenticated users', done => {
-      replace(Patient, 'create', mock('create').withArgs(patientIncluded).resolves(new Patient(patientIncluded)));
-      const patientIncludedNoUser = _.cloneDeep(patientIncluded);
-      delete patientIncludedNoUser.user;
+      replace(
+        Patient,
+        'create',
+        mock('create')
+          .withArgs({ user: 'bob', ...patientIncluded })
+          .resolves(new Patient({ user: 'bob', ...patientIncluded }))
+      );
       request(app)
         .post('/authoring/api/testing')
-        .send(patientIncludedNoUser)
+        .send(patientIncluded)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(201)
         .expect(res => {
-          expect(res.body).to.eql(patientIncluded);
-          expect(res.body.user).to.eql('bob'); // just to be sure
+          expect(res.body).to.eql({ user: 'bob', ...patientIncluded });
         })
         .end(done);
     });
 
     it('should return HTTP 500 if there is an error creating the test patient', done => {
-      replace(Patient, 'create', mock('create').withArgs(patientIncluded).rejects(new Error('Connection Error')));
-      const patientIncludedNoUser = _.cloneDeep(patientIncluded);
-      delete patientIncludedNoUser.user;
+      replace(
+        Patient,
+        'create',
+        mock('create')
+          .withArgs({ user: 'bob', ...patientIncluded })
+          .rejects(new Error('Connection Error'))
+      );
       request(app)
         .post('/authoring/api/testing')
-        .send(patientIncludedNoUser)
+        .send(patientIncluded)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json')
         .expect(500, done);
@@ -110,96 +126,76 @@ describe('Route: /authoring/api/testing', () => {
 
     it('should return HTTP 401 for unauthenticated users', done => {
       options.user = null;
-      const patientIncludedNoUser = _.cloneDeep(patientIncluded);
-      delete patientIncludedNoUser.user;
       request(app)
         .post('/authoring/api/testing')
-        .send(patientIncludedNoUser)
+        .send(patientIncluded)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json')
         .expect('WWW-Authenticate', 'FormBased')
         .expect(401, done);
     });
   });
-});
 
-describe('Route: /authoring/api/testing/:patient', () => {
-  let app, options, expect;
-
-  before(async () => {
-    [app, options] = setupExpressApp();
-    expect = await importChaiExpect();
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-    options.reset();
-  });
-
-  describe('GET', () => {
-    it('should return single test patient for authenticated users', done => {
+  describe('GET /:patient', () => {
+    it('should return a single test patient for authenticated users', done => {
       replace(
         Patient,
         'find',
         mock('find')
-          .withArgs({ user: 'bob', _id: '1629d0f315a38860011068c9323' })
+          .withArgs({ user: 'bob', _id: '123' })
           .returns({
             exec: fake.resolves([new Patient(patientIncluded)])
           })
       );
       request(app)
-        .get('/authoring/api/testing/1629d0f315a38860011068c9323')
+        .get('/authoring/api/testing/123')
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(200)
         .expect(res => {
-          expect(res.body).to.have.length(1);
-          expect(res.body[0]).to.eql(patientIncluded);
+          expect(res.body).to.eql([patientIncluded]);
         })
         .end(done);
     });
 
-    it('should return HTTP 404 if the test patient is not found', done => {
+    it('should return HTTP 404 if the test patient does not exist', done => {
       replace(
         Patient,
         'find',
         mock('find')
-          .withArgs({ user: 'bob', _id: '789' })
+          .withArgs({ user: 'bob', _id: '123' })
           .returns({
             exec: fake.resolves([])
           })
       );
-      request(app).get('/authoring/api/testing/789').set('Accept', 'application/json').expect(404, done);
+      request(app).get('/authoring/api/testing/123').set('Accept', 'application/json').expect(404, done);
     });
 
-    it('should return HTTP 500 if there is an error finding test patients', done => {
+    it('should return HTTP 500 if there is an error finding the test patient', done => {
       replace(
         Patient,
         'find',
         mock('find')
-          .withArgs({ user: 'bob', _id: '1629d0f315a38860011068c9323' })
+          .withArgs({ user: 'bob', _id: '123' })
           .returns({
             exec: fake.rejects(new Error('Connection Error'))
           })
       );
-      request(app)
-        .get('/authoring/api/testing/1629d0f315a38860011068c9323')
-        .set('Accept', 'application/json')
-        .expect(500, done);
+      request(app).get('/authoring/api/testing/123').set('Accept', 'application/json').expect(500, done);
     });
 
     it('should return HTTP 401 for unauthenticated users', done => {
       options.user = null;
       request(app)
-        .get('/authoring/api/testing/1629d0f315a38860011068c9323')
+        .get('/authoring/api/testing/123')
         .set('Accept', 'application/json')
         .expect('WWW-Authenticate', 'FormBased')
         .expect(401, done);
     });
   });
 
-  describe('DELETE', () => {
-    it('delete a test patient for authenticated users', done => {
+  describe('DELETE /:patient', () => {
+    it('should delete a test patient for authenticated users', done => {
       replace(
         Patient,
         'deleteMany',
@@ -240,7 +236,11 @@ describe('Route: /authoring/api/testing/:patient', () => {
 
     it('should return HTTP 401 for unauthenticated users', done => {
       options.user = null;
-      request(app).delete('/authoring/api/testing/123').expect('WWW-Authenticate', 'FormBased').expect(401, done);
+      request(app)
+        .delete('/authoring/api/testing/123')
+        .set('Accept', 'application/json')
+        .expect('WWW-Authenticate', 'FormBased')
+        .expect(401, done);
     });
   });
 });

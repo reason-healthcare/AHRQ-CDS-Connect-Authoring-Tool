@@ -1,11 +1,15 @@
 import request from 'supertest';
 import passport from 'passport';
 import sinon from 'sinon';
+import express from 'express';
 
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 
 describe('Route: /authoring/api/auth/login', () => {
-  let app, options, fakeLogout, expect;
+  let app: express.Application;
+  let options: Options;
+  let fakeLogout: sinon.SinonSpy;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     expect = await importChaiExpect();
@@ -13,9 +17,9 @@ describe('Route: /authoring/api/auth/login', () => {
 
   beforeEach(() => {
     fakeLogout = sinon.fake.yields();
-    [app, options] = setupExpressApp(app => {
+    [app, options] = setupExpressApp((app: express.Application) => {
       app.use(async (req, res, next) => {
-        req.logout = fakeLogout;
+        (req as { logout?: sinon.SinonSpy }).logout = fakeLogout;
         next();
       });
     });
@@ -29,8 +33,8 @@ describe('Route: /authoring/api/auth/login', () => {
 
   describe('POST', () => {
     it('should login users w/ correct credentials', done => {
-      const mockAuthInvoker = (req, res, cb) => {
-        req.user = { uid: 'bob' };
+      const mockAuthInvoker = (req: unknown, _res: unknown, cb: (err?: unknown) => void) => {
+        (req as { user?: { uid: string } }).user = { uid: 'bob' };
         cb();
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
@@ -49,13 +53,13 @@ describe('Route: /authoring/api/auth/login', () => {
     });
 
     it('should logout an existing user before logging in', done => {
-      const mockAuthInvoker = (req, res, cb) => {
-        req.user = { uid: 'bob' };
+      const mockAuthInvoker = (req: unknown, _res: unknown, cb: (err?: unknown) => void) => {
+        (req as { user?: { uid: string } }).user = { uid: 'bob' };
         cb();
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
       sinon.replace(passport, 'authenticate', mockAuthenticate);
-      options.user = 'leroy';
+      options.user = { uid: 'leroy' };
       request(app)
         .post('/authoring/api/auth/login')
         .send({ username: 'bob', password: 'lemoncurd' })
@@ -71,7 +75,7 @@ describe('Route: /authoring/api/auth/login', () => {
     });
 
     it('should return HTTP 401 for incorrect credentials', done => {
-      const mockAuthInvoker = (req, res, cb) => {
+      const mockAuthInvoker = (_req: unknown, _res: unknown, cb: (err?: unknown) => void) => {
         cb('wrong!');
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
@@ -86,12 +90,12 @@ describe('Route: /authoring/api/auth/login', () => {
     });
 
     it('should return HTTP 401 for incorrect credentials after logging out existing user', done => {
-      const mockAuthInvoker = (req, res, cb) => {
+      const mockAuthInvoker = (_req: unknown, _res: unknown, cb: (err?: unknown) => void) => {
         cb('wrong!');
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
       sinon.replace(passport, 'authenticate', mockAuthenticate);
-      options.user = 'leroy';
+      options.user = 'leroy' as unknown as { uid: string };
       request(app)
         .post('/authoring/api/auth/login')
         .send({ username: 'bob', password: 'limecurd' })
@@ -99,7 +103,7 @@ describe('Route: /authoring/api/auth/login', () => {
         .set('Accept', 'application/json')
         .expect('WWW-Authenticate', 'FormBased')
         .expect(401)
-        .expect(res => {
+        .expect(() => {
           sinon.assert.calledOnce(fakeLogout);
         })
         .end(done);
@@ -108,13 +112,15 @@ describe('Route: /authoring/api/auth/login', () => {
 });
 
 describe('Route: /authoring/api/auth/logout', () => {
-  let app, options, fakeLogout;
+  let app: express.Application;
+  let options: Options;
+  let fakeLogout: sinon.SinonSpy;
 
   beforeEach(() => {
     fakeLogout = sinon.fake.yields();
-    [app, options] = setupExpressApp(app => {
+    [app, options] = setupExpressApp((app: express.Application) => {
       app.use(async (req, res, next) => {
-        req.logout = fakeLogout;
+        (req as { logout?: sinon.SinonSpy }).logout = fakeLogout;
         next();
       });
     });
@@ -139,7 +145,9 @@ describe('Route: /authoring/api/auth/logout', () => {
 });
 
 describe('Route: /authoring/api/auth/user', () => {
-  let app, options, expect;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
 
   before(async () => {
     [app, options] = setupExpressApp();

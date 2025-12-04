@@ -5,7 +5,7 @@ import _ from 'lodash';
 import cqlHandler from '../../src/handlers/cqlHandler.js';
 import { importChaiExpect } from '../utils.js';
 
-const baseArtifact = {
+const baseArtifact: Record<string, unknown> = {
   name: 'a test',
   version: null,
   dataModel: { name: 'FHIR', version: '4.0.1' },
@@ -21,14 +21,14 @@ const baseArtifact = {
 const mydirname = path.dirname(new URL(import.meta.url).pathname);
 
 describe('cqlHandler', () => {
-  let expect;
+  let expect: typeof import('chai').expect;
   before(async () => {
     expect = await importChaiExpect();
   });
 
   describe('#buildCQL', () => {
     describe('Element Names', () => {
-      const raw = _.cloneDeep(baseArtifact);
+      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -245,7 +245,7 @@ describe('cqlHandler', () => {
     });
 
     describe('Subpopulations', () => {
-      const raw = _.cloneDeep(baseArtifact);
+      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -504,7 +504,7 @@ describe('cqlHandler', () => {
       });
 
       it('should return null subpopulations when Inpopulation is not true', () => {
-        const withOneRec = _.cloneDeep(raw);
+        const withOneRec = _.cloneDeep(raw) as Record<string, unknown>;
         withOneRec.recommendations.splice(1);
         const artifact = cqlHandler.buildCQL(withOneRec);
         const converted = artifact.toString();
@@ -520,7 +520,7 @@ describe('cqlHandler', () => {
       });
 
       it('should use the specified subpopulation boolean logic in the rationale logic', () => {
-        const withRationales = _.cloneDeep(raw);
+        const withRationales = _.cloneDeep(raw) as Record<string, unknown>;
         withRationales.recommendations[1].rationale = 'subpop 1 with rationale';
         withRationales.recommendations[4].rationale = 'fallback rationale';
         const artifact = cqlHandler.buildCQL(withRationales);
@@ -537,7 +537,7 @@ describe('cqlHandler', () => {
       });
 
       it('should properly export the error logic as CQL', () => {
-        const withErrors = _.cloneDeep(raw);
+        const withErrors = _.cloneDeep(raw) as Record<string, unknown>;
         withErrors.errorStatement = {
           id: 'root',
           ifThenClauses: [
@@ -599,7 +599,7 @@ describe('cqlHandler', () => {
 
       it('should not check InPopulation for subpopulations when there is no recommendation', () => {
         // TODO: I'm not sure why we do it this way; as it's not really a subpopulation if you don't check InPopulation!
-        const noRecs = _.cloneDeep(raw);
+        const noRecs = _.cloneDeep(raw) as Record<string, unknown>;
         noRecs.recommendations = [];
         const artifact = cqlHandler.buildCQL(noRecs);
         const converted = artifact.toString();
@@ -615,7 +615,7 @@ describe('cqlHandler', () => {
     });
 
     describe('Modifiers', () => {
-      const raw = _.cloneDeep(baseArtifact);
+      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -732,7 +732,7 @@ describe('cqlHandler', () => {
         path: ''
       };
       raw.errorStatement = { ifThenClauses: [], elseClause: '' };
-      const rawQuery = _.cloneDeep(raw);
+      const rawQuery = _.cloneDeep(raw) as Record<string, unknown>;
       rawQuery.expTreeInclude.childInstances[0].modifiers = [
         {
           inputTypes: ['list_of_allergy_intolerances'],
@@ -761,7 +761,7 @@ describe('cqlHandler', () => {
           }
         }
       ];
-      const rawStandardAndQuery = _.cloneDeep(raw);
+      const rawStandardAndQuery = _.cloneDeep(raw) as Record<string, unknown>;
       rawStandardAndQuery.expTreeInclude.childInstances[0].modifiers = [
         {
           id: 'ActiveOrConfirmedAllergyIntolerance',
@@ -806,7 +806,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.x)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery);
+        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
         rawQueryR4.dataModel.version = '4.0.x';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -817,7 +817,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.1)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery);
+        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
         rawQueryR4.dataModel.version = '4.0.1';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -828,7 +828,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.0)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery);
+        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
         rawQueryR4.dataModel.version = '4.0.0';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -839,7 +839,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (STU3)', () => {
-        const rawQuerySTU3 = _.cloneDeep(rawQuery);
+        const rawQuerySTU3 = _.cloneDeep(rawQuery) as Record<string, unknown>;
         rawQuerySTU3.dataModel.version = '3.0.0';
         const artifact = cqlHandler.buildCQL(rawQuerySTU3);
         const converted = artifact.toString();
@@ -850,7 +850,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (DSTU2)', () => {
-        const rawQueryDSTU2 = _.cloneDeep(rawQuery);
+        const rawQueryDSTU2 = _.cloneDeep(rawQuery) as Record<string, unknown>;
         rawQueryDSTU2.dataModel.version = '1.0.2';
         const artifact = cqlHandler.buildCQL(rawQueryDSTU2);
         const converted = artifact.toString();
@@ -871,7 +871,7 @@ describe('cqlHandler', () => {
     });
 
     describe('CQL Operator Templates', () => {
-      const raw = _.cloneDeep(baseArtifact);
+      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
       raw.expTreeInclude = {
         id: 'And',
         name: 'And',
@@ -983,7 +983,7 @@ describe('cqlHandler', () => {
         path: ''
       };
       raw.errorStatement = { ifThenClauses: [], elseClause: '' };
-      const rawBaseQuery = _.cloneDeep(raw);
+      const rawBaseQuery = _.cloneDeep(raw) as Record<string, unknown>;
 
       beforeEach(() => {
         rawBaseQuery.expTreeInclude.childInstances[0].modifiers = [
@@ -1023,7 +1023,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isNull template for simple property', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1039,7 +1039,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isNull template for FHIR R4 choice property', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1056,7 +1056,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isNull template for FHIR STU3 choice property', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1065,7 +1065,7 @@ describe('cqlHandler', () => {
             }
           ]
         };
-        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery);
+        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery) as Record<string, unknown>;
         ((stu3RawBaseQuery.dataModel = { name: 'FHIR', version: '3.0.0' }),
           (stu3RawBaseQuery.expTreeInclude.childInstances[1].modifiers[0].where = templateTest));
         const artifact = cqlHandler.buildCQL(stu3RawBaseQuery);
@@ -1075,7 +1075,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isNull template for FHIR DSTU2 choice property', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1084,7 +1084,7 @@ describe('cqlHandler', () => {
             }
           ]
         };
-        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery);
+        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery) as Record<string, unknown>;
         ((stu3RawBaseQuery.dataModel = { name: 'FHIR', version: '1.0.2' }),
           (stu3RawBaseQuery.expTreeInclude.childInstances[1].modifiers[0].where = templateTest));
         const artifact = cqlHandler.buildCQL(stu3RawBaseQuery);
@@ -1094,7 +1094,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isNotNull template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1110,7 +1110,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listIsEmpty template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1128,7 +1128,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listLengthComparison template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1147,7 +1147,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using isTrueFalse template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'or',
           rules: [
             {
@@ -1171,7 +1171,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInValueSet template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1194,7 +1194,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInValueSet template with valueset name containing quote character', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1217,7 +1217,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInValueSet template with two value sets having the same name', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1253,7 +1253,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptNotInValueSet template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1276,7 +1276,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptMatchesConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1300,7 +1300,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInListOfConcept template with FHIR.CodeableConcept property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1324,7 +1324,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInListOfConcept template with FHIR.CodeableConcept property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1362,7 +1362,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptInListOfConcept template with FHIR.CodeableConcept property and disambuguates codes with same name but different systems', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1400,7 +1400,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptNotInListOfConcept template with FHIR.CodeableConcept property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1426,7 +1426,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptNotInListOfConcept template with FHIR.CodeableConcept property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1464,7 +1464,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptContainsConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1490,7 +1490,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIsPerfectSubsetOfListConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1528,7 +1528,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIsPerfectSubsetOfListConcept template with single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1556,7 +1556,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIntersectsListConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1594,7 +1594,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIntersectsListConcept template with single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1622,7 +1622,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptNotIntersectsListConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1660,7 +1660,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptNotIntersectsListConcept template with single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1688,7 +1688,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIsPerfectSubsetOfValueset template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1711,7 +1711,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptIntersectsValueset template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1732,7 +1732,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using listCodeConceptNotIntersectsValueset template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1755,7 +1755,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonSingular template with FHIR.code property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1772,7 +1772,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonSingular template with FHIR.code property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1789,7 +1789,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonSingular template with FHIR.CodeableConcept property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1812,7 +1812,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonSingular template with FHIR.CodeableConcept property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1840,7 +1840,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonPlural template with FHIR.code property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1859,7 +1859,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonPlural template with FHIR.code property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1878,7 +1878,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonPlural template with FHIR.CodeableConcept property and single code selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1903,7 +1903,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using predefinedConceptComparisonPlural template with FHIR.CodeableConcept property and multiple codes selected', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1931,7 +1931,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateWithinLast template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1951,7 +1951,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateOccurredMoreThan template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1971,7 +1971,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeWithinLast template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -1991,7 +1991,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeIntervalWithinLast template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2012,7 +2012,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccurredMoreThan template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2030,7 +2030,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccurred template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2054,7 +2054,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeIntervalComparison template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2079,7 +2079,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccursBetween template for FHIR.dateTime w/ dates and times', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2107,7 +2107,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccursBetween template for FHIR.dateTime w/ dates only', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2135,7 +2135,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccursBetween template for FHIR.instant w/ dates and times', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2163,7 +2163,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeOccursBetween template for FHIR.instant w/ dates only', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2191,7 +2191,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeIntervalContains template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2212,7 +2212,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeIntervalNotContains template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2235,7 +2235,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using dateTimeIntervalOverlaps template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2260,7 +2260,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using codeConceptNotMatchesConcept template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2284,7 +2284,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityComparison template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2303,7 +2303,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityIsBetweenQuantities template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2322,7 +2322,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityIntervalComparison template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2342,7 +2342,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityIntervalOverlapsQuantityInterval template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2360,7 +2360,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityIntervalContainsQuantity template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2378,7 +2378,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using quantityIntervalNotContainsQuantity template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2396,7 +2396,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using ageComparison template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2416,7 +2416,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export CQL using ageIsBetweenAges template', () => {
-        const templateTest = {
+        const templateTest: Record<string, unknown> = {
           conjunctionType: 'and',
           rules: [
             {
@@ -2440,9 +2440,9 @@ describe('cqlHandler', () => {
     });
 
     describe('Suggestions', () => {
-      let raw;
+      let raw: Record<string, unknown>;
       beforeEach(() => {
-        raw = _.cloneDeep(baseArtifact);
+        raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
         raw.expTreeInclude = {
           id: 'And',
           name: 'And',
@@ -2948,7 +2948,10 @@ ServiceRequest {\r
   });
 
   describe('#makeCQLtoELMRequest', () => {
-    let inputFiles, inputFileStreams, outputContent, outputHeaders;
+    let inputFiles: Array<{ filename: string; text: string; type: string }>;
+    let inputFileStreams: Array<fs.ReadStream>;
+    let outputContent: string;
+    let outputHeaders: Record<string, string>;
 
     // before the tests, disable network connections to ensure tests never hit real network
     before(() => {
@@ -3008,7 +3011,7 @@ ServiceRequest {\r
         .reply(200, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, true, err => {
+      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, true, (err: Error | null) => {
         try {
           expect(err).to.be.null;
           done();
@@ -3027,7 +3030,7 @@ ServiceRequest {\r
         .reply(200, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, true, err => {
+      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, true, (err: Error | null) => {
         try {
           expect(err).to.be.null;
           done();
@@ -3063,27 +3066,32 @@ ServiceRequest {\r
         .reply(200, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, true, (err, elmFiles) => {
-        try {
-          expect(err).to.be.null;
-          expect(elmFiles).to.have.length(4);
-          expect(elmFiles[0].name).to.equal('FHIRHelpers.cql');
-          expect(elmFiles[0].content).to.match(
-            /\{\s*"library"[\s\S]*"identifier"\s*:\s*\{\s*"id"\s*:\s*"FHIRHelpers"[\s\S]*\}/m
-          );
-          expect(elmFiles[1].name).to.equal('FHIRHelpers.cql');
-          expect(elmFiles[1].content).to.match(/<library[\s\S]*<identifier id="FHIRHelpers"[\s\S]*/m);
-          expect(elmFiles[2].name).to.equal('Simple.cql');
-          expect(elmFiles[2].content).to.match(
-            /\{\s*"library"[\s\S]*"identifier"\s*:\s*\{\s*"id"\s*:\s*"SimpleLibrary"[\s\S]*\}/m
-          );
-          expect(elmFiles[3].name).to.equal('Simple.cql');
-          expect(elmFiles[3].content).to.match(/<library[\s\S]*<identifier id="SimpleLibrary"[\s\S]*/m);
-          done();
-        } catch (e) {
-          done(e);
+      cqlHandler.makeCQLtoELMRequest(
+        inputFiles,
+        inputFileStreams,
+        true,
+        (err: Error | null, elmFiles?: Array<{ name: string; content: string }>) => {
+          try {
+            expect(err).to.be.null;
+            expect(elmFiles).to.have.length(4);
+            expect(elmFiles![0].name).to.equal('FHIRHelpers.cql');
+            expect(elmFiles![0].content).to.match(
+              /\{\s*"library"[\s\S]*"identifier"\s*:\s*\{\s*"id"\s*:\s*"FHIRHelpers"[\s\S]*\}/m
+            );
+            expect(elmFiles![1].name).to.equal('FHIRHelpers.cql');
+            expect(elmFiles![1].content).to.match(/<library[\s\S]*<identifier id="FHIRHelpers"[\s\S]*/m);
+            expect(elmFiles![2].name).to.equal('Simple.cql');
+            expect(elmFiles![2].content).to.match(
+              /\{\s*"library"[\s\S]*"identifier"\s*:\s*\{\s*"id"\s*:\s*"SimpleLibrary"[\s\S]*\}/m
+            );
+            expect(elmFiles![3].name).to.equal('Simple.cql');
+            expect(elmFiles![3].content).to.match(/<library[\s\S]*<identifier id="SimpleLibrary"[\s\S]*/m);
+            done();
+          } catch (e) {
+            done(e);
+          }
         }
-      });
+      );
     });
   });
 
@@ -3125,7 +3133,7 @@ ServiceRequest {\r
         .reply(200, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.formatCQL(inputContent, (err, output) => {
+      cqlHandler.formatCQL(inputContent, (err: Error | null, output?: string) => {
         try {
           expect(err).to.be.null;
           expect(output).to.equal(outputContent);
@@ -3148,10 +3156,10 @@ ServiceRequest {\r
         .reply(400, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.formatCQL(inputContent, (err, output) => {
+      cqlHandler.formatCQL(inputContent, (err: Error | null, output?: string) => {
         try {
           expect(err).to.be.instanceOf(Error);
-          expect(err.message).to.equal(outputContent);
+          expect((err as Error).message).to.equal(outputContent);
           expect(output).to.be.undefined;
           done();
         } catch (e) {

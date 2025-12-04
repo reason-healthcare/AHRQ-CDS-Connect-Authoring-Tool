@@ -1,10 +1,14 @@
 import request from 'supertest';
 import sinon from 'sinon';
-import { setupExpressApp, importChaiExpect } from '../utils.js';
+import express from 'express';
+import { setupExpressApp, importChaiExpect, Options } from '../utils.js';
 import config from '../../src/config.js';
 
 describe('Route: /authoring/api/foresee.js', () => {
-  let app, options, expect, sandbox;
+  let app: express.Application;
+  let options: Options;
+  let expect: typeof import('chai').expect;
+  let sandbox: sinon.SinonSandbox;
 
   before(async () => {
     [app, options] = setupExpressApp();

@@ -2,7 +2,8 @@ import { fixArtifactErrorStatement } from '../../src/migrations/old-migrations/1
 import { importChaiExpect } from '../utils.js';
 
 describe('Error Statement Conversion Fix', () => {
-  let expect;
+  let expect: typeof import('chai').expect;
+
   before(async () => {
     expect = await importChaiExpect();
   });

@@ -1,14 +1,16 @@
 import request from 'supertest';
 import sinon from 'sinon';
+import express from 'express';
 
-import { setupExpressApp } from '../utils.js';
+import { setupExpressApp, Options } from '../utils.js';
 import UserSettings from '../../src/models/userSettings.js';
 
 const sandbox = sinon.createSandbox();
 const { replace, mock, fake } = sandbox;
 
 describe('Route: /authoring/api/settings', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();

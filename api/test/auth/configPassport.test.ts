@@ -9,12 +9,15 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 describe('configPassport', () => {
-  let getLdapConfiguration;
+  let getLdapConfiguration: (
+    req: { body: { username: string; password: string } },
+    callback: (err: Error | null, ldapConfig?: Record<string, unknown>) => void
+  ) => void;
 
   describe('#getLdapConfiguration', () => {
-    let config;
-    let mockConfig;
-    let mockFs;
+    let config: Record<string, unknown>;
+    let mockConfig: { default: { get: sinon.SinonStub } };
+    let mockFs: { default: { readFileSync: sinon.SinonStub } };
 
     beforeEach(async () => {
       // Replace the require(../config) w/ a simplified version containing just what we need
@@ -36,7 +39,7 @@ describe('configPassport', () => {
       // Create mock config that mimics real config module
       mockConfig = {
         default: {
-          get: sinon.stub().callsFake(path => {
+          get: sinon.stub().callsFake((path: string) => {
             if (path === 'auth.ldap') return config.auth.ldap;
             return null;
           })
@@ -46,7 +49,7 @@ describe('configPassport', () => {
       // Create mock fs for certificate loading tests
       mockFs = {
         default: {
-          readFileSync: sinon.stub().callsFake(filePath => {
+          readFileSync: sinon.stub().callsFake((filePath: string) => {
             if (filePath.includes('ca1.crt')) {
               return Buffer.from('Fake Cert One', 'utf-8');
             }
@@ -55,7 +58,7 @@ describe('configPassport', () => {
             }
             // Simulate file not found
             const error = new Error(`ENOENT: no such file or directory, open '${filePath}'`);
-            error.code = 'ENOENT';
+            (error as { code?: string }).code = 'ENOENT';
             throw error;
           })
         }
@@ -107,7 +110,7 @@ describe('configPassport', () => {
     });
 
     it('should replace the ca file references with file contents', done => {
-      config.auth.ldap.server.tlsOptions = {
+      (config.auth.ldap.server as Record<string, unknown>).tlsOptions = {
         ca: [path.join(dirname, 'fixtures', 'ca1.crt'), path.join(dirname, 'fixtures', 'ca2.crt')],
         rejectUnauthorized: true
       };
@@ -115,7 +118,7 @@ describe('configPassport', () => {
       const req = { body: { username: 'bob', password: 'lemoncurd' } };
       getLdapConfiguration(req, (err, ldapConfig) => {
         expect(err).to.be.null;
-        expect(ldapConfig.server.tlsOptions).to.eql({
+        expect((ldapConfig?.server as Record<string, unknown>).tlsOptions).to.eql({
           ca: [Buffer.from('Fake Cert One', 'utf-8'), Buffer.from('Fake Cert Two', 'utf-8')],
           rejectUnauthorized: true
         });
@@ -124,7 +127,7 @@ describe('configPassport', () => {
     });
 
     it('should skip ca file references that it cannot load', done => {
-      config.auth.ldap.server.tlsOptions = {
+      (config.auth.ldap.server as Record<string, unknown>).tlsOptions = {
         ca: ['first-bad-path', path.join(dirname, 'fixtures', 'ca1.crt'), 'last-bad-path'],
         rejectUnauthorized: true
       };
@@ -132,7 +135,7 @@ describe('configPassport', () => {
       const req = { body: { username: 'bob', password: 'lemoncurd' } };
       getLdapConfiguration(req, (err, ldapConfig) => {
         expect(err).to.be.null;
-        expect(ldapConfig.server.tlsOptions).to.eql({
+        expect((ldapConfig?.server as Record<string, unknown>).tlsOptions).to.eql({
           ca: [Buffer.from('Fake Cert One', 'utf-8')],
           rejectUnauthorized: true
         });
@@ -142,7 +145,7 @@ describe('configPassport', () => {
   });
 
   describe('#getLocalConfiguration', () => {
-    const users = { bob: 'p@$$w0rd!', sue: '1l0v3h0r$3$!' };
+    const users: Record<string, string> = { bob: 'p@$$w0rd!', sue: '1l0v3h0r$3$!' };
 
     it('should callback with the user when username and passwords match', done => {
       getLocalConfiguration(
@@ -193,7 +196,7 @@ describe('configPassport', () => {
           expect(user).to.be.false;
           done();
         },
-        'users'
+        'users' as unknown as Record<string, string>
       );
     });
   });

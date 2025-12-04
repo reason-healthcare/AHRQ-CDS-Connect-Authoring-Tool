@@ -4,26 +4,33 @@ import FHIRClient from '../../src/vsac/FHIRClient.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import express from 'express';
 
-import { setupExpressApp } from '../utils.js';
+import { setupExpressApp, Options } from '../utils.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dir = dirname(filename);
 
 const HL7AdministrativeGenderVS = JSON.parse(
   readFileSync(join(dir, 'fixtures/hl7-administrative-gender-vs.json'), 'utf-8')
-);
-const HyperproinsulinemiaCode = JSON.parse(readFileSync(join(dir, 'fixtures/hyperproinsulinemia-code.json'), 'utf-8'));
+) as Record<string, unknown>;
+const HyperproinsulinemiaCode = JSON.parse(
+  readFileSync(join(dir, 'fixtures/hyperproinsulinemia-code.json'), 'utf-8')
+) as Record<string, unknown>;
 const ONCAdministrativeSexFhirVS = JSON.parse(
   readFileSync(join(dir, 'fixtures/onc-administrative-sex-fhir-vs.json'), 'utf-8')
-);
-const VSSearchResults = JSON.parse(readFileSync(join(dir, 'fixtures/vs-search-results.json'), 'utf-8'));
+) as Record<string, unknown>;
+const VSSearchResults = JSON.parse(readFileSync(join(dir, 'fixtures/vs-search-results.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
 
 const sandbox = sinon.createSandbox();
 const { replace, mock, fake, assert } = sandbox;
 
 describe('Route: /authoring/api/fhir/login', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -54,7 +61,7 @@ describe('Route: /authoring/api/fhir/login', () => {
         sandbox
           .mock('getOneValueSet')
           .withArgs('', 'my-api-key')
-          .rejects({ response: { status: 404 } })
+          .rejects({ response: { status: 404 } } as { response: { status: number } })
       );
       request(app)
         .post('/authoring/api/fhir/login')
@@ -69,7 +76,7 @@ describe('Route: /authoring/api/fhir/login', () => {
         sandbox
           .mock('getOneValueSet')
           .withArgs('', 'my-wrong-api-key')
-          .rejects({ response: { status: 401 } })
+          .rejects({ response: { status: 401 } } as { response: { status: number } })
       );
       request(app)
         .post('/authoring/api/fhir/login')
@@ -96,7 +103,7 @@ describe('Route: /authoring/api/fhir/login', () => {
         sandbox
           .mock('getOneValueSet')
           .withArgs('', 'my-api-key')
-          .rejects({ response: { status: 502 } })
+          .rejects({ response: { status: 502 } } as { response: { status: number } })
       );
       request(app)
         .post('/authoring/api/fhir/login')
@@ -119,7 +126,9 @@ describe('Route: /authoring/api/fhir/login', () => {
 });
 
 describe('Route: /authoring/api/fhir/search', () => {
-  let app, options, sandbox;
+  let app: express.Application;
+  let options: Options;
+  let sandbox: sinon.SinonSandbox;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -156,7 +165,7 @@ describe('Route: /authoring/api/fhir/search', () => {
         sandbox
           .mock('searchForValueSets')
           .withArgs('administrative', '', 'my-api-key')
-          .rejects({ response: { status: 401 } })
+          .rejects({ response: { status: 401 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/search?keyword=administrative')
@@ -185,7 +194,7 @@ describe('Route: /authoring/api/fhir/search', () => {
         sandbox
           .mock('searchForValueSets')
           .withArgs('administrative', '', 'my-api-key')
-          .rejects({ response: { status: 502 } })
+          .rejects({ response: { status: 502 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/search?keyword=administrative')
@@ -210,7 +219,8 @@ describe('Route: /authoring/api/fhir/search', () => {
 });
 
 describe('Route: /authoring/api/fhir/vs/:id', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -242,7 +252,7 @@ describe('Route: /authoring/api/fhir/vs/:id', () => {
         'getValueSet',
         mock('getValueSet')
           .withArgs('2.16.840.1.113883.1.11.1', '', 'my-api-key')
-          .rejects({ response: { status: 401 } })
+          .rejects({ response: { status: 401 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/vs/2.16.840.1.113883.1.11.1')
@@ -270,7 +280,7 @@ describe('Route: /authoring/api/fhir/vs/:id', () => {
         'getValueSet',
         mock('getValueSet')
           .withArgs('2.16.840.1.113883.1.11.1', '', 'my-api-key')
-          .rejects({ response: { status: 404 } })
+          .rejects({ response: { status: 404 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/vs/2.16.840.1.113883.1.11.1')
@@ -295,7 +305,8 @@ describe('Route: /authoring/api/fhir/vs/:id', () => {
 });
 
 describe('Route: /authoring/api/fhir/code', () => {
-  let app, options;
+  let app: express.Application;
+  let options: Options;
 
   before(() => {
     [app, options] = setupExpressApp();
@@ -329,7 +340,7 @@ describe('Route: /authoring/api/fhir/code', () => {
         'getCode',
         mock('getCode')
           .withArgs('237613005', 'http://snomed.info/sct', '', 'my-api-key')
-          .rejects({ response: { status: 401 } })
+          .rejects({ response: { status: 401 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/code?code=237613005&system=http:%2F%2Fsnomed.info%2Fsct')
@@ -357,7 +368,7 @@ describe('Route: /authoring/api/fhir/code', () => {
         'getCode',
         mock('getCode')
           .withArgs('237613005', 'http://snomed.info/sct', '', 'my-api-key')
-          .rejects({ response: { status: 404 } })
+          .rejects({ response: { status: 404 } } as { response: { status: number } })
       );
       request(app)
         .get('/authoring/api/fhir/code?code=237613005&system=http:%2F%2Fsnomed.info%2Fsct')

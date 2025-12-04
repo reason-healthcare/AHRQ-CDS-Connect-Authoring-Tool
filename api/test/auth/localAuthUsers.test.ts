@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { findByUsername } from '../../src/auth/localAuthUsers.js';
 
 describe('localAuthUsers', () => {
-  const users = { bob: 'p@$$w0rd!', sue: '1l0v3h0r$3$!' };
+  const users: Record<string, string> = { bob: 'p@$$w0rd!', sue: '1l0v3h0r$3$!' };
 
   describe('#findByUsername', () => {
     it('should callback with a user object when a user is found', done => {

@@ -4,7 +4,8 @@ import { importChaiExpect } from '../utils.js';
 // Skipping this test since migration 17 will not work unless uuid is manually installed.
 // This is by design to reduce dependencies for code that is no longer considered active.
 describe.skip('Error Statement Data Migration', () => {
-  let expect;
+  let expect: typeof import('chai').expect;
+
   before(async () => {
     expect = await importChaiExpect();
   });

@@ -1,24 +1,26 @@
 import express from 'express';
 import routes from '../src/routes.js';
 
-class Options {
+export class Options {
+  user!: { uid: string } | null;
+
   constructor() {
     this.reset();
   }
 
-  reset() {
+  reset(): void {
     this.user = { uid: 'bob' };
   }
 }
 
-function setupExpressApp(...configurers) {
+function setupExpressApp(...configurers: Array<(app: express.Application) => void>): [express.Application, Options] {
   const options = new Options();
   const app = express();
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-  app.use(async (req, res, next) => {
+  app.use(async (req, _res, next) => {
     if (options.user) {
-      req.user = options.user;
+      (req as { user?: { uid: string } }).user = options.user;
     }
     next();
   });
@@ -29,7 +31,7 @@ function setupExpressApp(...configurers) {
   return [app, options];
 }
 
-async function importChaiExpect() {
+async function importChaiExpect(): Promise<typeof import('chai').expect> {
   // Chai dynamic import. See: https://github.com/chaijs/chai/issues/1561#issuecomment-1933171936
   const chai = await import('chai');
   const chaiExclude = await import('chai-exclude');

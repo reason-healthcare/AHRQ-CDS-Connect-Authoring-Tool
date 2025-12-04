@@ -129,9 +129,11 @@ export interface ValueSetResult {
 }
 
 async function getValueSet(oid: string, username: string, password: string): Promise<ValueSetResult> {
+  // Strip version suffix from oid if present (e.g., "2468|13579" -> "2468")
+  const cleanOid = stripBarFromId(oid);
   const options: AxiosRequestConfig = {
     method: 'GET',
-    url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oid}/$expand`,
+    url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${cleanOid}/$expand`,
     headers: {
       Accept: 'application/json',
       Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`
@@ -140,9 +142,14 @@ async function getValueSet(oid: string, username: string, password: string): Pro
 
   const res: AxiosResponse<fhir4.ValueSet> = await axios(options);
   const response = res.data;
+  // Extract version from id if present (e.g., "2468|13579" -> "13579")
+  let version = response.meta?.versionId;
+  if (response.id && response.id.indexOf('|') !== -1) {
+    version = response.id.slice(response.id.indexOf('|') + 1);
+  }
   return {
     oid: cleanId(response.id, response.version),
-    version: response.meta?.versionId,
+    version,
     displayName: response.title || response.name,
     codes: (response.expansion?.contains || []).map(c => {
       return {
@@ -163,7 +170,8 @@ async function getValueSet(oid: string, username: string, password: string): Pro
 async function getValueSetCodeCount(username: string, password: string, oid: string): Promise<number> {
   const options: AxiosRequestConfig = {
     method: 'GET',
-    url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oid}/$expand?count=1`,
+    url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oid}/$expand`,
+    params: { count: 1 }, // Use params instead of query string in URL for better nock compatibility
     timeout: 3500, // There are lots of these requests, and any one hanging can hold things up, so use a timeout
     headers: {
       Accept: 'application/json',
@@ -266,7 +274,7 @@ async function getCode(code: string, system: string, username: string, password:
   const codeObject = _.zipObject(
     _.map(codeJSON, 'name'),
     _.map(codeJSON, p => (p as { valueString?: string }).valueString)
-  );
+  ) as Record<string, string | undefined>;
   return {
     system,
     systemName: codeObject.name as string | undefined,
@@ -296,5 +304,6 @@ export default {
   getValueSet,
   searchForValueSets,
   getCode,
-  getOneValueSet
+  getOneValueSet,
+  getValueSetCodeCount
 };

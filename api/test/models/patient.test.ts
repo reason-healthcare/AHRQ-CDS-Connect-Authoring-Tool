@@ -1,8 +1,9 @@
-import UserSettings from '../../src/models/userSettings.js';
+import Patient from '../../src/models/patient.js';
 import { importChaiExpect } from '../utils.js';
 
-describe('UserSettings', () => {
-  let expect;
+describe('Patient', () => {
+  let expect: typeof import('chai').expect;
+
   before(async () => {
     expect = await importChaiExpect();
   });
@@ -10,9 +11,9 @@ describe('UserSettings', () => {
   describe('#validate', () => {
     // There isn't much to test, so just check it validates without errors
     it('should validate without errors', async () => {
-      const settings = new UserSettings({ user: 'Bob' });
-      expect(settings.user).to.equal('Bob');
-      return settings.validate();
+      const patient = new Patient({ name: 'Bob' });
+      expect(patient.name).to.equal('Bob');
+      return patient.validate();
     });
   });
 });

@@ -3,18 +3,18 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-import Artifact from '../../src/models/artifact.ts';
+import Artifact from '../../src/models/artifact.js';
 
 // JSON imports will be handled dynamically in the tests
 import { importChaiExpect } from '../utils.js';
 
 describe('Artifact', () => {
-  let expect;
-  let testEmptyPublishableLibrary,
-    testPublishableLibraryWithDates,
-    testPublishableLibraryWithDatesAndContext,
-    testPublishableLibrary,
-    testExpandedContext;
+  let expect: typeof import('chai').expect;
+  let testEmptyPublishableLibrary: Record<string, unknown>;
+  let testPublishableLibraryWithDates: Record<string, unknown>;
+  let testPublishableLibraryWithDatesAndContext: Record<string, unknown>;
+  let testPublishableLibrary: Record<string, unknown>;
+  let testExpandedContext: Record<string, unknown>;
 
   before(async () => {
     expect = await importChaiExpect();
@@ -25,22 +25,22 @@ describe('Artifact', () => {
 
     testEmptyPublishableLibrary = JSON.parse(
       readFileSync(join(currentDirname, './fixtures/artifact/Library-Test-Empty-Artifact.json'), 'utf8')
-    );
+    ) as Record<string, unknown>;
     testPublishableLibraryWithDates = JSON.parse(
       readFileSync(join(currentDirname, './fixtures/artifact/Library-Test-Artifact-With-Dates.json'), 'utf8')
-    );
+    ) as Record<string, unknown>;
     testPublishableLibraryWithDatesAndContext = JSON.parse(
       readFileSync(
         join(currentDirname, './fixtures/artifact/Library-Test-Artifact-With-Dates-And-Context.json'),
         'utf8'
       )
-    );
+    ) as Record<string, unknown>;
     testPublishableLibrary = JSON.parse(
       readFileSync(join(currentDirname, './fixtures/artifact/Library-Test-CPG-Export.json'), 'utf8')
-    );
+    ) as Record<string, unknown>;
     testExpandedContext = JSON.parse(
       readFileSync(join(currentDirname, './fixtures/artifact/Library-Test-Expanded-Context.json'), 'utf8')
-    );
+    ) as Record<string, unknown>;
   });
 
   describe('#validate', () => {
@@ -61,11 +61,14 @@ describe('Artifact', () => {
      * @param  {Object} base   Object to compare with
      * @return {Object}        Return a new object who represent the diff
      */
-    function difference(object, base) {
-      function changes(object, base) {
-        return _.transform(object, function (result, value, key) {
+    function difference(object: Record<string, unknown>, base: Record<string, unknown>): Record<string, unknown> {
+      function changes(object: Record<string, unknown>, base: Record<string, unknown>): Record<string, unknown> {
+        return _.transform(object, function (result: Record<string, unknown>, value: unknown, key: string) {
           if (!_.isEqual(value, base[key])) {
-            result[key] = _.isObject(value) && _.isObject(base[key]) ? changes(value, base[key]) : value;
+            result[key] =
+              _.isObject(value) && _.isObject(base[key])
+                ? (changes(value as Record<string, unknown>, base[key] as Record<string, unknown>) as unknown)
+                : value;
           }
         });
       }

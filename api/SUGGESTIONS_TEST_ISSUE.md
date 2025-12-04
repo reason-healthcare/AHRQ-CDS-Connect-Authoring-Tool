@@ -1,9 +1,11 @@
-# Suggestions Test Issue - Manual Investigation Needed
+# Test Issues - Manual Investigation Needed
 
 ## Status
 
 - **248 tests passing** (up from 183 originally)
-- **1 test failing** (suggestion-related with actions)
+- **2 tests failing**:
+  1. Suggestion-related with actions (see below)
+  2. `getValueSetCodeCount` test (see below)
 - **Main fix completed**: Query modifiers now work correctly (changed `isRoot` to `true`)
 
 **Important Note**:
@@ -119,6 +121,72 @@ raw.recommendations[0].suggestions = [
 ## Related Files
 
 - `api/src/handlers/cqlHandler.ts` - Main handler file
-- `api/test/handlers/cqlHandler.test.js` - Test file (lines 2592-2937)
+- `api/test/handlers/cqlHandler.test.ts` - Test file (lines 2592-2937)
 - `api/src/data/cql/templates/MedicationRequestResource` - Template file
 - `api/src/data/cql/templates/ServiceRequestResource` - Template file
+
+---
+
+# getValueSetCodeCount Test Issue
+
+## Status
+
+- **Test**: `FHIRClient #getValueSetCodeCount should get the code count for a value set`
+- **Location**: `api/test/vsac/fhirClient.test.ts` (lines 109-125)
+- **Error**: `AssertionError: expected +0 to equal 1`
+
+## Problem
+
+The test is failing because the nock mock is not intercepting the HTTP request made by `getValueSetCodeCount`. The function returns 0 (the default when the request fails or times out) instead of the expected value of 1.
+
+## Code Location
+
+- **Handler**: `api/src/vsac/FHIRClient.ts` (lines 170-184)
+- **Test**: `api/test/vsac/fhirClient.test.ts` (lines 109-125)
+
+## What We've Tried
+
+1. ✅ Changed function to use `params: { count: 1 }` instead of query string in URL
+2. ✅ Tried various nock query matchers: `{ count: '1' }`, `{ count: 1 }`, `query(true)`
+3. ✅ Tried matching exact path with query: `/fhir/ValueSet/1234/$expand?count=1`
+4. ✅ Tried using `.persist()` to keep mock active
+5. ✅ Verified standalone test works with same nock setup
+
+**Result**: Standalone test confirms the nock setup works correctly, but the test environment appears to have interference preventing nock from matching the request.
+
+## Current Implementation
+
+The function now uses:
+```typescript
+url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oid}/$expand`,
+params: { count: 1 }, // Use params instead of query string in URL
+```
+
+The test uses:
+```typescript
+nock('https://cts.nlm.nih.gov')
+  .get('/fhir/ValueSet/1234/$expand')
+  .query(true) // Accept any query parameters
+  .reply(200, FHIRMocks.ValueSet);
+```
+
+## Potential Issues
+
+1. **Test environment interference**: The `nock.cleanAll()` in `afterEach` might be interfering
+2. **Timing issues**: The async nature of the request might not be properly awaited
+3. **Axios configuration**: The way axios handles `params` vs query strings in URLs might differ
+4. **Nock version compatibility**: There might be a version-specific issue with how nock matches requests
+
+## Debugging Suggestions
+
+1. Add logging to see the actual request URL being made by axios
+2. Check if nock is active and has pending mocks before the request
+3. Try using a custom axios adapter to inspect the outgoing request
+4. Verify the exact format of the query string that axios generates from `params`
+5. Check if there are any other nock mocks that might be interfering
+
+## Related Files
+
+- `api/src/vsac/FHIRClient.ts` - FHIR client implementation
+- `api/test/vsac/fhirClient.test.ts` - Test file
+- `api/test/vsac/fixtures/FHIRfixtures.js` - Test fixtures
