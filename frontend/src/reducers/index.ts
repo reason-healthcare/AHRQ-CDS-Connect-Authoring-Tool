@@ -11,7 +11,7 @@ import type { AuthState } from './auth';
 import type { NavigationState } from './navigation';
 import type { VSACState } from './vsac';
 
-interface RootState {
+export interface RootState {
   artifacts: ArtifactState;
   auth: AuthState;
   navigation: NavigationState;
