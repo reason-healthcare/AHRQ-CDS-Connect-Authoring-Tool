@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import configureStore from './store/configureStore';
-import Root from './components/root/Root';
+import Root from './components/root/Root.tsx';
 import '@fontsource/open-sans/latin.css';
 import '@fontsource/open-sans/latin-300-italic.css';
 import '@fontsource/open-sans/latin-400-italic.css';

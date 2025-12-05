@@ -1,1 +1,1 @@
-export { default as Tester } from './Tester';
+export { default as Tester } from './Tester.tsx';
