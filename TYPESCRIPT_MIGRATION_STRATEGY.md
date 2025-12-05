@@ -501,16 +501,145 @@ export default router;
 - ✅ All files pass TypeScript strict checking, linting, and formatting
 - ✅ Added ESLint disable comments for import resolution false positives
 
-**Batch 3 - Container Components (Days 21-22):**
+**Batch 3 - Container Components (Days 21-22):** ✅ **COMPLETE** (Commit: d41cf9d5)
 
-- Redux-connected components
-- Route components
-- Main application components
+- Redux-connected components ✅
+- Route components ✅
+- Main application components ✅
 
-**Batch 4 - Remaining Components (Day 23):**
+**Completion Notes:**
+- ✅ Converted 15 modal components (DeleteConfirmation, ELMError, CQL, CodeSelect, ValueSetSelect, PatientDetails, PatientVersion, TestResultsCql, ExecuteCQL)
+- ✅ Converted 13 testing components (Tester, TestResults, PatientCard, PatientsTable, etc.)
+- ✅ Converted 8 field components (TextField, TextAreaField, DateField, etc.)
+- ✅ Converted 3 base components (Analytics, ErrorPage, Navbar)
+- ✅ Converted 4 header/footer components
+- ✅ Converted 2 landing components (WhatsNew)
+- ✅ Fixed all TypeScript errors and improved type safety
+- ✅ Replaced unknown types with specific types (PatientBundle, CqlFile, ELMError, etc.)
+- ✅ Used FHIR types where applicable
+- ✅ Deleted all converted JavaScript files
+- ✅ Fixed formatting and linting issues
 
-- Any remaining components
-- Integration and fixes
+**Batch 4 - Remaining Components (Days 23-28):**
+
+Batch 4 has been broken down into smaller, more manageable sub-batches based on component relationships and dependencies:
+
+**Batch 4.1 - ModifierModal Components (11 files):**
+- `ModifierModal.js` → `ModifierModal.tsx`
+- `ModifierModalHeader.js` → `ModifierModalHeader.tsx`
+- `FhirVersionSelect.js` → `FhirVersionSelect.tsx`
+- `ModifierSelector/ModifierSelector.js` → `ModifierSelector.tsx`
+- `ModifierSelector/ModifierSelectorRow.js` → `ModifierSelectorRow.tsx`
+- `ModifierSelector/ModifierDropdownItem.js` → `ModifierDropdownItem.tsx`
+- `ModifierSelector/ModifierDropdownFooter.js` → `ModifierDropdownFooter.tsx`
+- `ModifierBuilder/ModifierBuilder.js` → `ModifierBuilder.tsx`
+- `ModifierBuilder/ConjunctionCard.js` → `ConjunctionCard.tsx`
+- `ModifierBuilder/RuleCard.js` → `RuleCard.tsx`
+- `ModifierBuilder/OperandTemplate.js` → `OperandTemplate.tsx`
+- `ModifierBuilder/utils/getModifierExpression.js` → `getModifierExpression.ts`
+- `ModifierBuilder/utils/getResourceOptions.js` → `getResourceOptions.ts`
+- `ModifierBuilder/utils/ruleIsComplete.js` → `ruleIsComplete.ts`
+- `ModifierBuilder/utils/ruleTreeIsEmpty.js` → `ruleTreeIsEmpty.ts`
+
+**Batch 4.2 - Documentation Components (6 files):**
+- `Documentation.js` → `Documentation.tsx`
+- `UserGuide.js` → `UserGuide.tsx`
+- `Tutorial.js` → `Tutorial.tsx`
+- `DataTypeGuide.js` → `DataTypeGuide.tsx`
+- `TermsAndConditions.js` → `TermsAndConditions.tsx`
+- `hooks/useTocbotWithWaypoint.js` → `useTocbotWithWaypoint.ts`
+
+**Batch 4.3 - CqlViewer Components (4 files):**
+- `CqlViewer.js` → `CqlViewer.tsx`
+- `CodeViewer.js` → `CodeViewer.tsx`
+- `CqlStylingTheme.js` → `CqlStylingTheme.ts`
+- `CqlStylingRules.js` → `CqlStylingRules.ts`
+
+**Batch 4.4 - Artifact Components (4 files):**
+- `ArtifactModal.js` → `ArtifactModal.tsx`
+- `ArtifactModalForm.js` → `ArtifactModalForm.tsx`
+- `cpgFields.js` → `cpgFields.ts`
+- `hooks/useInitialValues.js` → `useInitialValues.ts`
+
+**Batch 4.5 - Recommendations Components (9 files):**
+- `Recommendation.js` → `Recommendation.tsx`
+- `RecommendationAction.js` → `RecommendationAction.tsx`
+- `RecommendationActionModal.js` → `RecommendationActionModal.tsx`
+- `RecommendationControls.js` → `RecommendationControls.tsx`
+- `RecommendationField.js` → `RecommendationField.tsx`
+- `RecommendationLink.js` → `RecommendationLink.tsx`
+- `RecommendationSubpopulations.js` → `RecommendationSubpopulations.tsx`
+- `RecommendationSuggestion.js` → `RecommendationSuggestion.tsx`
+- `structuredRequestFields.js` → `structuredRequestFields.ts`
+
+**Batch 4.6 - Error Statement Components (7 files):**
+- `ErrorStatement.js` → `ErrorStatement.tsx`
+- `ErrorStatementLabel.js` → `ErrorStatementLabel.tsx`
+- `IfConditionSelect.js` → `IfConditionSelect.tsx`
+- `IfThenClause.js` → `IfThenClause.tsx`
+- `ThenClause.js` → `ThenClause.tsx`
+- `ElseClause.js` → `ElseClause.tsx`
+- `NestedErrorStatement.js` → `NestedErrorStatement.tsx`
+- `utils.js` → `utils.ts`
+
+**Batch 4.7 - External CQL Components (5 files):**
+- `ExternalCqlDetailsModal.js` → `ExternalCqlDetailsModal.tsx`
+- `ExternalCqlDetailsModalSection.js` → `ExternalCqlDetailsModalSection.tsx`
+- `ExternalCqlDropZone.js` → `ExternalCqlDropZone.tsx`
+- `ExternalCqlTable.js` → `ExternalCqlTable.tsx`
+- `ExternalCqlTableRow.js` → `ExternalCqlTableRow.tsx`
+- `utils.js` → `utils.ts`
+
+**Batch 4.8 - Element Select Components (4 files):**
+- `ElementOption.js` → `ElementOption.tsx`
+- `ElementSelectActions.js` → `ElementSelectActions.tsx`
+- `ElementSelectDropdown.js` → `ElementSelectDropdown.tsx`
+- `utils.js` → `utils.ts`
+
+**Batch 4.9 - Artifact Element Components (2 files):**
+- `ArtifactElementActions.js` → `ArtifactElementActions.tsx`
+- `ArtifactElementBody.js` → `ArtifactElementBody.tsx`
+- `SelectModifierAction.js` → `SelectModifierAction.tsx`
+- `VSACOptionsAction.js` → `VSACOptionsAction.tsx`
+
+**Batch 4.10 - Group Element Components (2 files):**
+- `GroupElement.js` → `GroupElement.tsx`
+- `ConjunctionTypeSelect.js` → `ConjunctionTypeSelect.tsx`
+
+**Batch 4.11 - Summary Components (3 files):**
+- `InclusionExclusionCard.js` → `InclusionExclusionCard.tsx`
+- `RecommendationCard.js` → `RecommendationCard.tsx`
+- `SummaryDetails.js` → `SummaryDetails.tsx`
+
+**Batch 4.12 - Builder Utilities (7 files):**
+- `utils/getAllElements.js` → `getAllElements.ts`
+- `utils/getBaseElementsInUse.js` → `getBaseElementsInUse.ts`
+- `utils/getElementNames.js` → `getElementNames.ts`
+- `utils/getFHIRVersion.js` → `getFHIRVersion.ts`
+- `utils/getLibrariesInUse.js` → `getLibrariesInUse.ts`
+- `utils/getParametersInUse.js` → `getParametersInUse.ts`
+- `utils/getTab.js` → `getTab.ts`
+- `utils/getTree.js` → `getTree.ts`
+
+**Batch 4.13 - Builder Workspace Components (3 files):**
+- `workspace/WorkspaceBlurb.js` → `WorkspaceBlurb.tsx`
+- `workspace/blurbs.js` → `blurbs.ts`
+- `workspace/tabUtils.js` → `tabUtils.ts`
+
+**Batch 4.14 - Builder Other Components (4 files):**
+- `ConjunctionGroup.js` → `ConjunctionGroup.tsx`
+- `ExpressionPhrase.js` → `ExpressionPhrase.tsx`
+- `ListGroup.js` → `ListGroup.tsx`
+- `Subpopulation.js` → `Subpopulation.tsx`
+
+**Batch 4.15 - Builder Supporting Components (4 files):**
+- `parameters/Parameter.js` → `Parameter.tsx`
+- `parameters/utils.js` → `utils.ts`
+- `modifiers/ModifierForm.js` → `ModifierForm.tsx`
+- `modifiers/utils.js` → `utils.ts`
+- `base-elements/utils.js` → `utils.ts`
+- `templates/ModifiersTemplate.js` → `ModifiersTemplate.tsx`
+- `editors/utils.js` → `utils.ts`
 
 **AI Batch Conversion Pattern:**
 
