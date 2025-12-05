@@ -19,7 +19,7 @@ export interface Modifier {
 export interface Instance {
   returnType?: string;
   modifiers?: Modifier[];
-  fields?: Array<{ type?: string; id?: string }>;
+  fields?: Array<{ type?: string; id?: string; value?: unknown; [key: string]: unknown }>;
   childInstances?: Instance[];
   uniqueId?: string;
   name?: string;
@@ -34,6 +34,8 @@ export interface Instance {
     args?: string[];
   };
   id?: string;
+  cannotHaveModifiers?: boolean;
+  path?: string;
 }
 
 interface ElementTemplateGroup {

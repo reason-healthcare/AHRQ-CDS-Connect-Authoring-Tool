@@ -1,0 +1,101 @@
+import React, { useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToggle } from 'react-use';
+import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
+import { ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
+
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+
+import { Modal } from 'components/elements';
+import { logoutUser, updateSettings } from 'actions/auth';
+import useStyles from '../styles';
+import { TermsAndConditions } from '../';
+
+const Logout: React.FC = () => {
+  const [showModal, toggleModal] = useToggle(false);
+  const [showMenu, toggleMenu] = useToggle(false);
+  const authUser = useAppSelector(state => state.auth.username);
+  const artifactSaved = useAppSelector(state => state.artifacts.artifactSaved);
+  const termsAcceptedDate = useAppSelector(state => state.auth.termsAcceptedDate);
+  const dispatch = useAppDispatch();
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
+  const styles = useStyles();
+
+  const acceptTerms = useCallback(() => {
+    dispatch(updateSettings({ termsAcceptedDate: new Date().toString() }));
+  }, [dispatch]);
+
+  const logout = useCallback(() => {
+    toggleModal(false);
+    toggleMenu(false);
+    dispatch(logoutUser());
+    window.setTimeout(() => navigate('/'), 10);
+  }, [dispatch, navigate, toggleMenu, toggleModal]);
+
+  const handleLogout = useCallback(() => {
+    artifactSaved ? logout() : toggleModal(true);
+  }, [artifactSaved, logout, toggleModal]);
+
+  const handleClose = (event: Event | React.SyntheticEvent): void => {
+    if (anchorRef.current && anchorRef.current.contains(event.target as Node)) {
+      return;
+    }
+
+    toggleMenu(false);
+  };
+
+  const handleListKeyDown = (event: React.KeyboardEvent<HTMLUListElement>): void => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      toggleMenu(false);
+    }
+  };
+
+  return (
+    <div>
+      <Button
+        aria-controls={showMenu ? 'logout-menu' : undefined}
+        aria-haspopup="true"
+        className={styles.logoutButton}
+        onClick={toggleMenu}
+        ref={anchorRef}
+        startIcon={<ArrowDropDownIcon />}
+      >
+        {authUser}
+      </Button>
+
+      <Popper open={showMenu} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList autoFocusItem={showMenu} id="logout-menu" onKeyDown={handleListKeyDown}>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+
+      <Modal
+        title="Logout Confirmation"
+        submitButtonText="Logout"
+        isOpen={showModal}
+        handleCloseModal={() => toggleModal(false)}
+        handleSaveModal={() => logout()}
+      >
+        <h5>Are you sure you want to log out without saving your changes?</h5>
+      </Modal>
+
+      <TermsAndConditions isOpen={termsAcceptedDate == null} logout={logout} saveTermsDate={acceptTerms} />
+    </div>
+  );
+};
+
+export default Logout;

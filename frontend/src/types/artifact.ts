@@ -105,6 +105,8 @@ export interface Artifact {
   user?: string;
   path?: string;
   patients?: unknown[];
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 export interface LibraryInUse {

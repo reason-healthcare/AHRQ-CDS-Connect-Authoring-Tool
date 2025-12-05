@@ -1,5 +1,4 @@
 /* eslint-disable object-curly-newline */
-import type { Instance } from './instances';
 
 const elementLists = [
   'list_of_observations',
@@ -24,15 +23,30 @@ interface Field {
   codes?: Array<{ code: string; codeSystem: { name: string; id?: string } }>;
 }
 
-interface TemplateInstance extends Instance {
+// TemplateInstance is similar to Instance but with required fields array
+interface TemplateInstance {
+  returnType?: string;
+  modifiers?: Array<{ id?: string; type?: string; [key: string]: unknown }>;
+  fields: Field[]; // Required, not optional like in Instance
+  childInstances?: TemplateInstance[];
+  uniqueId?: string;
+  name?: string;
+  checkInclusionInVS?: boolean;
+  suppressedModifiers?: string[];
+  type?: string;
+  usedBy?: string[];
+  conjunction?: boolean;
+  validator?: {
+    type: string;
+    fields: string[];
+    args?: string[];
+  };
+  id?: string;
+  cannotHaveModifiers?: boolean;
   path?: string;
   extends?: string;
   template?: string;
   suppress?: boolean;
-  cannotHaveModifiers?: boolean;
-  conjunction?: boolean;
-  fields: Field[];
-  childInstances?: TemplateInstance[];
 }
 
 interface ElementGroup {
@@ -49,7 +63,7 @@ interface GenericElementType {
   template?: string;
 }
 
-interface Modifier {
+interface ModifierFixture {
   id: string;
   name: string;
   inputTypes: string[];
@@ -637,7 +651,9 @@ const genericInstance: TemplateInstance = {
   uniqueId: 'uuid'
 };
 
-const genericInstanceWithModifiers: TemplateInstance & { modifiers: Modifier[] } = {
+const genericInstanceWithModifiers: TemplateInstance & {
+  modifiers: Array<{ id?: string; type?: string; [key: string]: unknown }>;
+} = {
   ...genericInstance,
   modifiers: [
     {
@@ -673,7 +689,10 @@ const genericBaseElementInstance: TemplateInstance & { usedBy: string[] } = {
   suppressedModifiers: ['ConvertToMgPerdL'] // checkInclusionInVS is assumed to be suppressed
 };
 
-const genericBaseElementInstanceWithModifiers: TemplateInstance & { usedBy: string[]; modifiers: Modifier[] } = {
+const genericBaseElementInstanceWithModifiers: TemplateInstance & {
+  usedBy: string[];
+  modifiers: Array<{ id?: string; type?: string; [key: string]: unknown }>;
+} = {
   ...genericBaseElementInstance,
   modifiers: [
     {
@@ -868,4 +887,4 @@ export {
   genericBaseElementUseInstance,
   reduxState
 };
-export type { TemplateInstance, ElementGroup, GenericElementType, Modifier, Field, ReduxState };
+export type { TemplateInstance, ElementGroup, GenericElementType, ModifierFixture as Modifier, Field, ReduxState };
