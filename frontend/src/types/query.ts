@@ -30,8 +30,10 @@ export interface Template {
 }
 
 export interface ConversionFunction {
+  id: string;
   description?: string;
   value?: string;
+  name?: string;
   [key: string]: unknown;
 }
 

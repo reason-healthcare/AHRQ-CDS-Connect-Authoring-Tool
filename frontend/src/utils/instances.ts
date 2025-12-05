@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { getOriginalBaseElement } from 'utils/baseElements';
 import { isElementAndOr } from './lists';
 
-interface Modifier {
+export interface Modifier {
   validator?: {
     type: string;
     fields: string[];
@@ -13,6 +13,7 @@ interface Modifier {
   where?: boolean;
   returnType?: string;
   id?: string;
+  type?: string;
 }
 
 export interface Instance {

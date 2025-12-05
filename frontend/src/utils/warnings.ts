@@ -25,7 +25,7 @@ interface Recommendation {
   subpopulations?: Array<{ uniqueId?: string }>;
 }
 
-interface Alert {
+export interface Alert {
   alertSeverity: 'error' | 'warning' | 'info';
   alertMessage: string;
   showAlert: boolean;
