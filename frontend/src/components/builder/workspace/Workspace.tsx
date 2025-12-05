@@ -17,6 +17,7 @@ import useStyles from './styles';
 
 import WorkspaceHeader from './WorkspaceHeader';
 import WorkspaceTabs from './WorkspaceTabs';
+import type { ELMError } from '../../modals/ELMErrorModal';
 import isBlankArtifact from 'utils/artifacts/isBlankArtifact';
 import { ErrorPage } from 'components/base';
 
@@ -148,7 +149,7 @@ const Workspace: React.FC = () => {
             handleDownloadArtifact={async (artifactToDownload, dataModel) => {
               try {
                 const result = await invokeDownloadArtifact({ artifact: artifactToDownload, dataModel });
-                return result as { elmErrors?: unknown[] } | undefined;
+                return result as { elmErrors?: ELMError[] } | undefined;
               } catch (error) {
                 console.error('Download artifact failed:', error);
                 return undefined;

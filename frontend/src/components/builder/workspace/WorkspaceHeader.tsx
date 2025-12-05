@@ -13,13 +13,14 @@ import { useAppSelector } from '../../../store/hooks';
 import useStyles from './styles';
 import { ArtifactModal } from 'components/artifact';
 import { CQLModal, ELMErrorModal } from 'components/modals';
+import type { ELMError } from 'components/modals/ELMErrorModal';
 import type { Artifact, DataModel } from '../../../types/artifact';
 
 interface WorkspaceHeaderProps {
   handleDownloadArtifact: (
     artifact: Artifact | null,
     dataModel: DataModel
-  ) => Promise<{ elmErrors?: unknown[] } | undefined>;
+  ) => Promise<{ elmErrors?: ELMError[] } | undefined>;
   handleSaveArtifact: (artifact: Artifact | null, artifactProps: Record<string, unknown>) => void;
   statusMessage?: string;
 }
@@ -33,7 +34,7 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [showElmErrorModal, setShowElmErrorModal] = useState(false);
-  const [elmErrors, setElmErrors] = useState<unknown[]>([]);
+  const [elmErrors, setElmErrors] = useState<ELMError[]>([]);
   const [showCQLModal, setShowCQLModal] = useState(false);
   const [dataModel, setDataModel] = useState<DataModel | null>(null);
   const artifact = useAppSelector(state => state.artifacts.artifact);
@@ -198,7 +199,9 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         />
       )}
 
-      {showElmErrorModal && <ELMErrorModal handleCloseModal={handleCloseElmErrorModal} errors={elmErrors} />}
+      {showElmErrorModal && (
+        <ELMErrorModal handleCloseModal={handleCloseElmErrorModal} errors={elmErrors as ELMError[]} />
+      )}
 
       {showCQLModal && (
         <CQLModal

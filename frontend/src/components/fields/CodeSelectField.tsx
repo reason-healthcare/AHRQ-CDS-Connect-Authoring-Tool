@@ -82,14 +82,11 @@ const CodeSelectField: React.FC<CodeSelectFieldProps> = memo(({ namePrefix }) =>
 
   return (
     <div className={styles.fieldGroup}>
-      {/* @ts-expect-error - AutocompleteField is still JS */}
       <AutocompleteField label="Code System" name={systemFieldName} options={codeSystemOptions} />
 
       {systemFieldValue === 'Other' ? (
-        // @ts-expect-error - TextField is still JS
         <TextField label="Code System" name={otherFieldName} />
       ) : (
-        // @ts-expect-error - TextField is still JS
         <TextField label="Code" name={codeFieldName} />
       )}
 

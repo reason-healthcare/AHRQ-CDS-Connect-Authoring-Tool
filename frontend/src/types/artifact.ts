@@ -5,6 +5,7 @@
 
 // Import Instance type from utils
 import type { Instance } from '../utils/instances';
+import type { PatientBundle } from './patient';
 
 export interface Field {
   id: string;
@@ -104,7 +105,7 @@ export interface Artifact {
   dataModel?: DataModel;
   user?: string;
   path?: string;
-  patients?: unknown[];
+  patients?: PatientBundle[];
   updatedAt?: string;
   createdAt?: string;
 }

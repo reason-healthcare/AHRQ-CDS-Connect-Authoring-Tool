@@ -8,13 +8,29 @@ export interface ValueSetDetails {
   codes: Array<{
     code: string;
     codeSystemURI: string;
+    codeSystemName?: string;
     codeSystemVersion?: string;
     displayName?: string;
   }>;
 }
 
 export interface ValueSetSearchResult {
+  oid: string;
+  name: string;
   codeCount: number;
+  steward?: string;
+  experimental?: boolean;
+  status?: string;
+  lastReviewDate?: string;
+  date?: string;
+  description?: string;
+  purpose?: {
+    clinicalFocus?: string;
+    dataElementScope?: string;
+    inclusionCriteria?: string;
+    exclusionCriteria?: string;
+    purpose?: string;
+  };
   [key: string]: unknown;
 }
 
@@ -51,6 +67,11 @@ export interface ElmFile {
   content: string;
 }
 
+export interface CqlFile {
+  name: string;
+  text: string;
+}
+
 export interface ExternalCqlLibrary {
   _id: string;
   name?: string;
@@ -65,6 +86,7 @@ export interface ValidateArtifactResponse {
 }
 
 export interface ViewCqlResponse {
+  cqlFiles?: CqlFile[];
   cql?: string;
   [key: string]: unknown;
 }

@@ -1,0 +1,93 @@
+import React, { useCallback, useState } from 'react';
+import { useLatest } from 'react-use';
+import { List as ListIcon } from '@mui/icons-material';
+
+import ValueSetDetailsTable from './ValueSetDetailsTable';
+import ValueSetSearchResultsTable from './ValueSetSearchResultsTable';
+import ValueSetSelectModalHeader from './ValueSetSelectModalHeader';
+import { Modal } from 'components/elements';
+import useStyles from '../styles';
+
+interface ValueSet {
+  name: string;
+  oid: string;
+}
+
+interface ValueSetSelectModalProps {
+  handleCloseModal: () => void;
+  handleSelectValueSet?: (valueSet: ValueSet) => void;
+  readOnly?: boolean;
+  savedValueSet?: ValueSet;
+}
+
+const ValueSetSelectModal: React.FC<ValueSetSelectModalProps> = ({
+  handleCloseModal,
+  handleSelectValueSet,
+  readOnly = false,
+  savedValueSet
+}) => {
+  const [selectedValueSet, setSelectedValueSet] = useState<ValueSet | null>(savedValueSet || null);
+  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
+  const [searchCount, setSearchCount] = useState({ count: 0, total: 0 });
+  const selectedValueSetRef = useLatest(selectedValueSet);
+  const styles = useStyles();
+
+  const handleSaveValueSetSelection = useCallback(
+    (valueSet: ValueSet) => {
+      if (handleSelectValueSet) {
+        handleSelectValueSet(valueSet);
+      }
+      handleCloseModal();
+    },
+    [handleCloseModal, handleSelectValueSet]
+  );
+
+  return (
+    <Modal
+      closeButtonText={readOnly ? 'Close' : 'Cancel'}
+      handleCloseModal={handleCloseModal}
+      handleSaveModal={() => handleSaveValueSetSelection(selectedValueSetRef.current!)}
+      isOpen
+      hasCancelButton
+      hasEnterKeySubmit={false}
+      hasTitleIcon={searchCount.count > 0}
+      hideSubmitButton={readOnly || !selectedValueSet}
+      Header={
+        <ValueSetSelectModalHeader
+          goBack={() => setSelectedValueSet(null)}
+          onSearch={setSearchKeyword}
+          readOnly={readOnly}
+          selectedValueSet={selectedValueSet}
+        />
+      }
+      maxWidth="xl"
+      submitButtonText="Select"
+      submitDisabled={!selectedValueSet}
+      title={readOnly ? 'View value set' : 'Choose value set'}
+      TitleIcon={
+        <>
+          <ListIcon /> {selectedValueSet ? 1 : searchCount.count}
+          {searchCount.total > searchCount.count ? ` of ${searchCount.total}` : ''}
+        </>
+      }
+    >
+      <div className={styles.content}>
+        {selectedValueSet ? (
+          <ValueSetDetailsTable valueSetOid={selectedValueSet.oid} />
+        ) : (
+          <ValueSetSearchResultsTable
+            keyword={searchKeyword}
+            setSearchCount={setSearchCount}
+            setSelectedValueSet={setSelectedValueSet}
+            handleSaveValueSetSelection={handleSaveValueSetSelection}
+            handleCloseModal={handleCloseModal}
+          />
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+export default ValueSetSelectModal;
+
+

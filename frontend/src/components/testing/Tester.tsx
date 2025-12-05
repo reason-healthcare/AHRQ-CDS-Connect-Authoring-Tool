@@ -7,29 +7,30 @@ import { useAppSelector } from '../../store/hooks';
 
 import PatientDropZone from './PatientDropZone';
 import PatientsTable from './PatientsTable';
-import TestResults from './TestResults';
+import TestResults, { type TestResultsData } from './TestResults';
 import { ELMErrorModal } from 'components/modals';
+import type { ELMError } from 'components/modals/ELMErrorModal';
 import { executeArtifact, fetchPatients, validateArtifact } from 'queries/testing';
-import type { Artifact, DataModel } from '../../types/artifact';
+import type { Artifact, DataModel, Parameter } from '../../types/artifact';
 import type { PatientData } from '../../types/patient';
-import type { ElmFile } from '../../types/query';
+import type { ElmFile, CqlFile } from '../../types/query';
 import { useSpacingStyles } from 'styles/hooks';
 import CodeService from 'utils/code_service/CodeService';
 import useStyles from './styles';
 
 export const validate404ErrorMessage = 'Unable to retrieve codes for a value set in this artifact.';
 
-interface TestResultsData {
-  results: unknown;
+interface TestResultsState {
+  results: TestResultsData;
   patientsExecuted: PatientData[];
   artifact: Artifact;
   elmFiles: ElmFile[];
-  cqlFiles: unknown;
+  cqlFiles: CqlFile[];
 }
 
 interface ExecuteCQLParams {
   artifact: Artifact;
-  params: Array<{ name: string; type: string; value: unknown }>;
+  params: Parameter[];
   dataModel: DataModel;
   selectedPatients: PatientData[];
 }
@@ -37,7 +38,7 @@ interface ExecuteCQLParams {
 const Tester: React.FC = () => {
   const [elmErrors, setElmErrors] = useState<unknown[] | null>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<TestResultsData | null>(null);
+  const [testResults, setTestResults] = useState<TestResultsState | null>(null);
   const codeService = useMemo(() => new CodeService(), []);
   const { data: patients, isLoading: patientsIsLoading } = useQuery<PatientData[]>({
     queryKey: ['patients'],
@@ -53,12 +54,8 @@ const Tester: React.FC = () => {
   const spacingStyles = useSpacingStyles();
   const styles = useStyles();
 
-  const handleExecuteCQL = async ({
-    artifact,
-    params,
-    dataModel,
-    selectedPatients
-  }: ExecuteCQLParams): Promise<void> => {
+  const handleExecuteCQL = async (params: ExecuteCQLParams): Promise<void> => {
+    const { artifact, params: executeParams, dataModel, selectedPatients } = params;
     setElmErrors(null);
     setExecutionError(null);
     setTestResults(null);
@@ -69,7 +66,7 @@ const Tester: React.FC = () => {
     try {
       const validationResult = await asyncValidateArtifact({ artifact, dataModel });
       elmFiles = (validationResult as { elmFiles?: ElmFile[] }).elmFiles;
-      validationElmErrors = (validationResult as { elmErrors?: unknown[] }).elmErrors;
+      validationElmErrors = (validationResult as { elmErrors?: ELMError[] }).elmErrors;
       cqlFiles = (validationResult as { cqlFiles?: unknown }).cqlFiles;
       if (validationElmErrors && validationElmErrors.length > 0) setElmErrors(validationElmErrors);
     } catch (error) {
@@ -92,7 +89,7 @@ const Tester: React.FC = () => {
         elmFiles,
         artifact,
         dataModel,
-        params: params as Array<{ name: string; type: string; value: unknown }>,
+        params: executeParams,
         patients: selectedPatients.map(
           p => p.patient || { type: 'collection', entry: p.entry || [], resourceType: 'Bundle' as const }
         ),
@@ -104,7 +101,13 @@ const Tester: React.FC = () => {
           ) => Promise<void>;
         } & Record<string, unknown>
       });
-      setTestResults({ results, patientsExecuted: selectedPatients, artifact, elmFiles, cqlFiles: cqlFiles || [] });
+      setTestResults({
+        results: results as TestResultsData,
+        patientsExecuted: selectedPatients,
+        artifact,
+        elmFiles,
+        cqlFiles: cqlFiles || []
+      } as TestResultsState);
     } catch (error) {
       const axiosError = error as { message?: string };
       setExecutionError(`Execution failed. Error: ${axiosError.message || 'Unknown error'}`);
@@ -139,16 +142,16 @@ const Tester: React.FC = () => {
         <TestResults
           artifact={testResults.artifact}
           handleOnClose={() => setTestResults(null)}
-          patientsExecuted={testResults.patientsExecuted as never}
-          results={testResults.results as { patientResults: Record<string, unknown> }}
-          cqlFiles={testResults.cqlFiles as unknown[]}
+          patientsExecuted={testResults.patientsExecuted}
+          results={testResults.results}
+          cqlFiles={testResults.cqlFiles}
           elmFiles={testResults.elmFiles}
         />
       )}
 
       {!patientsIsLoading && <PatientsTable patients={patients || []} handleExecuteCQL={handleExecuteCQL} />}
 
-      {elmErrors && <ELMErrorModal errors={elmErrors} handleCloseModal={() => setElmErrors(null)} />}
+      {elmErrors && <ELMErrorModal errors={elmErrors as ELMError[]} handleCloseModal={() => setElmErrors(null)} />}
     </div>
   );
 };

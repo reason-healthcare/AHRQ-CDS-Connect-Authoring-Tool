@@ -3,11 +3,10 @@
  * Uses FHIR R4 types where applicable
  */
 
+import type fhir4 from 'fhir/r4';
+
 export interface PatientEntry {
-  resource: {
-    resourceType: string;
-    [key: string]: unknown;
-  };
+  resource: fhir4.Resource;
   fullUrl?: string;
   request?: {
     url?: string;
@@ -20,6 +19,7 @@ export interface PatientBundle {
   type: 'collection';
   entry: PatientEntry[];
   id?: string;
+  [key: string]: unknown;
 }
 
 export interface PatientData {

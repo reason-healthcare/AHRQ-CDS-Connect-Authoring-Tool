@@ -15,9 +15,11 @@ import type { Artifact, DataModel } from '../../types/artifact';
 import { useSpacingStyles, useTableStyles } from 'styles/hooks';
 import useStyles from './styles';
 
+import type { Parameter } from '../../types/artifact';
+
 interface ExecuteCQLParams {
   artifact: Artifact;
-  params: Array<{ name: string; type: string; value: unknown }>;
+  params: Parameter[];
   dataModel: DataModel;
   selectedPatients: PatientData[];
 }

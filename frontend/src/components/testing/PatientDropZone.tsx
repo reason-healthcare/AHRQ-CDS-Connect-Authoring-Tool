@@ -1,0 +1,156 @@
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Alert, CircularProgress } from '@mui/material';
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import clsx from 'clsx';
+
+import PatientVersionModal from './modals/PatientVersionModal';
+import { addPatient } from 'queries/testing';
+import { autoDetectFHIRVersion, getPatientResource, getPatientResourceType, type PatientData } from 'utils/patients';
+import type { PatientBundle } from '../../types/patient';
+import { useDropZoneStyles, useSpacingStyles } from 'styles/hooks';
+
+const PatientDropZone: React.FC = () => {
+  const [showPatientUploadedMessage, setShowPatientUploadedMessage] = useState(false);
+  const [showPatientVersionModal, setShowPatientVersionModal] = useState(false);
+  const [showUploadError, setShowUploadError] = useState(false);
+  const [patientData, setPatientData] = useState<PatientBundle | null>(null);
+  const [versionOptions, setVersionOptions] = useState<string[]>(['R4', 'STU3', 'DSTU2']);
+  const queryClient = useQueryClient();
+  const { mutateAsync: asyncAddPatient, isPending: isAddingPatient } = useMutation({
+    mutationFn: addPatient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      setShowPatientUploadedMessage(true);
+    }
+  });
+  const spacingStyles = useSpacingStyles();
+  const dropZoneStyles = useDropZoneStyles();
+
+  const handleCloseAlert = (event: React.MouseEvent, setClose: (value: boolean) => void): void => {
+    event.stopPropagation();
+    setClose(false);
+  };
+
+  const handleSelectVersion = async (version: string): Promise<void> => {
+    try {
+      if (patientData) {
+        await asyncAddPatient({ patient: patientData as any, fhirVersion: version });
+        setShowPatientVersionModal(false);
+        setVersionOptions(['R4', 'STU3', 'DSTU2']);
+      }
+    } catch (error) {
+      console.error('Add patient failed:', error);
+    }
+  };
+
+  const handleOnDrop = useCallback(
+    (acceptedFiles: File[]): void => {
+      setPatientData(null);
+      setShowPatientUploadedMessage(false);
+      setShowUploadError(false);
+
+      const reader = new FileReader();
+      reader.onload = async (event: ProgressEvent<FileReader>) => {
+        try {
+          const result = event.target?.result;
+          if (typeof result !== 'string') {
+            setShowUploadError(true);
+            return;
+          }
+          const parsedPatientData = JSON.parse(result) as PatientBundle;
+
+          if (getPatientResourceType(parsedPatientData) === 'Bundle' && getPatientResource(parsedPatientData)) {
+            setPatientData(parsedPatientData);
+            const versions = autoDetectFHIRVersion({ patient: parsedPatientData });
+            if (versions.length === 1) {
+              // If version detected, add the patient right away
+              try {
+                await asyncAddPatient({ patient: parsedPatientData as any, fhirVersion: versions[0] });
+              } catch (error) {
+                console.error('Add patient failed:', error);
+              }
+            } else {
+              setVersionOptions(versions as Array<'R4' | 'STU3' | 'DSTU2'>);
+              setShowPatientVersionModal(true);
+            }
+          } else {
+            setShowUploadError(true); // no patient could be found
+          }
+        } catch (error) {
+          setShowUploadError(true); // invalid file type
+        }
+      };
+
+      try {
+        reader.readAsText(acceptedFiles[0]);
+      } catch (error) {
+        console.error(error);
+        setShowUploadError(true);
+      }
+    },
+    [asyncAddPatient]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'application/json': ['.json']
+    },
+    onDrop: handleOnDrop,
+    maxFiles: 1
+  });
+
+  return (
+    <div id="patient-drop-zone">
+      <section className={clsx(dropZoneStyles.dropZoneSection, spacingStyles.verticalPadding)}>
+        <div data-testid="patient-dropzone" {...getRootProps({ className: 'dropzone' })}>
+          <input {...getInputProps()} />
+
+          {isAddingPatient ? <CircularProgress /> : <CloudUploadIcon className={dropZoneStyles.dropZoneIcon} />}
+
+          {showUploadError && (
+            <Alert
+              className={spacingStyles.verticalPadding}
+              onClose={(event: React.SyntheticEvent) => handleCloseAlert(event as React.MouseEvent, setShowUploadError)}
+              severity="error"
+            >
+              Invalid file type. Only valid JSON FHIR<sup>®</sup> Bundles are accepted.
+            </Alert>
+          )}
+
+          {showPatientUploadedMessage && (
+            <Alert
+              className={spacingStyles.verticalPadding}
+              onClose={(event: React.SyntheticEvent) =>
+                handleCloseAlert(event as React.MouseEvent, setShowPatientUploadedMessage)
+              }
+              severity="success"
+            >
+              Patient successfully added.
+            </Alert>
+          )}
+
+          <div>
+            Drop a valid JSON FHIR<sup>®</sup> bundle containing a synthetic patient here, or click to browse.
+          </div>
+
+          <div className={dropZoneStyles.dropZoneWarning}>
+            Do not upload any Personally Identifiable Information (PII) or Protected Health Information (PHI). Upload
+            synthetic data only.
+          </div>
+        </div>
+      </section>
+
+      {showPatientVersionModal && patientData && (
+        <PatientVersionModal
+          handleCloseModal={() => setShowPatientVersionModal(false)}
+          handleSelectVersion={handleSelectVersion}
+          versionOptions={versionOptions as Array<'R4' | 'STU3' | 'DSTU2'>}
+        />
+      )}
+    </div>
+  );
+};
+
+export default PatientDropZone;

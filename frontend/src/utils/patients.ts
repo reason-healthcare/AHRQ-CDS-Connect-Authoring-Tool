@@ -3,24 +3,12 @@ import _ from 'lodash';
 
 import patientResourceKeys from 'data/patientResourceKeys';
 import getProperty from 'utils/getProperty';
+import type { PatientData as SharedPatientData, PatientEntry } from '../types/patient';
 
-interface PatientEntry {
-  resource: {
-    resourceType: string;
-    [key: string]: unknown;
-  };
-}
+// Re-export the shared type for backward compatibility
+export type PatientData = SharedPatientData;
 
-export interface PatientData {
-  fhirVersion?: string;
-  patient?: {
-    entry: PatientEntry[];
-  };
-  entry?: PatientEntry[];
-  resourceType?: string;
-}
-
-interface OtherResourceType {
+export interface OtherResourceType {
   resource: string;
   count: number;
 }
@@ -71,7 +59,7 @@ export function extractPatientResourceData(
     const resourceKeys = patientResourceKeys[fhirVersion as keyof typeof patientResourceKeys]?.[resourceType];
     if (resourceKeys) {
       Object.keys(resourceKeys).forEach(key => {
-        row[key] = getProperty(resource.resource, resourceKeys[key]);
+        row[key] = getProperty(resource.resource as unknown as Record<string, unknown>, resourceKeys[key]);
       });
     }
     data.push(row);

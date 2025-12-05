@@ -4,15 +4,9 @@ import _ from 'lodash';
 import cql from 'cql-execution';
 import cqlfhir from 'cql-exec-fhir';
 
-import type { Artifact, DataModel } from '../../types/artifact';
+import type { Artifact, DataModel, Parameter } from '../../types/artifact';
 import type { ElmFile } from '../../types/query';
 import type { PatientBundle } from '../../types/patient';
-
-interface Parameter {
-  name: string;
-  type: string;
-  value: unknown;
-}
 
 interface ExecuteArtifactParams {
   elmFiles: ElmFile[];
