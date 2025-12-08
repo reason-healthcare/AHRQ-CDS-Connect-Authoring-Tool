@@ -136,7 +136,9 @@ const Recommendation = ({
                 setShowAddSubpopulation={setShowAddSubpopulation}
                 subpopulationOptions={subpopulationOptions}
                 handleUpdateSubpopulations={subpopulations =>
-                  handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'subpopulations', subpopulations))
+                  handleUpdateRecommendation(
+                    updateRecommendation(recommendationRef.current, 'subpopulations', subpopulations)
+                  )
                 }
               />
             )}
@@ -163,7 +165,9 @@ const Recommendation = ({
                   hiddenLabel
                   multiline
                   onChange={event =>
-                    handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'comment', event.target.value))
+                    handleUpdateRecommendation(
+                      updateRecommendation(recommendationRef.current, 'comment', event.target.value)
+                    )
                   }
                   placeholder="Add an optional comment"
                   value={comment}
@@ -180,7 +184,9 @@ const Recommendation = ({
           <Box my={1}>
             <RecommendationField
               handleChangeField={event =>
-                handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'rationale', event.target.value))
+                handleUpdateRecommendation(
+                  updateRecommendation(recommendationRef.current, 'rationale', event.target.value)
+                )
               }
               handleDeleteField={deleteRationale}
               label="Rationale..."
@@ -209,8 +215,12 @@ const Recommendation = ({
             updateAction={(action, actionIndex) =>
               handleUpdateRecommendation(updateAction(recommendationRef.current, index, action, actionIndex))
             }
-            updateSuggestion={label => handleUpdateRecommendation(updateSuggestion(recommendationRef.current, index, label))}
-            deleteAction={actionIndex => handleUpdateRecommendation(deleteAction(recommendationRef.current, index, actionIndex))}
+            updateSuggestion={label =>
+              handleUpdateRecommendation(updateSuggestion(recommendationRef.current, index, label))
+            }
+            deleteAction={actionIndex =>
+              handleUpdateRecommendation(deleteAction(recommendationRef.current, index, actionIndex))
+            }
             deleteSuggestion={() => handleUpdateRecommendation(deleteSuggestion(recommendationRef.current, index))}
             index={index}
             suggestion={suggestion}

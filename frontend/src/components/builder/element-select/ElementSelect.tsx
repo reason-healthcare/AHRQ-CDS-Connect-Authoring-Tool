@@ -42,9 +42,12 @@ interface ElementSelectProps {
 interface ElementOption {
   label: string;
   value: string;
-  options?: Array<{ label: string; value: Instance }>;
+  options?: Array<{ label: string; value: string; options?: Array<{ value: string; label: string }> }>;
   hasEmptyList?: boolean;
   isVersionLocked?: boolean;
+  vsacAuthRequired?: boolean;
+  isDisabled?: boolean;
+  [key: string]: unknown;
 }
 
 const ElementSelect: React.FC<ElementSelectProps> = ({
@@ -103,8 +106,8 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
             const hasEmptyList = (options?.length || 0) === 0;
             const isVersionLocked =
               artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
-            const isVsacOption = VSAC_OPTIONS.includes(value as typeof VSAC_OPTIONS[number]);
-            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : (entry.name || '');
+            const isVsacOption = VSAC_OPTIONS.includes(value as (typeof VSAC_OPTIONS)[number]);
+            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : entry.name || '';
 
             return {
               label,
@@ -135,8 +138,8 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
           artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
 
         // For VSAC options, use singular form to match test expectations
-        const isVsacOption = VSAC_OPTIONS.includes(value as typeof VSAC_OPTIONS[number]);
-        const label = isVsacOption && template.name ? pluralize.singular(template.name) : (template.name || '');
+        const isVsacOption = VSAC_OPTIONS.includes(value as (typeof VSAC_OPTIONS)[number]);
+        const label = isVsacOption && template.name ? pluralize.singular(template.name) : template.name || '';
 
         return {
           label,
@@ -151,7 +154,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
 
     const result = [...medicationsOptions, ...regularOptions]
       .filter(option => !option.isVersionLocked)
-      .sort(sortAlphabeticallyByKey('label'));
+      .sort(sortAlphabeticallyByKey<ElementOption>('label'));
 
     return result;
   }, [elementTemplates, excludeListOperations, artifact, externalCqlList, parentElementId]);
@@ -184,7 +187,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
     }
 
     // VSAC options without sub-options should not call this - they show ElementSelectActions instead
-    const isVsacOption = VSAC_OPTIONS.includes(selectedOption as typeof VSAC_OPTIONS[number]);
+    const isVsacOption = VSAC_OPTIONS.includes(selectedOption as (typeof VSAC_OPTIONS)[number]);
     if (isVsacOption && (!selectedOptionData.options || selectedOptionData.options.length === 0)) {
       return;
     }
@@ -300,49 +303,53 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
 
         {selectedOptionData && (
           <>
-            {selectedOptionData.options && Array.isArray(selectedOptionData.options) && selectedOptionData.options.length > 0 && (
-              <div style={{ marginTop: '10px' }}>
-                <ElementSelectDropdown
-                  options={selectedOptionData.options as any}
-                  handleSelectOption={(value: string) => handleSelectSubOption(value)}
-                  isDisabled={isDisabled}
-                  label={
-                    selectedOptionData.value === 'baseElements'
-                      ? 'Base Element'
-                      : selectedOptionData.value === 'parameters'
-                        ? 'Parameters Element'
-                        : selectedOptionData.value === 'externalCql'
-                          ? 'External CQL Element'
-                          : `${selectedOptionData.label} Element`
-                  }
-                  value={selectedSubOption}
-                  showFooter={false}
-                />
-              </div>
-            )}
+            {selectedOptionData.options &&
+              Array.isArray(selectedOptionData.options) &&
+              selectedOptionData.options.length > 0 && (
+                <div style={{ marginTop: '10px' }}>
+                  <ElementSelectDropdown
+                    options={selectedOptionData.options as any}
+                    handleSelectOption={(value: string) => handleSelectSubOption(value)}
+                    isDisabled={isDisabled}
+                    label={
+                      selectedOptionData.value === 'baseElements'
+                        ? 'Base Element'
+                        : selectedOptionData.value === 'parameters'
+                          ? 'Parameters Element'
+                          : selectedOptionData.value === 'externalCql'
+                            ? 'External CQL Element'
+                            : `${selectedOptionData.label} Element`
+                    }
+                    value={selectedSubOption}
+                    showFooter={false}
+                  />
+                </div>
+              )}
             {selectedOption === 'externalCql' &&
               selectedSubOption &&
               selectedOptionData.options &&
-              Array.isArray(selectedOptionData.options) && (
-                (() => {
-                  const selectedCqlLibrary = (selectedOptionData.options as Array<{ value: string; options?: unknown[] }>).find(
-                    opt => opt.value === selectedSubOption
-                  );
-                  return selectedCqlLibrary && selectedCqlLibrary.options && Array.isArray(selectedCqlLibrary.options) && selectedCqlLibrary.options.length > 0 ? (
-                    <div style={{ marginTop: '10px' }}>
-                      <ElementSelectDropdown
-                        options={selectedCqlLibrary.options as any}
-                        handleSelectOption={(value: string) => handleSelectCqlOption(value)}
-                        isDisabled={isDisabled}
-                        label="Definition, function, or parameter"
-                        value={selectedCqlOption}
-                        showFooter={false}
-                      />
-                    </div>
-                  ) : null;
-                })()
-              )}
-            {VSAC_OPTIONS.includes(selectedOptionData.value as typeof VSAC_OPTIONS[number]) && (
+              Array.isArray(selectedOptionData.options) &&
+              (() => {
+                const selectedCqlLibrary = (
+                  selectedOptionData.options as Array<{ value: string; options?: unknown[] }>
+                ).find(opt => opt.value === selectedSubOption);
+                return selectedCqlLibrary &&
+                  selectedCqlLibrary.options &&
+                  Array.isArray(selectedCqlLibrary.options) &&
+                  selectedCqlLibrary.options.length > 0 ? (
+                  <div style={{ marginTop: '10px' }}>
+                    <ElementSelectDropdown
+                      options={selectedCqlLibrary.options as any}
+                      handleSelectOption={(value: string) => handleSelectCqlOption(value)}
+                      isDisabled={isDisabled}
+                      label="Definition, function, or parameter"
+                      value={selectedCqlOption}
+                      showFooter={false}
+                    />
+                  </div>
+                ) : null;
+              })()}
+            {VSAC_OPTIONS.includes(selectedOptionData.value as (typeof VSAC_OPTIONS)[number]) && (
               <ElementSelectActions handleSelectElement={handleSelectElement as any} />
             )}
           </>

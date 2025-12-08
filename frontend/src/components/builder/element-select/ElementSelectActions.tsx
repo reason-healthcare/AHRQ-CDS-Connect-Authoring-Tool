@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Button, CardActions } from '@mui/material';
 import {
@@ -11,11 +10,15 @@ import {
 
 import { CodeSelectModal, ValueSetSelectModal, VSACAuthenticationModal } from 'components/modals';
 
-const ElementSelectActions = ({ handleSelectElement }) => {
+interface ElementSelectActionsProps {
+  handleSelectElement: (item: unknown, type: 'codes' | 'valueSets') => void;
+}
+
+const ElementSelectActions: React.FC<ElementSelectActionsProps> = ({ handleSelectElement }) => {
   const [showCodeSelectModal, setShowCodeSelectModal] = useState(false);
   const [showValueSetSelectModal, setShowValueSetSelectModal] = useState(false);
   const [showVSACAuthenticationModal, setShowVSACAuthenticationModal] = useState(false);
-  const vsacApiKey = useSelector(state => state.vsac.apiKey);
+  const vsacApiKey = useSelector((state: { vsac: { apiKey?: string } }) => state.vsac.apiKey);
 
   return (
     <CardActions>
@@ -70,10 +73,6 @@ const ElementSelectActions = ({ handleSelectElement }) => {
       )}
     </CardActions>
   );
-};
-
-ElementSelectActions.propTypes = {
-  handleSelectElement: PropTypes.func.isRequired
 };
 
 export default ElementSelectActions;

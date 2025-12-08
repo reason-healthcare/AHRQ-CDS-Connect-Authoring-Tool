@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
@@ -10,21 +9,46 @@ import { fetchArtifact, saveArtifact } from 'queries/artifacts';
 import { deleteExternalCql } from 'queries/external-cql';
 import { sortByName, sortByVersion, sortByDateEdited } from 'utils/sort';
 import { useTextStyles } from 'styles/hooks';
+import type { ExternalCqlLibrary } from 'types/query';
+import type { Artifact } from 'types/artifact';
 
-const ExternalCqlTable = ({ externalCqlList }) => {
+interface ExternalCqlTableProps {
+  externalCqlList: Array<
+    ExternalCqlLibrary & {
+      version?: string;
+      fhirVersion?: string;
+      updatedAt?: string;
+      details?: {
+        dependencies?: Array<{ path?: string; version?: string; [key: string]: unknown }>;
+        [key: string]: unknown;
+      };
+    }
+  >;
+}
+
+const ExternalCqlTable: React.FC<ExternalCqlTableProps> = ({ externalCqlList }) => {
   const [selectedColumnIndex, setSelectedColumnIndex] = useState(3);
   const [sortAsc, setSortAsc] = useState(true);
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const textStyles = useTextStyles();
-  const artifact = useSelector(state => state.artifacts.artifact);
-  const librariesInUse = useSelector(state => state.artifacts.librariesInUse);
+  const artifact = useSelector((state: { artifacts: { artifact: Artifact } }) => state.artifacts.artifact) as Artifact;
+  const librariesInUse = useSelector(
+    (state: { artifacts: { librariesInUse: string[] } }) => state.artifacts.librariesInUse
+  );
   const { mutate: invokeFetchArtifact } = useMutation({
     mutationFn: fetchArtifact
   });
   const handleLoadArtifact = useCallback(
-    id => {
-      invokeFetchArtifact({ artifactId: id }, { onSuccess: data => dispatch(loadArtifact(data)) });
+    (id: string) => {
+      invokeFetchArtifact(
+        { artifactId: id },
+        {
+          onSuccess: data => {
+            dispatch(loadArtifact(data) as unknown as { type: string });
+          }
+        }
+      );
     },
     [invokeFetchArtifact, dispatch]
   );
@@ -32,17 +56,26 @@ const ExternalCqlTable = ({ externalCqlList }) => {
     mutationFn: saveArtifact
   });
   const handleSaveArtifact = useCallback(() => {
-    invokeSaveArtifact({ artifact }, { onSuccess: data => dispatch(loadArtifact(data)) });
+    invokeSaveArtifact(
+      { artifact },
+      {
+        onSuccess: data => {
+          dispatch(loadArtifact(data) as unknown as { type: string });
+        }
+      }
+    );
   }, [invokeSaveArtifact, artifact, dispatch]);
   const deleteMutation = useMutation({
     mutationFn: deleteExternalCql,
     onSuccess: async () => {
-      await queryClient.refetchQueries(['externalCql', artifact._id]);
-      queryClient.invalidateQueries(['modifiers']);
-      handleLoadArtifact(artifact._id);
+      if (artifact._id) {
+        await queryClient.refetchQueries({ queryKey: ['externalCql', artifact._id] });
+        queryClient.invalidateQueries({ queryKey: ['modifiers'] });
+        handleLoadArtifact(artifact._id);
+      }
     }
   });
-  const handleDeleteLibrary = async library => {
+  const handleDeleteLibrary = async (library: ExternalCqlLibrary) => {
     handleSaveArtifact();
     deleteMutation.mutate({ library });
   };
@@ -61,25 +94,34 @@ const ExternalCqlTable = ({ externalCqlList }) => {
     { columnName: 'Last Updated', columnSortHandler: sortByDateEdited }
   ];
 
-  const handleRequestSort = columnIndex => {
+  const handleRequestSort = (columnIndex: number): void => {
     setSelectedColumnIndex(columnIndex);
     setSortAsc(columnIndex === selectedColumnIndex ? !sortAsc : true);
   };
 
   const getActiveSort = () => {
     const activeSort = columns[selectedColumnIndex].columnSortHandler;
-    return (a, b) => (sortAsc ? 1 : -1) * activeSort(a, b);
+    return (
+      a: ExternalCqlLibrary & { name?: string; version?: string; updatedAt?: string },
+      b: ExternalCqlLibrary & { name?: string; version?: string; updatedAt?: string }
+    ) => {
+      // Ensure required properties exist for sort functions
+      const aWithDefaults = { name: a.name || '', version: a.version || '', ...a };
+      const bWithDefaults = { name: b.name || '', version: b.version || '', ...b };
+      return (sortAsc ? 1 : -1) * activeSort(aWithDefaults, bWithDefaults);
+    };
   };
 
-  const isADependency = library =>
+  const isADependency = (library: ExternalCqlLibrary & { name?: string; version?: string }): boolean =>
     externalCqlList.some(externalCqlLibrary =>
-      externalCqlLibrary.details.dependencies.some(
+      externalCqlLibrary.details?.dependencies?.some(
         dependency => dependency.path === library.name && dependency.version === library.version
       )
     );
 
-  const disableDeleteMessage = library => {
-    if (librariesInUse.includes(library.name)) return 'To delete this library, first remove all references to it.';
+  const disableDeleteMessage = (library: ExternalCqlLibrary & { name?: string }): string | null => {
+    if (library.name && librariesInUse.includes(library.name))
+      return 'To delete this library, first remove all references to it.';
     else if (isADependency(library)) return 'To delete this library, first remove all libraries that depend on it.';
     else return null;
   };
@@ -92,7 +134,7 @@ const ExternalCqlTable = ({ externalCqlList }) => {
             {columns.map((column, index) => (
               <TableCell key={index}>
                 <TableSortLabel
-                  id={index}
+                  id={String(index)}
                   className={textStyles.noWrap}
                   direction={selectedColumnIndex !== index || sortAsc ? 'asc' : 'desc'}
                   active={selectedColumnIndex === index}
@@ -123,10 +165,6 @@ const ExternalCqlTable = ({ externalCqlList }) => {
   ) : (
     <div>No external CQL libraries to show.</div>
   );
-};
-
-ExternalCqlTable.propTypes = {
-  externalCqlList: PropTypes.array.isRequired
 };
 
 export default ExternalCqlTable;

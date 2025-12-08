@@ -42,7 +42,14 @@ export interface ValueSetSearchResponse {
 
 export interface Template {
   name?: string;
-  entries?: Array<{ name?: string }>;
+  suppress?: boolean;
+  entries?: Array<{
+    id?: string;
+    name?: string;
+    value?: unknown;
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
 }
 
 export interface ConversionFunction {

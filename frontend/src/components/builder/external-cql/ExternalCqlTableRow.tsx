@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { IconButton, TableCell } from '@mui/material';
 import { Delete as DeleteIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
@@ -8,14 +7,37 @@ import { DeleteConfirmationModal } from 'components/modals';
 import { Tooltip } from 'components/elements';
 import { renderDate } from 'utils/dates';
 import { useButtonStyles, useTextStyles } from 'styles/hooks';
+import type { ExternalCqlLibrary } from 'types/query';
 
-const ExternalCqlTableRow = ({ disableDeleteMessage, library, handleDeleteLibrary }) => {
+interface ExternalCqlTableRowProps {
+  disableDeleteMessage: string | null;
+  library: ExternalCqlLibrary & {
+    name?: string;
+    version?: string;
+    fhirVersion?: string;
+    updatedAt?: string;
+    details?: {
+      parameters?: Array<{ name?: string; [key: string]: unknown }>;
+      functions?: Array<{ name?: string; [key: string]: unknown }>;
+      definitions?: Array<{ name?: string; [key: string]: unknown }>;
+      [key: string]: unknown;
+    };
+  };
+  handleDeleteLibrary: (library: ExternalCqlLibrary) => void;
+}
+
+const ExternalCqlTableRow: React.FC<ExternalCqlTableRowProps> = ({
+  disableDeleteMessage,
+  library,
+  handleDeleteLibrary
+}) => {
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const [showViewDetailsModal, setShowViewDetailsModal] = useState(false);
   const buttonStyles = useButtonStyles();
   const textStyles = useTextStyles();
 
-  const getFhirVersion = version => {
+  const getFhirVersion = (version?: string): string => {
+    if (!version) return '';
     if (version === '1.0.2') return '1.0.2 (DSTU2)';
     if (version.startsWith('3.0.')) return `${version} (STU3)`;
     if (version.startsWith('4.0.')) return `${version} (R4)`;
@@ -36,7 +58,6 @@ const ExternalCqlTableRow = ({ disableDeleteMessage, library, handleDeleteLibrar
             className={buttonStyles.iconButton}
             color="primary"
             onClick={() => setShowViewDetailsModal(true)}
-            variant="contained"
             size="large"
           >
             <VisibilityIcon />
@@ -50,7 +71,6 @@ const ExternalCqlTableRow = ({ disableDeleteMessage, library, handleDeleteLibrar
             color="secondary"
             disabled={Boolean(disableDeleteMessage)}
             onClick={() => setShowDeleteConfirmationModal(true)}
-            variant="contained"
             size="large"
           >
             <DeleteIcon />
@@ -77,12 +97,6 @@ const ExternalCqlTableRow = ({ disableDeleteMessage, library, handleDeleteLibrar
       )}
     </>
   );
-};
-
-ExternalCqlTableRow.propTypes = {
-  disableDeleteMessage: PropTypes.string,
-  library: PropTypes.object.isRequired,
-  handleDeleteLibrary: PropTypes.func.isRequired
 };
 
 export default ExternalCqlTableRow;

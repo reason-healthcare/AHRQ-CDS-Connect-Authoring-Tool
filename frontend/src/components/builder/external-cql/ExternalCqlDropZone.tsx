@@ -11,12 +11,18 @@ import { loadArtifact } from 'actions/artifacts';
 import { fetchArtifact, saveArtifact } from 'queries/artifacts';
 import { addExternalCql } from 'queries/external-cql';
 import { useDropZoneStyles, useSpacingStyles } from 'styles/hooks';
+import type { Artifact } from 'types/artifact';
 
-const ExternalCqlDropZone = () => {
-  const artifact = useSelector(state => state.artifacts.artifact);
-  const [message, setMessage] = useState(null);
-  const [uploadErrorMessage, setUploadErrorMessage] = useState(null);
-  const [uploadCqlErrors, setUploadCqlErrors] = useState(null);
+interface AddExternalCqlError {
+  statusText?: string;
+  cqlErrors?: Array<{ message?: string; [key: string]: unknown }>;
+}
+
+const ExternalCqlDropZone: React.FC = () => {
+  const artifact = useSelector((state: { artifacts: { artifact: Artifact } }) => state.artifacts.artifact) as Artifact;
+  const [message, setMessage] = useState<string | null>(null);
+  const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
+  const [uploadCqlErrors, setUploadCqlErrors] = useState<string[] | null>(null);
   const dispatch = useDispatch();
   const dropZoneStyles = useDropZoneStyles();
   const spacingStyles = useSpacingStyles();
@@ -25,8 +31,15 @@ const ExternalCqlDropZone = () => {
     mutationFn: fetchArtifact
   });
   const handleLoadArtifact = useCallback(
-    id => {
-      invokeFetchArtifact({ artifactId: id }, { onSuccess: data => dispatch(loadArtifact(data)) });
+    (id: string) => {
+      invokeFetchArtifact(
+        { artifactId: id },
+        {
+          onSuccess: data => {
+            dispatch(loadArtifact(data) as unknown as { type: string });
+          }
+        }
+      );
     },
     [invokeFetchArtifact, dispatch]
   );
@@ -35,23 +48,34 @@ const ExternalCqlDropZone = () => {
   });
   const handleSaveArtifact = useCallback(async () => {
     try {
-      await invokeSaveArtifact({ artifact }, { onSuccess: data => dispatch(loadArtifact(data)) });
+      await invokeSaveArtifact(
+        { artifact },
+        {
+          onSuccess: data => {
+            dispatch(loadArtifact(data) as unknown as { type: string });
+          }
+        }
+      );
     } catch (error) {
       console.error('Save artifact failed:', error);
     }
   }, [invokeSaveArtifact, artifact, dispatch]);
   const addMutation = useMutation({
     mutationFn: addExternalCql,
-    onSuccess: message => {
+    onSuccess: (message: string | unknown) => {
       if (typeof message === 'string') setMessage(message);
-      queryClient.refetchQueries(['externalCql', artifact._id]).then(() => {
-        queryClient.invalidateQueries(['modifiers']);
-        handleLoadArtifact(artifact._id);
-      });
+      if (artifact._id) {
+        queryClient.refetchQueries({ queryKey: ['externalCql', artifact._id] }).then(() => {
+          queryClient.invalidateQueries({ queryKey: ['modifiers'] });
+          handleLoadArtifact(artifact._id);
+        });
+      }
     },
-    onError: ({ statusText, cqlErrors }) => {
-      setUploadErrorMessage(statusText || 'An error occurred.');
-      setUploadCqlErrors(cqlErrors ? [...new Set(cqlErrors.map(error => error.message))] : null);
+    onError: (error: AddExternalCqlError) => {
+      setUploadErrorMessage(error.statusText || 'An error occurred.');
+      setUploadCqlErrors(
+        error.cqlErrors ? [...new Set(error.cqlErrors.map(err => err.message || '').filter(Boolean))] : null
+      );
     }
   });
 
@@ -62,15 +86,23 @@ const ExternalCqlDropZone = () => {
     },
     disabled: artifact._id == null,
     maxFiles: 1,
-    onDrop: library => {
+    onDrop: (files: File[]) => {
       const reader = new FileReader();
-      reader.onload = async event => {
-        const cqlFileName = library[0].name;
-        const cqlFileType = library[0].type;
-        const fileContentToSend = event.target.result.slice(event.target.result.indexOf(',') + 1);
+      reader.onload = async (event: ProgressEvent<FileReader>) => {
+        const cqlFileName = files[0].name;
+        const cqlFileType = files[0].type;
+        const fileContentToSend =
+          typeof event.target?.result === 'string'
+            ? event.target.result.slice(event.target.result.indexOf(',') + 1)
+            : '';
 
         if (cqlFileType !== 'application/zip' || (cqlFileType === 'application/zip' && cqlFileName.endsWith('.zip'))) {
-          const library = { cqlFileName, cqlFileContent: fileContentToSend, fileType: cqlFileType, artifact };
+          const library = {
+            cqlFileName,
+            cqlFileContent: fileContentToSend,
+            fileType: cqlFileType,
+            artifact
+          };
           setUploadErrorMessage(null);
           handleSaveArtifact();
           addMutation.mutate(library);
@@ -80,7 +112,7 @@ const ExternalCqlDropZone = () => {
       };
 
       try {
-        reader.readAsDataURL(library[0]);
+        reader.readAsDataURL(files[0]);
       } catch (error) {
         setUploadErrorMessage('Invalid file type. Only .cql and .zip files can be uploaded.');
       }
@@ -95,7 +127,7 @@ const ExternalCqlDropZone = () => {
           {...getRootProps({ className: clsx('dropzone', artifact._id == null && 'disabled') })}
         >
           <input {...getInputProps()} />
-          {addMutation.isLoading ? <CircularProgress /> : <CloudUploadIcon className={dropZoneStyles.dropZoneIcon} />}
+          {addMutation.isPending ? <CircularProgress /> : <CloudUploadIcon className={dropZoneStyles.dropZoneIcon} />}
           <div>Drop a valid external CQL library or zip file here, or click to browse.</div>
         </div>
 
@@ -130,7 +162,7 @@ const ExternalCqlDropZone = () => {
           </Alert>
         )}
 
-        {uploadCqlErrors?.length > 0 && (
+        {uploadCqlErrors && uploadCqlErrors.length > 0 && (
           <Modal
             title="About your CQL..."
             submitButtonText="Close"

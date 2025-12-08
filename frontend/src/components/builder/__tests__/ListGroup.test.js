@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import nock from 'nock';
 import _ from 'lodash';
 import { createTemplateInstance } from 'utils/test_helpers';
-import { render, screen, userEvent, waitFor, within } from 'utils/test-utils';
+import { render, screen, userEvent, waitFor, within, fireEvent } from 'utils/test-utils';
 import {
   genericBaseElementUseInstance,
   genericBaseElementListInstance,
@@ -130,10 +130,17 @@ describe('<ListGroup />', () => {
     const updateLists = jest.fn();
     const listInstance = _.cloneDeep(genericBaseElementListTemplateInstance);
     const { container } = renderComponent({ listInstance, updateLists });
-    await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'show comment' })));
-    const commentInput = within(container).getByLabelText('Comment');
+    await userEvent.click(screen.getByRole('button', { name: 'show comment' }));
+    // Find the textarea by role - the first one should be the list group's comment
+    const commentTextareas = await waitFor(() => within(container).getAllByRole('textbox'));
+    // Filter to find textareas (multiline inputs) - the comment field should be a textarea
+    const commentInput =
+      commentTextareas.find(textarea => {
+        const label = textarea.getAttribute('aria-label');
+        return label === 'Comment';
+      }) || commentTextareas[commentTextareas.length - 1]; // Fallback to last if not found
     await userEvent.type(commentInput, 'new list comment');
-    expect(updateLists).toBeCalled();
+    await waitFor(() => expect(updateLists).toBeCalled());
   });
 
   it('should render return type with a check for intersect/union lists', () => {

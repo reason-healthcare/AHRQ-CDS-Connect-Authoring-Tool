@@ -1,19 +1,34 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { InsertDriveFile as InsertDriveFileIcon } from '@mui/icons-material';
 
 import ExternalCqlDetailsModalSection from './ExternalCqlDetailsModalSection';
 import { KeyValueList, Modal } from 'components/elements';
 import { renderDate } from 'utils/dates';
 import useStyles from './styles';
+import type { ExternalCqlLibrary } from 'types/query';
 
-const ExternalCqlDetailsModal = ({ handleCloseModal, library }) => {
+interface ExternalCqlDetailsModalProps {
+  handleCloseModal: () => void;
+  library: ExternalCqlLibrary & {
+    version?: string;
+    fhirVersion?: string;
+    createdAt?: string;
+    details?: {
+      parameters?: Array<{ name?: string; [key: string]: unknown }>;
+      functions?: Array<{ name?: string; [key: string]: unknown }>;
+      definitions?: Array<{ name?: string; [key: string]: unknown }>;
+    };
+  };
+}
+
+const ExternalCqlDetailsModal: React.FC<ExternalCqlDetailsModalProps> = ({ handleCloseModal, library }) => {
   const styles = useStyles();
-  const parameters = library.details.parameters;
-  const functions = library.details.functions;
-  const definitions = library.details.definitions;
+  const parameters = library.details?.parameters || [];
+  const functions = library.details?.functions || [];
+  const definitions = library.details?.definitions || [];
 
-  const getFhirVersion = version => {
+  const getFhirVersion = (version?: string): string => {
+    if (!version) return '';
     if (version === '1.0.2') return '1.0.2 (DSTU2)';
     if (version.startsWith('3.0.')) return `${version} (STU3)`;
     if (version.startsWith('4.0.')) return `${version} (R4)`;
@@ -22,13 +37,9 @@ const ExternalCqlDetailsModal = ({ handleCloseModal, library }) => {
 
   const metaData = [
     { key: 'Uploaded', value: renderDate(library.createdAt) },
-    { key: 'Version', value: library.version },
+    { key: 'Version', value: library.version || '' },
     {
-      key: (
-        <>
-          FHIR<sup>®</sup> Version
-        </>
-      ),
+      key: 'FHIR® Version',
       value: getFhirVersion(library.fhirVersion)
     }
   ];
@@ -54,18 +65,13 @@ const ExternalCqlDetailsModal = ({ handleCloseModal, library }) => {
         </div>
 
         <div>
-          {parameters?.length > 0 && <ExternalCqlDetailsModalSection title="Parameters" definitions={parameters} />}
-          {functions?.length > 0 && <ExternalCqlDetailsModalSection title="Functions" definitions={functions} />}
-          {definitions?.length > 0 && <ExternalCqlDetailsModalSection title="Define" definitions={definitions} />}
+          {parameters.length > 0 && <ExternalCqlDetailsModalSection title="Parameters" definitions={parameters} />}
+          {functions.length > 0 && <ExternalCqlDetailsModalSection title="Functions" definitions={functions} />}
+          {definitions.length > 0 && <ExternalCqlDetailsModalSection title="Define" definitions={definitions} />}
         </div>
       </>
     </Modal>
   );
-};
-
-ExternalCqlDetailsModal.propTypes = {
-  handleCloseModal: PropTypes.func.isRequired,
-  library: PropTypes.object.isRequired
 };
 
 export default ExternalCqlDetailsModal;

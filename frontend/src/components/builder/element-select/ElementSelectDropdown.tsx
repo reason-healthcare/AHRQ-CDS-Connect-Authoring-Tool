@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { Alert } from '@mui/material';
 import { Lock as LockIcon, NotInterested as NotInterestedIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
 import _ from 'lodash';
@@ -8,7 +7,39 @@ import ElementOption from './ElementOption';
 import { Dropdown } from 'components/elements';
 import { useSpacingStyles } from 'styles/hooks';
 
-const ElementSelectDropdown = ({ handleSelectOption, isDisabled, label, options, showFooter, value }) => {
+type DropdownOption = {
+  label?: string;
+  value: string | number;
+  isSubheader?: boolean;
+  isDisabled?: boolean;
+  [key: string]: string | number | boolean | React.ReactNode | undefined;
+};
+
+interface ElementSelectOption {
+  label: string;
+  value: string;
+  hasEmptyList?: boolean;
+  isVersionLocked?: boolean;
+  [key: string]: unknown;
+}
+
+interface ElementSelectDropdownProps {
+  handleSelectOption: (value: string) => void;
+  isDisabled?: boolean;
+  label: string;
+  options: ElementSelectOption[];
+  showFooter?: boolean;
+  value: string;
+}
+
+const ElementSelectDropdown: React.FC<ElementSelectDropdownProps> = ({
+  handleSelectOption,
+  isDisabled,
+  label,
+  options,
+  showFooter,
+  value
+}) => {
   const spacingStyles = useSpacingStyles();
   const dropdownId = useMemo(() => _.uniqueId('element-select-'), []);
 
@@ -40,23 +71,16 @@ const ElementSelectDropdown = ({ handleSelectOption, isDisabled, label, options,
         )
       }
       label={label}
-      message={isDisabled && <Alert severity="error">Cannot add element when Base Element List in use.</Alert>}
-      onChange={event => handleSelectOption(event.target.value)}
-      options={isDisabled ? [] : options}
-      renderItem={option => <ElementOption option={option} />}
+      message={
+        isDisabled ? <Alert severity="error">Cannot add element when Base Element List in use.</Alert> : undefined
+      }
+      onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleSelectOption(event.target.value)}
+      options={isDisabled ? [] : (options as Array<string | number | DropdownOption>)}
+      renderItem={(option: DropdownOption) => <ElementOption option={option as ElementSelectOption} />}
       sx={{ width: '400px' }}
       value={value}
     />
   );
-};
-
-ElementSelectDropdown.propTypes = {
-  handleSelectOption: PropTypes.func.isRequired,
-  isDisabled: PropTypes.bool,
-  label: PropTypes.string.isRequired,
-  options: PropTypes.array.isRequired,
-  showFooter: PropTypes.bool,
-  value: PropTypes.string.isRequired
 };
 
 export default ElementSelectDropdown;

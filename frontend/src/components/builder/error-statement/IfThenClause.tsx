@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Alert, Button } from '@mui/material';
 import clsx from 'clsx';
@@ -16,14 +15,39 @@ import {
   ifThenClauseDisabledIfConditionWarning
 } from './utils';
 import useStyles from './styles';
+import type { ErrorStatement, ErrorStatementIfThenClause, ExpressionTree } from 'types/artifact';
 
-const IfThenClause = ({ handleDeleteIfThenClause, handleUpdateErrorStatement, ifThenClause, index, statement }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+interface IfThenClauseProps {
+  handleDeleteIfThenClause: () => void;
+  handleUpdateErrorStatement: (errorStatement: ErrorStatement) => void;
+  ifThenClause: ErrorStatementIfThenClause;
+  index: number;
+  statement: ErrorStatement;
+}
+
+const IfThenClause: React.FC<IfThenClauseProps> = ({
+  handleDeleteIfThenClause,
+  handleUpdateErrorStatement,
+  ifThenClause,
+  index,
+  statement
+}) => {
+  const artifact = useSelector(
+    (state: {
+      artifacts: {
+        artifact: {
+          errorStatement: ErrorStatement;
+          expTreeExclude: ExpressionTree;
+          expTreeInclude: ExpressionTree;
+        };
+      };
+    }) => state.artifacts.artifact
+  );
   const { errorStatement, expTreeExclude, expTreeInclude } = artifact;
   const styles = useStyles();
 
-  const hasNestedStatement = ifThenClause.statements.length > 0;
-  const ifThenClauseIndex = statement?.ifThenClauses.indexOf(ifThenClause) || 0;
+  const hasNestedStatement = (ifThenClause.statements?.length || 0) > 0;
+  const ifThenClauseIndex = statement?.ifThenClauses?.indexOf(ifThenClause) ?? 0;
   const isRoot = statement.id === 'root';
   const label = ifThenClauseIndex === 0 ? (isRoot ? 'If' : 'And if') : 'Else if';
 
@@ -34,13 +58,21 @@ const IfThenClause = ({ handleDeleteIfThenClause, handleUpdateErrorStatement, if
     expTreeExclude
   );
 
-  const handleToggleNestedStatements = () => {
+  const handleToggleNestedStatements = (): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id);
-    statementRef.ifThenClauses[index].thenClause = '';
-    if (hasNestedStatement) statementRef.ifThenClauses[index].statements = [];
-    else statementRef.ifThenClauses[index].statements.push(generateErrorStatement());
-    handleUpdateErrorStatement(newErrorStatement);
+    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    if (statementRef && statementRef.ifThenClauses) {
+      statementRef.ifThenClauses[index].thenClause = '';
+      if (hasNestedStatement) {
+        statementRef.ifThenClauses[index].statements = [];
+      } else {
+        if (!statementRef.ifThenClauses[index].statements) {
+          statementRef.ifThenClauses[index].statements = [];
+        }
+        (statementRef.ifThenClauses[index].statements as ErrorStatement[]).push(generateErrorStatement());
+      }
+      handleUpdateErrorStatement(newErrorStatement);
+    }
   };
 
   return (
@@ -78,7 +110,7 @@ const IfThenClause = ({ handleDeleteIfThenClause, handleUpdateErrorStatement, if
         <Button
           className={styles.errorStatementButton}
           color="primary"
-          disabled={!ifThenClause.ifCondition.value}
+          disabled={!ifThenClause.ifCondition?.value}
           onClick={handleToggleNestedStatements}
           variant="contained"
         >
@@ -87,7 +119,7 @@ const IfThenClause = ({ handleDeleteIfThenClause, handleUpdateErrorStatement, if
       </div>
 
       {hasNestedStatement &&
-        ifThenClause.statements.map(childStatement => (
+        (ifThenClause.statements as ErrorStatement[])?.map(childStatement => (
           <NestedErrorStatement
             key={childStatement.id}
             handleUpdateErrorStatement={handleUpdateErrorStatement}
@@ -100,20 +132,12 @@ const IfThenClause = ({ handleDeleteIfThenClause, handleUpdateErrorStatement, if
         <ThenClause
           handleUpdateErrorStatement={handleUpdateErrorStatement}
           ifThenClauseIndex={index}
-          statementId={statement.id}
-          thenClause={ifThenClause.thenClause}
+          statementId={statement.id || ''}
+          thenClause={ifThenClause.thenClause || ''}
         />
       )}
     </div>
   );
-};
-
-IfThenClause.propTypes = {
-  handleDeleteIfThenClause: PropTypes.func.isRequired,
-  handleUpdateErrorStatement: PropTypes.func.isRequired,
-  ifThenClause: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  statement: PropTypes.object.isRequired
 };
 
 export default IfThenClause;

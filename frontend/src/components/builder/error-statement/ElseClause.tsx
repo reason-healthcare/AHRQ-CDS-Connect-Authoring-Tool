@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Button, TextField } from '@mui/material';
 import clsx from 'clsx';
@@ -8,25 +7,40 @@ import _ from 'lodash';
 import ErrorStatementLabel from './ErrorStatementLabel';
 import { generateIfThenClause, getStatementById } from './utils';
 import useStyles from './styles';
+import type { ErrorStatement } from 'types/artifact';
 
-const ElseClause = ({ handleUpdateErrorStatement, statement }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+interface ElseClauseProps {
+  handleUpdateErrorStatement: (errorStatement: ErrorStatement) => void;
+  statement: ErrorStatement;
+}
+
+const ElseClause: React.FC<ElseClauseProps> = ({ handleUpdateErrorStatement, statement }) => {
+  const artifact = useSelector(
+    (state: { artifacts: { artifact: { errorStatement: ErrorStatement } } }) => state.artifacts.artifact
+  );
   const { errorStatement } = artifact;
   const isRoot = statement.id === 'root';
   const styles = useStyles();
 
-  const handleAddIfThenClause = () => {
+  const handleAddIfThenClause = (): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id);
-    statementRef.ifThenClauses.push(generateIfThenClause());
-    handleUpdateErrorStatement(newErrorStatement);
+    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    if (statementRef) {
+      if (!statementRef.ifThenClauses) {
+        statementRef.ifThenClauses = [];
+      }
+      statementRef.ifThenClauses.push(generateIfThenClause());
+      handleUpdateErrorStatement(newErrorStatement);
+    }
   };
 
-  const handleUpdateElseClause = newValue => {
+  const handleUpdateElseClause = (newValue: string): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id);
-    statementRef.elseClause = newValue;
-    handleUpdateErrorStatement(newErrorStatement);
+    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    if (statementRef) {
+      statementRef.elseClause = newValue;
+      handleUpdateErrorStatement(newErrorStatement);
+    }
   };
 
   return (
@@ -34,7 +48,7 @@ const ElseClause = ({ handleUpdateErrorStatement, statement }) => {
       <div className={styles.errorStatementButtonElse}>
         <Button
           color="primary"
-          disabled={statement.ifThenClauses.some(ifThenClause => !ifThenClause.ifCondition.label)}
+          disabled={statement.ifThenClauses?.some(ifThenClause => !ifThenClause.ifCondition?.label) || false}
           onClick={handleAddIfThenClause}
           variant="contained"
         >
@@ -53,18 +67,13 @@ const ElseClause = ({ handleUpdateErrorStatement, statement }) => {
           inputProps={{ 'data-testid': 'else-clause-textfield' }}
           multiline
           name="text"
-          onChange={event => handleUpdateElseClause(event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleUpdateElseClause(event.target.value)}
           placeholder="If none of the conditions hold..."
-          value={statement.elseClause}
+          value={statement.elseClause || ''}
         />
       </div>
     </div>
   );
-};
-
-ElseClause.propTypes = {
-  handleUpdateErrorStatement: PropTypes.func.isRequired,
-  statement: PropTypes.object.isRequired
 };
 
 export default ElseClause;

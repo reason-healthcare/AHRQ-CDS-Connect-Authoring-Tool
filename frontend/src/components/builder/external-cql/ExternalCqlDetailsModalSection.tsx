@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Accordion,
   AccordionDetails,
@@ -15,7 +14,20 @@ import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 
 import { changeToCase } from 'utils/strings';
 
-const ExternalCqlDetailsModalSection = ({ definitions, title }) => {
+interface Definition {
+  name?: string;
+  operand?: Array<{ name?: string; [key: string]: unknown }>;
+  displayReturnType?: string;
+  calculatedReturnType?: string;
+  [key: string]: unknown;
+}
+
+interface ExternalCqlDetailsModalSectionProps {
+  definitions: Definition[];
+  title: string;
+}
+
+const ExternalCqlDetailsModalSection: React.FC<ExternalCqlDetailsModalSectionProps> = ({ definitions, title }) => {
   return (
     <Accordion expanded>
       <AccordionSummary
@@ -45,12 +57,12 @@ const ExternalCqlDetailsModalSection = ({ definitions, title }) => {
                   <TableRow key={index}>
                     <TableCell>{definition.name}</TableCell>
                     {title === 'Functions' && (
-                      <TableCell>{definition.operand.map(op => op.name).join(' | ')}</TableCell>
+                      <TableCell>{definition.operand?.map(op => op.name).join(' | ') || ''}</TableCell>
                     )}
                     <TableCell>
                       {definition.displayReturnType
                         ? definition.displayReturnType
-                        : changeToCase(definition.calculatedReturnType, 'capitalCase')}
+                        : changeToCase(definition.calculatedReturnType || '', 'capitalCase')}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -61,11 +73,6 @@ const ExternalCqlDetailsModalSection = ({ definitions, title }) => {
       </AccordionDetails>
     </Accordion>
   );
-};
-
-ExternalCqlDetailsModalSection.propTypes = {
-  definitions: PropTypes.array.isRequired,
-  title: PropTypes.string.isRequired
 };
 
 export default ExternalCqlDetailsModalSection;

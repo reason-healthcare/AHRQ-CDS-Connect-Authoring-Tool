@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { TextField } from '@mui/material';
 import clsx from 'clsx';
@@ -8,17 +7,34 @@ import _ from 'lodash';
 import ErrorStatementLabel from './ErrorStatementLabel';
 import { getStatementById } from './utils';
 import useStyles from './styles';
+import type { ErrorStatement } from 'types/artifact';
 
-const ThenClause = ({ handleUpdateErrorStatement, ifThenClauseIndex, statementId, thenClause }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+interface ThenClauseProps {
+  handleUpdateErrorStatement: (errorStatement: ErrorStatement) => void;
+  ifThenClauseIndex: number;
+  statementId: string;
+  thenClause: string;
+}
+
+const ThenClause: React.FC<ThenClauseProps> = ({
+  handleUpdateErrorStatement,
+  ifThenClauseIndex,
+  statementId,
+  thenClause
+}) => {
+  const artifact = useSelector(
+    (state: { artifacts: { artifact: { errorStatement: ErrorStatement } } }) => state.artifacts.artifact
+  );
   const { errorStatement } = artifact;
   const styles = useStyles();
 
-  const handleUpdateThenClause = newValue => {
+  const handleUpdateThenClause = (newValue: string): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
     const statementRef = getStatementById(newErrorStatement, statementId);
-    statementRef.ifThenClauses[ifThenClauseIndex].thenClause = newValue;
-    handleUpdateErrorStatement(newErrorStatement);
+    if (statementRef && statementRef.ifThenClauses) {
+      statementRef.ifThenClauses[ifThenClauseIndex].thenClause = newValue;
+      handleUpdateErrorStatement(newErrorStatement);
+    }
   };
 
   return (
@@ -34,20 +50,13 @@ const ThenClause = ({ handleUpdateErrorStatement, ifThenClauseIndex, statementId
           inputProps={{ 'data-testid': 'then-clause-textfield' }}
           multiline
           name="text"
-          onChange={event => handleUpdateThenClause(event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleUpdateThenClause(event.target.value)}
           placeholder="Describe your error..."
           value={thenClause}
         />
       </div>
     </div>
   );
-};
-
-ThenClause.propTypes = {
-  handleUpdateErrorStatement: PropTypes.func.isRequired,
-  ifThenClauseIndex: PropTypes.number.isRequired,
-  statementId: PropTypes.string.isRequired,
-  thenClause: PropTypes.string.isRequired
 };
 
 export default ThenClause;

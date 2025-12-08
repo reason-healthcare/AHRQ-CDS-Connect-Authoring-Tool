@@ -45,7 +45,10 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
     handleUpdateParameters(newParameters);
   };
 
-  const updateParameter = (uniqueIdOrUpdatedParameter: string | undefined | Partial<ParameterType>, updatedParameter?: Partial<ParameterType>): void => {
+  const updateParameter = (
+    uniqueIdOrUpdatedParameter: string | undefined | Partial<ParameterType>,
+    updatedParameter?: Partial<ParameterType>
+  ): void => {
     // Handle both signatures: (uniqueId, updatedParameter) and (updatedParameter)
     let uniqueId: string | undefined;
     let updates: Partial<ParameterType>;

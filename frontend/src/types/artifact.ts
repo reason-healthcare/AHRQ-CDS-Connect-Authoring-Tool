@@ -93,6 +93,7 @@ export interface ErrorStatementIfThenClause {
   ifCondition?: {
     label?: string | null;
     value?: string | null;
+    uniqueId?: string;
   };
   statements?: Instance[];
   thenClause?: string;

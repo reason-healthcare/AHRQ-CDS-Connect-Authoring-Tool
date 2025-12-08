@@ -1,15 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader } from '@mui/material';
 
 import NestedErrorStatement from './NestedErrorStatement';
 import useStyles from './styles';
+import type { ErrorStatement } from 'types/artifact';
 
-const ErrorStatement = ({ handleUpdateErrorStatement }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+interface ErrorStatementProps {
+  handleUpdateErrorStatement: (errorStatement: ErrorStatement) => void;
+}
+
+const ErrorStatementComponent: React.FC<ErrorStatementProps> = ({ handleUpdateErrorStatement }) => {
+  const artifact = useSelector(
+    (state: { artifacts: { artifact: { errorStatement?: ErrorStatement } } }) => state.artifacts.artifact
+  );
   const { errorStatement } = artifact;
   const styles = useStyles();
+
+  if (!errorStatement) {
+    return null;
+  }
 
   return (
     <Card>
@@ -22,8 +32,4 @@ const ErrorStatement = ({ handleUpdateErrorStatement }) => {
   );
 };
 
-ErrorStatement.propTypes = {
-  handleUpdateErrorStatement: PropTypes.func.isRequired
-};
-
-export default ErrorStatement;
+export default ErrorStatementComponent;

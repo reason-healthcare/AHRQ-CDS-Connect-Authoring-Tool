@@ -1,9 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import useStyles from './styles';
 
-const ErrorStatementLabel = ({ text }) => {
+interface ErrorStatementLabelProps {
+  text: string;
+}
+
+const ErrorStatementLabel: React.FC<ErrorStatementLabelProps> = ({ text }) => {
   const styles = useStyles();
 
   return (
@@ -13,10 +16,6 @@ const ErrorStatementLabel = ({ text }) => {
       <div className={styles.labelText}>{text}</div>
     </div>
   );
-};
-
-ErrorStatementLabel.propTypes = {
-  text: PropTypes.string.isRequired
 };
 
 export default ErrorStatementLabel;

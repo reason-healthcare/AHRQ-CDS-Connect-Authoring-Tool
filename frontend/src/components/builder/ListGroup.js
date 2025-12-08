@@ -43,6 +43,7 @@ const ListGroup = ({
 
   const updateElement = field => {
     // Field comes in as { id, name, type, value } from StringField
+    // Or as { [fieldId]: value } from GroupElement's handleUpdateComment/handleUpdateTitleField
     // We need to extract the id and value to update the field
     const fieldId = field.id || Object.keys(field)[0];
     const value = field.value !== undefined ? field.value : field[fieldId];
