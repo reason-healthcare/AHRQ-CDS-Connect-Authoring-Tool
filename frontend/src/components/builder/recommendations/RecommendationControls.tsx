@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Box, IconButton } from '@mui/material';
 import {
   ArrowDropDown as ArrowDropDownIcon,
@@ -12,7 +11,18 @@ import {
 import { Tooltip } from 'components/elements';
 import { DeleteConfirmationModal } from 'components/modals';
 
-const RecommendationControls = ({
+interface RecommendationControlsProps {
+  canMoveDown: boolean;
+  canMoveUp: boolean;
+  comment: string;
+  handleDeleteRecommendation: () => void;
+  handleMoveRecommendation: (direction: 'up' | 'down') => void;
+  setShowComment: (show: boolean) => void;
+  showComment: boolean;
+  text: string;
+}
+
+const RecommendationControls: React.FC<RecommendationControlsProps> = ({
   canMoveDown,
   canMoveUp,
   comment,
@@ -84,17 +94,6 @@ const RecommendationControls = ({
       )}
     </Box>
   );
-};
-
-RecommendationControls.propTypes = {
-  canMoveDown: PropTypes.bool.isRequired,
-  canMoveUp: PropTypes.bool.isRequired,
-  comment: PropTypes.string.isRequired,
-  handleDeleteRecommendation: PropTypes.func.isRequired,
-  handleMoveRecommendation: PropTypes.func.isRequired,
-  setShowComment: PropTypes.func.isRequired,
-  showComment: PropTypes.bool.isRequired,
-  text: PropTypes.string.isRequired
 };
 
 export default RecommendationControls;

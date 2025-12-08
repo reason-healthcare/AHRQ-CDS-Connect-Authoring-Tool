@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { Autocomplete, Paper, TextField } from '@mui/material';
@@ -7,15 +6,49 @@ import { Modal } from 'components/elements';
 import { EditorsTemplate } from 'components/builder/templates';
 import { useFieldStyles } from 'styles/hooks';
 import { allRequests, typesInitialValues } from './structuredRequestFields';
+import type { RecommendationAction as RecommendationActionType } from '../../../types/artifact';
 
-const getInitialAction = type => {
-  const request = allRequests[type];
-  const initialAction = { description: '', resource: { resourceType: request.name } };
-  request.elements.forEach(e => (initialAction.resource[e.name] = typesInitialValues[e.type]));
+interface RequestElement {
+  name: string;
+  label: string;
+  required: boolean;
+  type: 'code' | 'codeableConcept';
+  options?: Array<{ value: string; label: string }>;
+}
+
+interface Request {
+  name: string;
+  elements: RequestElement[];
+}
+
+interface CodeableConceptValue {
+  code?: string;
+  display?: string;
+  system?: string;
+  uri?: string;
+  text?: string;
+}
+
+interface ActionResource extends Record<string, unknown> {
+  resourceType: string;
+  [key: string]: unknown;
+}
+
+interface ActionState {
+  description: string;
+  resource: ActionResource;
+}
+
+const getInitialAction = (type: string): ActionState => {
+  const request = allRequests[type as keyof typeof allRequests] as Request;
+  const initialAction: ActionState = { description: '', resource: { resourceType: request.name } };
+  request.elements.forEach(e => {
+    initialAction.resource[e.name] = typesInitialValues[e.type as keyof typeof typesInitialValues];
+  });
   return initialAction;
 };
 
-const getCodeFromAction = value => {
+const getCodeFromAction = (value: CodeableConceptValue | null | undefined): CodeableConceptValue | null => {
   if (value == null) {
     return null;
   }
@@ -26,46 +59,66 @@ const getCodeFromAction = value => {
   }
 };
 
-const isElementValueEmpty = value =>
-  value === '' || (typeof value === 'object' && value.code === '' && value.text === '');
+const isElementValueEmpty = (value: unknown): boolean =>
+  value === '' ||
+  (typeof value === 'object' &&
+    value !== null &&
+    (value as { code?: string; text?: string }).code === '' &&
+    (value as { code?: string; text?: string }).text === '');
 
-const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => {
+interface RecommendationActionModalProps {
+  action: RecommendationActionType;
+  closeModal: () => void;
+  saveAction: (action: RecommendationActionType) => void;
+  type: string;
+}
+
+const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
+  action,
+  closeModal,
+  saveAction,
+  type
+}) => {
   const fieldStyles = useFieldStyles();
-  const [currentAction, setCurrentAction] = useState(isEmpty(action) ? getInitialAction(type) : action);
-  const requestElements = allRequests[type].elements;
+  const [currentAction, setCurrentAction] = useState<ActionState>(
+    isEmpty(action) ? getInitialAction(type) : (action as unknown as ActionState)
+  );
+  const request = allRequests[type as keyof typeof allRequests] as Request;
+  const requestElements = request.elements;
 
-  const onChange = (field, value) => {
+  const onChange = (field: string, value: unknown) => {
     if (field === 'description') {
       // description is only top level property that changes, so handle it separately to simplify things
-      setCurrentAction({ ...currentAction, description: value });
+      setCurrentAction({ ...currentAction, description: value as string });
     } else {
       setCurrentAction({ ...currentAction, resource: { ...currentAction.resource, [field]: value } });
     }
   };
 
-  const updateCodeableConcept = (field, value, isText) => {
+  const updateCodeableConcept = (field: string, value: CodeableConceptValue | string | null, isText: boolean) => {
     if (isText) {
       setCurrentAction({
         ...currentAction,
         resource: {
           ...currentAction.resource,
-          [field]: { ...currentAction.resource[field], text: value }
+          [field]: { ...(currentAction.resource[field] as CodeableConceptValue), text: value as string }
         }
       });
     } else {
       // Reset fields to empty string when deleting codes. value will be null if code is being deleted.
-      const { code = '', display = '', system = '', uri = '' } = value ?? {};
+      const codeValue = value as CodeableConceptValue | null;
+      const { code = '', display = '', system = '', uri = '' } = codeValue ?? {};
       setCurrentAction({
         ...currentAction,
         resource: {
           ...currentAction.resource,
-          [field]: { ...currentAction.resource[field], code, display, system, uri }
+          [field]: { ...(currentAction.resource[field] as CodeableConceptValue), code, display, system, uri }
         }
       });
     }
   };
 
-  const isComplete = () => {
+  const isComplete = (): boolean => {
     const requiredElements = requestElements.filter(e => e.required).map(e => e.name);
     const isComplete =
       currentAction.description !== '' &&
@@ -74,23 +127,22 @@ const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => 
   };
 
   const onSubmit = () => {
-    saveAction(currentAction);
+    saveAction(currentAction as unknown as RecommendationActionType);
   };
 
-  const renderInput = element => {
+  const renderInput = (element: RequestElement) => {
     switch (element.type) {
       case 'code':
         return (
-          <Autocomplete
+          <Autocomplete<{ value: string; label: string }>
             autoSelect
             autoHighlight
             className={fieldStyles.fieldInputLg}
             getOptionLabel={option => option?.label || ''}
             onChange={(e, option) => onChange(element.name, option?.value ?? '')}
-            options={element.options}
-            required={true}
-            renderInput={params => <TextField {...params} placeholder="Select..." />}
-            value={element.options.find(option => option.value === currentAction.resource[element.name]) ?? null}
+            options={element.options || []}
+            renderInput={params => <TextField {...params} placeholder="Select..." required />}
+            value={element.options?.find(option => option.value === currentAction.resource[element.name]) ?? null}
           />
         );
       case 'codeableConcept':
@@ -102,17 +154,17 @@ const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => 
               name="Text"
               placeholder="CodeableConcept text"
               onChange={event => updateCodeableConcept(element.name, event.target.value, true)}
-              value={currentAction.resource[element.name].text}
+              value={(currentAction.resource[element.name] as CodeableConceptValue)?.text || ''}
             />
             <EditorsTemplate
               type="system_code"
-              handleUpdateEditor={code => updateCodeableConcept(element.name, code)}
-              value={getCodeFromAction(currentAction.resource[element.name])}
+              handleUpdateEditor={code => updateCodeableConcept(element.name, code, false)}
+              value={getCodeFromAction(currentAction.resource[element.name] as CodeableConceptValue)}
             />
           </Paper>
         );
       default:
-        break;
+        return null;
     }
   };
 
@@ -141,7 +193,7 @@ const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => 
             Request Type<span className={fieldStyles.required}>*</span>:
           </label>
           <div id="request-type" className={fieldStyles.fieldInput}>
-            {allRequests[type].name}
+            {request.name}
           </div>
         </div>
         <div className={fieldStyles.field}>
@@ -164,6 +216,7 @@ const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => 
           .filter(key => key !== 'resourceType')
           .map(key => {
             const element = requestElements.find(e => e.name === key);
+            if (!element) return null;
             return (
               <div key={key} className={fieldStyles.field}>
                 <label className={fieldStyles.fieldLabel} htmlFor={key}>
@@ -179,13 +232,6 @@ const RecommendationActionModal = ({ action, closeModal, saveAction, type }) => 
       </div>
     </Modal>
   );
-};
-
-RecommendationActionModal.propTypes = {
-  closeModal: PropTypes.func.isRequired,
-  type: PropTypes.string.isRequired,
-  action: PropTypes.object.isRequired,
-  saveAction: PropTypes.func.isRequired
 };
 
 export default RecommendationActionModal;

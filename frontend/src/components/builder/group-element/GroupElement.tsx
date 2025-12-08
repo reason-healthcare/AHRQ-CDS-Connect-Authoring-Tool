@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../../store/hooks';
 import { Stack } from '@mui/material';
 import _ from 'lodash';
 import { getFieldWithId, isReturnTypeValid } from 'utils/instances';
@@ -8,8 +8,35 @@ import { ElementCard } from 'components/elements';
 import { ElementSelect } from 'components/builder/element-select';
 import ExpressionPhrase from 'components/builder/ExpressionPhrase';
 import { ReturnTypeTemplate } from 'components/builder/templates';
+import type { Instance } from '../../../utils/instances';
+import type { Field } from '../../../types/artifact';
+import type { Alert } from '../../../utils/warnings';
 
-const GroupElement = ({
+interface GroupElementProps {
+  alerts?: Alert[];
+  allowComment?: boolean;
+  allowIndent?: boolean;
+  allowOutdent?: boolean;
+  children?: React.ReactNode;
+  disable: boolean;
+  disableTitleField?: boolean;
+  elementUniqueId?: string;
+  groupInstance: Instance;
+  groupTitleField?: Field;
+  handleAddElement: (template: Instance) => void;
+  handleDeleteElement: () => void;
+  handleIndent?: () => void;
+  handleOutdent?: () => void;
+  handleUpdateElement: (updatedFields: Record<string, unknown>) => void;
+  hasErrors: boolean;
+  indentParity?: string;
+  isWrapper?: boolean;
+  label?: string;
+  root: boolean;
+  showReturnType?: boolean;
+}
+
+const GroupElement: React.FC<GroupElementProps> = ({
   alerts,
   allowComment = true,
   allowIndent,
@@ -32,11 +59,11 @@ const GroupElement = ({
   root,
   showReturnType
 }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+  const artifact = useAppSelector(state => state.artifacts.artifact);
   const { baseElements } = artifact;
   const [showAllContent, setShowAllContent] = useState(true);
-  const commentField = getFieldWithId(groupInstance.fields, 'comment');
-  const titleField = groupTitleField ?? getFieldWithId(groupInstance.fields, 'element_name');
+  const commentField = getFieldWithId(groupInstance.fields, 'comment') as Field;
+  const titleField = (groupTitleField ?? getFieldWithId(groupInstance.fields, 'element_name')) as Field;
   const disableDeleteMessage = isWrapper
     ? `To delete this ${label}, remove all references to it.`
     : 'To edit or delete this element, remove all references to the Base Element List.';
@@ -91,7 +118,7 @@ const GroupElement = ({
         <ExpressionPhrase instance={groupInstance} baseElements={baseElements} />
         {showReturnType && (
           <ReturnTypeTemplate
-            returnType={_.startCase(groupInstance.returnType)}
+            returnType={_.startCase(groupInstance.returnType || '')}
             returnTypeIsValid={hasValidReturnType}
           />
         )}
@@ -109,31 +136,6 @@ const GroupElement = ({
       </Stack>
     </ElementCard>
   );
-};
-
-GroupElement.propTypes = {
-  alerts: PropTypes.array,
-  allowIndent: PropTypes.bool,
-  allowOutdent: PropTypes.bool,
-  disable: PropTypes.bool.isRequired,
-  disableTitleField: PropTypes.bool,
-  elementUniqueId: PropTypes.string,
-  groupInstance: PropTypes.object.isRequired,
-  groupTitleField: PropTypes.shape({
-    id: PropTypes.string,
-    value: PropTypes.string
-  }),
-  handleAddElement: PropTypes.func.isRequired,
-  handleDeleteElement: PropTypes.func.isRequired,
-  handleIndent: PropTypes.func,
-  handleOutdent: PropTypes.func,
-  handleUpdateElement: PropTypes.func.isRequired,
-  hasErrors: PropTypes.bool.isRequired,
-  indentParity: PropTypes.string,
-  isWrapper: PropTypes.bool,
-  label: PropTypes.string,
-  showReturnType: PropTypes.bool,
-  root: PropTypes.bool.isRequired
 };
 
 export default GroupElement;

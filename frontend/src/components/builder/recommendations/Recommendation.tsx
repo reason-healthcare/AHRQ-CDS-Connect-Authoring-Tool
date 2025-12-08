@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
 import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
-import { useSelector } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../../store/hooks';
 
 import { Tooltip } from 'components/elements';
 import RecommendationControls from './RecommendationControls';
@@ -11,51 +11,90 @@ import RecommendationField from './RecommendationField';
 import RecommendationLink from './RecommendationLink';
 import RecommendationSubpopulations from './RecommendationSubpopulations';
 import RecommendationSuggestion from './RecommendationSuggestion';
+import type {
+  Recommendation as RecommendationType,
+  Subpopulation,
+  RecommendationAction as RecommendationActionType
+} from '../../../types/artifact';
 
-const updateRecommendation = (recommendation, field, value) => {
+const updateRecommendation = (
+  recommendation: RecommendationType,
+  field: string,
+  value: unknown
+): RecommendationType => {
   return produce(recommendation, draft => {
-    draft[field] = value;
+    (draft as Record<string, unknown>)[field] = value;
   });
 };
 
-const deleteLink = produce((recommendation, index) => {
-  recommendation.links.splice(index, 1);
+const deleteLink = produce((recommendation: RecommendationType, index: number) => {
+  if (recommendation.links) {
+    recommendation.links.splice(index, 1);
+  }
 });
 
-const updateLink = produce((recommendation, index, field, value) => {
-  recommendation.links[index][field] = value;
+const updateLink = produce((recommendation: RecommendationType, index: number, field: string, value: string) => {
+  if (recommendation.links && recommendation.links[index]) {
+    (recommendation.links[index] as Record<string, unknown>)[field] = value;
+  }
 });
 
-const addAction = produce((recommendation, index, action) => {
-  recommendation.suggestions[index].actions.push({
-    type: 'create',
-    description: action.description,
-    resource: { ...action.resource }
-  });
+const addAction = produce((recommendation: RecommendationType, index: number, action: RecommendationActionType) => {
+  if (recommendation.suggestions && recommendation.suggestions[index]) {
+    if (!recommendation.suggestions[index].actions) {
+      recommendation.suggestions[index].actions = [];
+    }
+    recommendation.suggestions[index].actions!.push({
+      type: 'create',
+      description: action.description,
+      resource: { ...action.resource }
+    });
+  }
 });
 
-const updateAction = produce((recommendation, index, action, actionIndex) => {
-  recommendation.suggestions[index].actions[actionIndex] = {
-    type: 'create',
-    description: action.description,
-    resource: { ...action.resource }
-  };
-});
+const updateAction = produce(
+  (recommendation: RecommendationType, index: number, action: RecommendationActionType, actionIndex: number) => {
+    if (recommendation.suggestions && recommendation.suggestions[index] && recommendation.suggestions[index].actions) {
+      recommendation.suggestions[index].actions![actionIndex] = {
+        type: 'create',
+        description: action.description,
+        resource: { ...action.resource }
+      };
+    }
+  }
+);
 
 // since actions are handled separately and uid doesn't change, this only updates the label
-const updateSuggestion = produce((recommendation, index, label) => {
-  recommendation.suggestions[index].label = label;
+const updateSuggestion = produce((recommendation: RecommendationType, index: number, label: string) => {
+  if (recommendation.suggestions && recommendation.suggestions[index]) {
+    recommendation.suggestions[index].label = label;
+  }
 });
 
-const deleteAction = produce((recommendation, index, actionIndex) => {
-  recommendation.suggestions[index].actions.splice(actionIndex, 1);
+const deleteAction = produce((recommendation: RecommendationType, index: number, actionIndex: number) => {
+  if (recommendation.suggestions && recommendation.suggestions[index] && recommendation.suggestions[index].actions) {
+    recommendation.suggestions[index].actions!.splice(actionIndex, 1);
+  }
 });
 
-const deleteSuggestion = produce((recommendation, index) => {
-  recommendation.suggestions.splice(index, 1);
+const deleteSuggestion = produce((recommendation: RecommendationType, index: number) => {
+  if (recommendation.suggestions) {
+    recommendation.suggestions.splice(index, 1);
+  }
 });
 
-const Recommendation = ({
+interface RecommendationProps {
+  artifactSubpopulations: Subpopulation[];
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  handleDeleteRecommendation: () => void;
+  handleMoveRecommendation: (direction: 'up' | 'down') => void;
+  handleUpdateRecommendation: (recommendation: RecommendationType) => void;
+  recommendation: RecommendationType;
+  setScrollTo: (uid: string | null) => void;
+}
+
+const Recommendation: React.FC<RecommendationProps> = ({
   artifactSubpopulations,
   canMoveUp,
   canMoveDown,
@@ -65,13 +104,13 @@ const Recommendation = ({
   recommendation,
   setScrollTo
 }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+  const artifact = useAppSelector(state => state.artifacts.artifact);
   // Use ref to store current recommendation for use in event handlers to avoid stale closures
   const recommendationRef = useRef(recommendation);
   useEffect(() => {
     recommendationRef.current = recommendation;
   }, [recommendation]);
-  const { comment, links, rationale, subpopulations, suggestions = [], text } = recommendation;
+  const { comment, links = [], rationale, subpopulations = [], suggestions = [], text } = recommendation;
   const [showRationale, setShowRationale] = useState(rationale !== '');
   const [showComment, setShowComment] = useState(false);
   const [showAddSubpopulation, setShowAddSubpopulation] = useState(false);
@@ -92,13 +131,16 @@ const Recommendation = ({
 
   const addSubpopulation = () => {
     setShowAddSubpopulation(true);
-    setScrollTo(recommendation.uid);
+    setScrollTo(recommendation.uid || null);
   };
 
   const addLink = () => {
     handleUpdateRecommendation(
       produce(recommendationRef.current, draftRecommendation => {
-        draftRecommendation.links.push({ uid: uuidv4(), type: '', label: '', url: '' });
+        if (!draftRecommendation.links) {
+          draftRecommendation.links = [];
+        }
+        draftRecommendation.links!.push({ uid: uuidv4(), type: '', label: '', url: '' });
       })
     );
   };
@@ -106,7 +148,10 @@ const Recommendation = ({
   const addSuggestion = () => {
     handleUpdateRecommendation(
       produce(recommendationRef.current, draftRecommendation => {
-        draftRecommendation.suggestions.push({ uid: uuidv4(), label: '', actions: [] });
+        if (!draftRecommendation.suggestions) {
+          draftRecommendation.suggestions = [];
+        }
+        draftRecommendation.suggestions!.push({ uid: uuidv4(), label: '', actions: [] });
       })
     );
   };
@@ -118,12 +163,12 @@ const Recommendation = ({
           <RecommendationControls
             canMoveDown={canMoveDown}
             canMoveUp={canMoveUp}
-            comment={comment}
+            comment={comment || ''}
             handleDeleteRecommendation={handleDeleteRecommendation}
             handleMoveRecommendation={handleMoveRecommendation}
             setShowComment={setShowComment}
             showComment={showComment}
-            text={text}
+            text={text || ''}
           />
         }
         subheader={
@@ -154,7 +199,7 @@ const Recommendation = ({
                   handleUpdateRecommendation(updatedRecommendation);
                 }}
                 placeholder="Describe your recommendation"
-                value={text}
+                value={text || ''}
               />
             </Box>
             {showComment && (
@@ -170,7 +215,7 @@ const Recommendation = ({
                     )
                   }
                   placeholder="Add an optional comment"
-                  value={comment}
+                  value={comment || ''}
                 />
               </Box>
             )}
@@ -191,7 +236,7 @@ const Recommendation = ({
               handleDeleteField={deleteRationale}
               label="Rationale..."
               placeholder="Describe the rationale for your recommendation"
-              value={rationale}
+              value={rationale || ''}
             />
           </Box>
         )}
@@ -261,17 +306,6 @@ const Recommendation = ({
       </CardActions>
     </Card>
   );
-};
-
-Recommendation.propTypes = {
-  artifactSubpopulations: PropTypes.array.isRequired,
-  canMoveUp: PropTypes.bool.isRequired,
-  canMoveDown: PropTypes.bool.isRequired,
-  handleDeleteRecommendation: PropTypes.func.isRequired,
-  handleMoveRecommendation: PropTypes.func.isRequired,
-  handleUpdateRecommendation: PropTypes.func.isRequired,
-  recommendation: PropTypes.object.isRequired,
-  setScrollTo: PropTypes.func.isRequired
 };
 
 export default Recommendation;

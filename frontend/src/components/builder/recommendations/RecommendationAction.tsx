@@ -1,19 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { IconButton, Paper } from '@mui/material';
 import { Clear as ClearIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Tooltip } from 'components/elements';
 import { useButtonStyles } from 'styles/hooks';
 import useStyles from './styles';
+import type { RecommendationAction as RecommendationActionType } from '../../../types/artifact';
 
-const RecommendationAction = ({ action, editAction, deleteAction }) => {
+interface RecommendationActionProps {
+  action: RecommendationActionType;
+  editAction: () => void;
+  deleteAction: () => void;
+}
+
+const RecommendationAction: React.FC<RecommendationActionProps> = ({ action, editAction, deleteAction }) => {
   const buttonStyles = useButtonStyles();
   const styles = useStyles();
   return (
     <Paper className={styles.action} data-testid="action">
       <div>
-        <div className={styles.actionTitle}>{action.resource.resourceType} Create Action</div>
-        <div>{action.description}</div>
+        <div className={styles.actionTitle}>{(action.resource?.resourceType as string) || 'Unknown'} Create Action</div>
+        <div>{action.description || ''}</div>
       </div>
       <div>
         <Tooltip title="Edit">
@@ -22,7 +28,6 @@ const RecommendationAction = ({ action, editAction, deleteAction }) => {
             className={buttonStyles.iconButton}
             onClick={editAction}
             color="primary"
-            variant="contained"
             size="large"
           >
             <EditIcon />
@@ -34,7 +39,6 @@ const RecommendationAction = ({ action, editAction, deleteAction }) => {
             className={buttonStyles.iconButton}
             onClick={deleteAction}
             color="primary"
-            variant="contained"
             size="large"
           >
             <ClearIcon />
@@ -43,12 +47,6 @@ const RecommendationAction = ({ action, editAction, deleteAction }) => {
       </div>
     </Paper>
   );
-};
-
-RecommendationAction.propTypes = {
-  action: PropTypes.object.isRequired,
-  editAction: PropTypes.func.isRequired,
-  deleteAction: PropTypes.func.isRequired
 };
 
 export default RecommendationAction;

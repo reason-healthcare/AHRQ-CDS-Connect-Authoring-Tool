@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Box, Button, IconButton, Menu, MenuItem, Stack, TextField } from '@mui/material';
 import { Clear as ClearIcon } from '@mui/icons-material';
 
 import RecommendationAction from './RecommendationAction';
 import RecommendationActionModal from './RecommendationActionModal';
+import type {
+  RecommendationSuggestion as RecommendationSuggestionType,
+  RecommendationAction as RecommendationActionType
+} from '../../../types/artifact';
 
-const RecommendationSuggestion = ({
+interface RecommendationSuggestionProps {
+  addAction: (action: RecommendationActionType) => void;
+  updateAction: (action: RecommendationActionType, actionIndex: number) => void;
+  updateSuggestion: (label: string) => void;
+  deleteAction: (actionIndex: number) => void;
+  deleteSuggestion: () => void;
+  index: number;
+  suggestion: RecommendationSuggestionType;
+}
+
+const RecommendationSuggestion: React.FC<RecommendationSuggestionProps> = ({
   addAction,
   updateAction,
   updateSuggestion,
@@ -17,10 +30,10 @@ const RecommendationSuggestion = ({
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(-1);
-  const [currentActionResourceType, setCurrentActionResourceType] = useState(null);
-  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [currentActionResourceType, setCurrentActionResourceType] = useState<string | null>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenuClick = event => {
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
   };
 
@@ -28,17 +41,20 @@ const RecommendationSuggestion = ({
     setMenuAnchorEl(null);
   };
 
-  const newAction = type => {
+  const newAction = (type: string) => {
     setMenuAnchorEl(null);
     setShowModal(true);
     setCurrentIndex(-1);
     setCurrentActionResourceType(type);
   };
 
-  const editAction = index => {
+  const editAction = (actionIndex: number) => {
     setShowModal(true);
-    setCurrentIndex(index);
-    setCurrentActionResourceType(suggestion.actions[index].resource.resourceType);
+    setCurrentIndex(actionIndex);
+    const action = suggestion.actions?.[actionIndex];
+    if (action?.resource) {
+      setCurrentActionResourceType((action.resource.resourceType as string) || null);
+    }
   };
 
   return (
@@ -55,15 +71,15 @@ const RecommendationSuggestion = ({
         multiline
         onChange={event => updateSuggestion(event.target.value)}
         placeholder="Label for your suggestion"
-        value={suggestion.label}
+        value={suggestion.label || ''}
       />
       <Box sx={{ borderLeft: '3px solid darkgrey', paddingLeft: '20px' }} m={2}>
-        {suggestion.actions.map((action, index) => (
+        {suggestion.actions?.map((action, actionIndex) => (
           <RecommendationAction
-            key={action.uid || index}
+            key={(action as { uid?: string })?.uid || actionIndex}
             action={action}
-            editAction={() => editAction(index)}
-            deleteAction={() => deleteAction(index)}
+            editAction={() => editAction(actionIndex)}
+            deleteAction={() => deleteAction(actionIndex)}
           />
         ))}
         <Stack direction="row">
@@ -82,12 +98,12 @@ const RecommendationSuggestion = ({
         <MenuItem onClick={() => newAction('MedicationRequest')}>Medication Request</MenuItem>
         <MenuItem onClick={() => newAction('ServiceRequest')}>Service Request</MenuItem>
       </Menu>
-      {showModal && (
+      {showModal && currentActionResourceType && (
         <RecommendationActionModal
           closeModal={() => setShowModal(false)}
           type={currentActionResourceType}
-          action={suggestion.actions[currentIndex] ?? {}}
-          saveAction={action => {
+          action={(suggestion.actions?.[currentIndex] as RecommendationActionType) ?? {}}
+          saveAction={(action: RecommendationActionType) => {
             setShowModal(false);
             currentIndex === -1 ? addAction(action) : updateAction(action, currentIndex);
           }}
@@ -95,16 +111,6 @@ const RecommendationSuggestion = ({
       )}
     </Stack>
   );
-};
-
-RecommendationSuggestion.propTypes = {
-  addAction: PropTypes.func.isRequired,
-  updateAction: PropTypes.func.isRequired,
-  updateSuggestion: PropTypes.func.isRequired,
-  deleteAction: PropTypes.func.isRequired,
-  deleteSuggestion: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired,
-  suggestion: PropTypes.object.isRequired
 };
 
 export default RecommendationSuggestion;

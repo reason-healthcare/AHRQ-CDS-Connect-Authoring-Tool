@@ -1,17 +1,26 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Box, Button, Card, IconButton, Stack } from '@mui/material';
 import { Clear as ClearIcon } from '@mui/icons-material';
 import { produce } from 'immer';
 import _ from 'lodash';
 
 import { Dropdown } from 'components/elements';
+import type { Subpopulation } from '../../../types/artifact';
 
-const deleteSubpopulation = produce((subpopulations, index) => {
+const deleteSubpopulation = produce((subpopulations: Subpopulation[], index: number) => {
   subpopulations.splice(index, 1);
 });
 
-const RecommendationSubpopulations = ({
+interface RecommendationSubpopulationsProps {
+  artifactSubpopulations: Subpopulation[];
+  handleUpdateSubpopulations: (subpopulations: Subpopulation[]) => void;
+  recommendationSubpopulations: Subpopulation[];
+  setShowAddSubpopulation: (show: boolean) => void;
+  showAddSubpopulation: boolean;
+  subpopulationOptions: Subpopulation[];
+}
+
+const RecommendationSubpopulations: React.FC<RecommendationSubpopulationsProps> = ({
   artifactSubpopulations,
   handleUpdateSubpopulations,
   recommendationSubpopulations,
@@ -19,10 +28,12 @@ const RecommendationSubpopulations = ({
   showAddSubpopulation,
   subpopulationOptions
 }) => {
-  const selectRecommendationSubpopulation = subpopulationId => {
+  const selectRecommendationSubpopulation = (subpopulationId: string) => {
     const subpopulation = artifactSubpopulations.find(({ uniqueId }) => uniqueId === subpopulationId);
-    handleUpdateSubpopulations(recommendationSubpopulations.concat([_.cloneDeep(subpopulation)]));
-    setShowAddSubpopulation(false);
+    if (subpopulation) {
+      handleUpdateSubpopulations(recommendationSubpopulations.concat([_.cloneDeep(subpopulation)]));
+      setShowAddSubpopulation(false);
+    }
   };
 
   return (
@@ -65,11 +76,13 @@ const RecommendationSubpopulations = ({
       {showAddSubpopulation && (
         <Stack alignItems="center" direction="row" my={1}>
           <Dropdown
-            SelectProps={{ SelectDisplayProps: { 'data-testid': 'add-subpopulation' } }}
+            SelectProps={{
+              SelectDisplayProps: { 'data-testid': 'add-subpopulation' } as React.HTMLAttributes<HTMLDivElement>
+            }}
             label="Add a subpopulation"
             labelKey="subpopulationName"
             onChange={event => selectRecommendationSubpopulation(event.target.value)}
-            options={subpopulationOptions}
+            options={subpopulationOptions as any}
             sx={{ marginRight: '10px' }}
             value=""
             valueKey="uniqueId"
@@ -86,15 +99,6 @@ const RecommendationSubpopulations = ({
       )}
     </Stack>
   );
-};
-
-RecommendationSubpopulations.propTypes = {
-  artifactSubpopulations: PropTypes.array.isRequired,
-  handleUpdateSubpopulations: PropTypes.func.isRequired,
-  recommendationSubpopulations: PropTypes.array.isRequired,
-  setShowAddSubpopulation: PropTypes.func.isRequired,
-  showAddSubpopulation: PropTypes.bool.isRequired,
-  subpopulationOptions: PropTypes.array.isRequired
 };
 
 export default RecommendationSubpopulations;
