@@ -318,7 +318,12 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
       id: modifier.id
     };
   } else if (modifier.type === 'UserDefinedModifier') {
-    return { type: 'userDefinedModifier', modifierExpression: getModifierExpression(modifier) };
+    return {
+      type: 'userDefinedModifier',
+      modifierExpression: getModifierExpression(
+        modifier as import('components/modals/ModifierModal/types').ModifierTree
+      )
+    };
   }
   // If the modifier is not listed in the object and it's not from external CQL,
   // return just the name of the modifier to be placed at the end.

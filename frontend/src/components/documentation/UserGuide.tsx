@@ -32,9 +32,9 @@ import { Link } from 'components/elements';
 import { useTocbotWithWaypoint } from './hooks';
 import useStyles from './styles';
 
-const screenshotUrl = name => `${process.env.PUBLIC_URL}/assets/images/screenshots/${name}.png`;
+const screenshotUrl = (name: string): string => `${process.env.PUBLIC_URL}/assets/images/screenshots/${name}.png`;
 
-const UserGuide = () => {
+const UserGuide: React.FC = () => {
   const { onWaypointEnter, onWaypointLeave } = useTocbotWithWaypoint();
   const styles = useStyles();
 

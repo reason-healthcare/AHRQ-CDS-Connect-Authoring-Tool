@@ -61,5 +61,3 @@ const PatientVersionModal: React.FC<PatientVersionModalProps> = ({
 };
 
 export default PatientVersionModal;
-
-

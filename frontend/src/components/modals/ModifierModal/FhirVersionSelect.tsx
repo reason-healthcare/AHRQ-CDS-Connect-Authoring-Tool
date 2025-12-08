@@ -1,17 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from '@mui/material';
 
 import { useTextStyles } from 'styles/hooks';
 import useStyles from './styles';
 
-const fhirVersions = [
+interface FhirVersion {
+  version: string;
+  label: string;
+}
+
+const fhirVersions: FhirVersion[] = [
   { version: '4.0.x', label: 'R4' },
   { version: '3.0.0', label: 'STU3' },
   { version: '1.0.2', label: 'DSTU2' }
 ];
 
-const FhirVersionSelect = ({ handleSetFhirVersion }) => {
+interface FhirVersionSelectProps {
+  handleSetFhirVersion: (version: string) => void;
+}
+
+const FhirVersionSelect: React.FC<FhirVersionSelectProps> = ({ handleSetFhirVersion }) => {
   const textStyles = useTextStyles();
   const styles = useStyles();
 
@@ -44,7 +52,3 @@ const FhirVersionSelect = ({ handleSetFhirVersion }) => {
 };
 
 export default FhirVersionSelect;
-
-FhirVersionSelect.propTypes = {
-  handleSetFhirVersion: PropTypes.func.isRequired
-};

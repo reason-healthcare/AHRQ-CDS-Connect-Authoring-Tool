@@ -1,17 +1,62 @@
 import { useMemo } from 'react';
 import { parseISO } from 'date-fns';
+import type { Artifact } from '../../../types/artifact';
 
-function getInitialValue(artifactEditing, valueName, defaultValue, transformer = x => x) {
-  if (!artifactEditing || artifactEditing[valueName] == null) return defaultValue;
-  return transformer(artifactEditing[valueName]);
+interface ArtifactFormValues {
+  name: string;
+  version: string;
+  description: string;
+  url: string;
+  status: string | null;
+  experimental: string | null;
+  publisher: string;
+  context: Array<Record<string, unknown>>;
+  purpose: string;
+  usage: string;
+  strengthOfRecommendation?: {
+    strengthOfRecommendation: string | null;
+    code: string;
+    system: string;
+    other: string;
+  };
+  qualityOfEvidence?: {
+    qualityOfEvidence: string | null;
+    code: string;
+    system: string;
+    other: string;
+  };
+  copyright: string;
+  approvalDate: Date | null;
+  lastReviewDate: Date | null;
+  effectivePeriod: {
+    start: Date | null;
+    end: Date | null;
+  };
+  topic: Array<Record<string, unknown>>;
+  author: Array<Record<string, unknown>>;
+  reviewer: Array<Record<string, unknown>>;
+  endorser: Array<Record<string, unknown>>;
+  relatedArtifact: Array<Record<string, unknown>>;
 }
 
-function stringToDateTransform(value) {
-  if (value == null) return value;
+function getInitialValue<T>(
+  artifactEditing: Artifact | null | undefined,
+  valueName: string,
+  defaultValue: T,
+  transformer: (value: unknown) => T = (x: unknown) => x as T
+): T {
+  if (!artifactEditing) return defaultValue;
+  const artifactRecord = artifactEditing as Record<string, unknown>;
+  if (artifactRecord[valueName] == null) return defaultValue;
+  return transformer(artifactRecord[valueName]);
+}
+
+function stringToDateTransform(value: unknown): Date | null {
+  if (value == null || typeof value !== 'string') return null;
   return parseISO(value);
 }
 
-const useInitialValues = artifactEditing =>
+const useInitialValues = (artifactEditing: Artifact | null | undefined): ArtifactFormValues =>
   useMemo(
     () => ({
       name: getInitialValue(artifactEditing, 'name', ''),
@@ -43,7 +88,15 @@ const useInitialValues = artifactEditing =>
         artifactEditing,
         'effectivePeriod',
         { start: null, end: null },
-        ({ start, end }) => ({ start: stringToDateTransform(start), end: stringToDateTransform(end) })
+        (value: unknown) => {
+          if (value && typeof value === 'object' && 'start' in value && 'end' in value) {
+            return {
+              start: stringToDateTransform(value.start),
+              end: stringToDateTransform(value.end)
+            };
+          }
+          return { start: null, end: null };
+        }
       ),
       topic: getInitialValue(artifactEditing, 'topic', []),
       author: getInitialValue(artifactEditing, 'author', []),

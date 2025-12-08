@@ -4,7 +4,6 @@ import { Button, IconButton, Paper } from '@mui/material';
 import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
 import clsx from 'clsx';
 
-import { isCpgComplete } from 'utils/fields';
 import { useFieldStyles } from 'styles/hooks';
 import useStyles from './styles';
 

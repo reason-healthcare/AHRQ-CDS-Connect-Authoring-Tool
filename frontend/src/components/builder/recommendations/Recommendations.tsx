@@ -53,7 +53,9 @@ const Recommendations: React.FC<RecommendationsProps> = ({ handleUpdateRecommend
       rationale: '',
       comment: '',
       uid: uuidv4(),
-      subpopulations: []
+      subpopulations: [],
+      links: [],
+      suggestions: []
     };
     const newRecommendations = (recommendations || []).concat([newRecommendation]);
     handleUpdateRecommendations(newRecommendations);

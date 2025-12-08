@@ -36,5 +36,3 @@ const CodeDetailsTable: React.FC<CodeDetailsTableProps> = ({ codeData }) => {
 };
 
 export default CodeDetailsTable;
-
-

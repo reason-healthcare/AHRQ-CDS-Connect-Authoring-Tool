@@ -130,8 +130,11 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
       >
         <Stack spacing={2}>
           <ArtifactElementBody
+            baseElementIsUsed={baseElementIsUsed || baseElementInUsedList || false}
             elementInstance={elementInstance as any}
             handleUpdateElement={handleUpdateElement as any}
+            updateModifiers={updateModifiers}
+            validateReturnType={validateReturnType}
           />
         </Stack>
       </ElementCard>

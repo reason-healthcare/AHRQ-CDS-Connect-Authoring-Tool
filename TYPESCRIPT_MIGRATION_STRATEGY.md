@@ -660,6 +660,26 @@ Convert all [component type] components in [directory]:
 - Update test utilities
 - Ensure all tests pass
 
+**Status**: 🔄 **IN PROGRESS**
+
+**Progress:**
+- ✅ Fixed Workspace test (1 passing) - Added `aria-label` to `ElementCardLabel` component
+- ✅ Fixed Subpopulation test - Updated test expectations to match UI changes
+- ✅ Fixed ElementSelect tests - Updated filtering logic and test expectations for VSAC options
+- ✅ Fixed Recommendations test - "can add a recommendation" now passing (10 passing, 16 failing)
+- ✅ Updated Recommendation interface to include `links` and `suggestions` properties
+- ✅ Created `TEST_ISSUES.md` documenting all failing tests with root causes
+- ✅ Created `TEST_FIX_PLAN.md` with detailed plan for remaining test fixes
+
+**Remaining Test Issues:**
+- **Recommendations tests (16 failing)**: Stale closure issue with `recommendation` prop in event handlers. Test mock Redux store doesn't update props, causing handlers to use outdated values.
+- **ModifierModal tests (7 failing)**: `testId='operator-select'` is defined in code but not applied to DOM. Issue with Material-UI `TextField` with `select` not forwarding `SelectDisplayProps` correctly.
+- **Tester test (1 failing)**: DSTU2 patient CQL execution returns `null` for `MeetsInclusionCriteria` instead of expected `true`. Real CQL execution issue with mock patient data.
+
+**Documentation:**
+- `frontend/TEST_ISSUES.md` - Detailed documentation of all test failures with root causes and possible solutions
+- `frontend/TEST_FIX_PLAN.md` - Strategic plan for fixing remaining tests, prioritized by impact
+
 ### 4.5 Phase 4 Quality Assurance
 
 **Before proceeding to Phase 5, complete:**

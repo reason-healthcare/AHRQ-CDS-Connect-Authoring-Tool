@@ -51,5 +51,3 @@ const CdsHeader: React.FC = () => {
 };
 
 export default CdsHeader;
-
-

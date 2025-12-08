@@ -58,34 +58,78 @@ const NumberEditor: React.FC<NumberEditorProps> = ({
     if (isInterval) {
       if (isDecimal) {
         const firstDecimal =
-          (inputType === 'firstDecimal' ? numValue : (value as NumberEditorValue)?.firstDecimal) || null;
+          inputType === 'firstDecimal'
+            ? newValue && !Number.isNaN(numValue)
+              ? newValue.trim()
+              : null
+            : (value as NumberEditorValue)?.firstDecimal != null
+              ? String((value as NumberEditorValue).firstDecimal)
+              : null;
         const secondDecimal =
-          (inputType === 'secondDecimal' ? numValue : (value as NumberEditorValue)?.secondDecimal) || null;
-        const firstDecimalStr = firstDecimal ? `${firstDecimal}${isInteger(firstDecimal) ? '.0' : ''}` : null;
-        const secondDecimalStr = secondDecimal ? `${secondDecimal}${isInteger(secondDecimal) ? '.0' : ''}` : null;
+          inputType === 'secondDecimal'
+            ? newValue && !Number.isNaN(numValue)
+              ? newValue.trim()
+              : null
+            : (value as NumberEditorValue)?.secondDecimal != null
+              ? String((value as NumberEditorValue).secondDecimal)
+              : null;
+        // Check if the string already contains a decimal point before adding .0
+        const firstDecimalStr = firstDecimal
+          ? `${firstDecimal}${!firstDecimal.includes('.') && isInteger(firstDecimal) ? '.0' : ''}`
+          : null;
+        const secondDecimalStr = secondDecimal
+          ? `${secondDecimal}${!secondDecimal.includes('.') && isInteger(secondDecimal) ? '.0' : ''}`
+          : null;
         const str = `Interval[${firstDecimalStr},${secondDecimalStr}]`;
         handleUpdateEditor(
-          firstDecimal || secondDecimal ? ({ firstDecimal, secondDecimal, str } as NumberEditorValue) : null
+          firstDecimal != null || secondDecimal != null
+            ? ({ firstDecimal, secondDecimal, str } as NumberEditorValue)
+            : null
         );
       } else {
         const firstInteger =
-          (inputType === 'firstInteger' ? numValue : (value as NumberEditorValue)?.firstInteger) || null;
+          inputType === 'firstInteger'
+            ? newValue && !Number.isNaN(numValue)
+              ? String(numValue)
+              : null
+            : (value as NumberEditorValue)?.firstInteger != null
+              ? String((value as NumberEditorValue).firstInteger)
+              : null;
         const secondInteger =
-          (inputType === 'secondInteger' ? numValue : (value as NumberEditorValue)?.secondInteger) || null;
+          inputType === 'secondInteger'
+            ? newValue && !Number.isNaN(numValue)
+              ? String(numValue)
+              : null
+            : (value as NumberEditorValue)?.secondInteger != null
+              ? String((value as NumberEditorValue).secondInteger)
+              : null;
         const str = `Interval[${firstInteger},${secondInteger}]`;
         handleUpdateEditor(
-          firstInteger || secondInteger ? ({ firstInteger, secondInteger, str } as NumberEditorValue) : null
+          firstInteger != null || secondInteger != null
+            ? ({ firstInteger, secondInteger, str } as NumberEditorValue)
+            : null
         );
       }
     } else {
       if (isDecimal) {
-        if (numValue) {
-          handleUpdateEditor({ decimal: numValue, str: isInteger(numValue) ? `${numValue}.0` : `${numValue}` });
+        if (newValue && !Number.isNaN(numValue)) {
+          // Preserve the original string format for decimals (e.g., '0.0', '0.000')
+          const decimalStr = newValue.trim();
+          // Only add .0 if the string doesn't already contain a decimal point
+          const str = !decimalStr.includes('.') && isInteger(decimalStr) ? `${decimalStr}.0` : decimalStr;
+          handleUpdateEditor({
+            decimal: decimalStr,
+            str
+          });
         } else {
           handleUpdateEditor(null);
         }
       } else {
-        handleUpdateEditor(numValue || null);
+        if (newValue && !Number.isNaN(numValue)) {
+          handleUpdateEditor(String(numValue));
+        } else {
+          handleUpdateEditor(null);
+        }
       }
     }
   };

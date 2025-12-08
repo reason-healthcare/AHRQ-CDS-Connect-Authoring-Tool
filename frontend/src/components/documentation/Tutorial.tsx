@@ -5,10 +5,11 @@ import { Link } from 'components/elements';
 import { useTocbotWithWaypoint } from './hooks';
 import useStyles from './styles';
 
-const screenshotUrl = name => `${process.env.PUBLIC_URL}/assets/images/tutorial/${name}.png`;
-const patientFileName = name => `${process.env.PUBLIC_URL}/assets/images/tutorial/patients/${name}.json`;
+const screenshotUrl = (name: string): string => `${process.env.PUBLIC_URL}/assets/images/tutorial/${name}.png`;
+const patientFileName = (name: string): string =>
+  `${process.env.PUBLIC_URL}/assets/images/tutorial/patients/${name}.json`;
 
-const Tutorial = () => {
+const Tutorial: React.FC = () => {
   const { onWaypointEnter, onWaypointLeave } = useTocbotWithWaypoint();
   const styles = useStyles();
 

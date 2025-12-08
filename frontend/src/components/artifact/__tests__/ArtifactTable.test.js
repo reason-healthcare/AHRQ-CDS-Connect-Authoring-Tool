@@ -96,7 +96,7 @@ describe('<ArtifactTable />', () => {
 
     await waitFor(() => userEvent.click(dialog.getByRole('button', { name: /delete/i })));
 
-    expect(handleDeleteArtifact).toBeCalledWith(artifactsMock[0]);
+    expect(handleDeleteArtifact).toBeCalledWith(artifactsMock[1]);
   });
 
   it('allows duplication of artifacts', async () => {
@@ -105,6 +105,6 @@ describe('<ArtifactTable />', () => {
 
     await waitFor(() => userEvent.click(screen.getAllByRole('button', { name: /duplicate/i })[0]));
 
-    expect(handleDuplicateArtifact).toBeCalledWith(artifactsMock[0]);
+    expect(handleDuplicateArtifact).toBeCalledWith({ _id: artifactsMock[1]._id });
   });
 });

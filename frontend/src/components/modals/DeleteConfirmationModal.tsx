@@ -34,5 +34,3 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
 );
 
 export default DeleteConfirmationModal;
-
-

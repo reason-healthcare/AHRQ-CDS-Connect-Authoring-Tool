@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { produce } from 'immer';
 import { Button, Card, IconButton } from '@mui/material';
 import { Clear as ClearIcon } from '@mui/icons-material';
@@ -9,43 +8,63 @@ import clsx from 'clsx';
 import RuleCard from './RuleCard';
 import { ToggleSwitch } from 'components/elements';
 import ruleIsComplete from './utils/ruleIsComplete';
+import type { Rule, ResourceOption } from '../types';
 import useStyles from '../styles';
 
-const ConjunctionCard = ({ depth, handleRemoveConjunction, handleUpdateConjunction, resourceOptions, rule }) => {
+interface ConjunctionCardProps {
+  depth: number;
+  handleRemoveConjunction?: () => void;
+  handleUpdateConjunction: (rule: Rule) => void;
+  resourceOptions: ResourceOption[];
+  rule: Rule;
+}
+
+const ConjunctionCard: React.FC<ConjunctionCardProps> = ({
+  depth,
+  handleRemoveConjunction,
+  handleUpdateConjunction,
+  resourceOptions,
+  rule
+}) => {
   const { conjunctionType, rules } = rule;
   const styles = useStyles();
 
-  const handleToggleSwitch = newConjunctionType => {
-    if (newConjunctionType !== conjunctionType)
+  const handleToggleSwitch = (newConjunctionType: 'and' | 'or'): void => {
+    if (newConjunctionType !== conjunctionType) {
       handleUpdateConjunction({ ...rule, conjunctionType: newConjunctionType });
+    }
   };
 
-  const addGroup = () => {
+  const addGroup = (): void => {
     handleUpdateConjunction({
       ...rule,
-      rules: [...rules, { id: uuidv4(), conjunctionType: conjunctionType === 'and' ? 'or' : 'and', rules: [] }]
+      rules: [...(rules ?? []), { id: uuidv4(), conjunctionType: conjunctionType === 'and' ? 'or' : 'and', rules: [] }]
     });
   };
 
-  const addRule = () => {
-    handleUpdateConjunction({ ...rule, rules: [...rules, { id: uuidv4(), resourceProperty: '' }] });
+  const addRule = (): void => {
+    handleUpdateConjunction({ ...rule, rules: [...(rules ?? []), { id: uuidv4(), resourceProperty: '' }] });
   };
 
   const removeRule = useCallback(
-    ruleIndex =>
+    (ruleIndex: number): void =>
       handleUpdateConjunction(
         produce(rule, draftRule => {
-          draftRule.rules.splice(ruleIndex, 1);
+          if (draftRule.rules) {
+            draftRule.rules.splice(ruleIndex, 1);
+          }
         })
       ),
     [handleUpdateConjunction, rule]
   );
 
   const updateRule = useCallback(
-    (newState, ruleIndex) =>
+    (newState: Rule, ruleIndex: number): void =>
       handleUpdateConjunction(
         produce(rule, draftRule => {
-          draftRule.rules[ruleIndex] = newState;
+          if (draftRule.rules) {
+            draftRule.rules[ruleIndex] = newState;
+          }
         })
       ),
     [handleUpdateConjunction, rule]
@@ -72,7 +91,7 @@ const ConjunctionCard = ({ depth, handleRemoveConjunction, handleUpdateConjuncti
         <div className={styles.rulesCardGroup}>
           <div className={clsx(styles.line, styles.lineHorizontal, depth !== 0 && styles.lineHorizontalConnect)}></div>
           <div className={clsx(styles.line, styles.lineVertical, styles.lineVerticalTop)}></div>
-          <ToggleSwitch className={styles.indent} onToggle={handleToggleSwitch} value={conjunctionType} />
+          <ToggleSwitch className={styles.indent} onToggle={handleToggleSwitch} value={conjunctionType ?? 'and'} />
         </div>
 
         {handleRemoveConjunction && (
@@ -86,7 +105,7 @@ const ConjunctionCard = ({ depth, handleRemoveConjunction, handleUpdateConjuncti
           </IconButton>
         )}
 
-        {rules.map((nestedRule, index) =>
+        {(rules ?? []).map((nestedRule, index) =>
           nestedRule.conjunctionType ? (
             <ConjunctionCard
               key={nestedRule.id}
@@ -124,14 +143,6 @@ const ConjunctionCard = ({ depth, handleRemoveConjunction, handleUpdateConjuncti
       </Card>
     </div>
   );
-};
-
-ConjunctionCard.propTypes = {
-  depth: PropTypes.number.isRequired,
-  handleRemoveConjunction: PropTypes.func,
-  handleUpdateConjunction: PropTypes.func.isRequired,
-  resourceOptions: PropTypes.array.isRequired,
-  rule: PropTypes.object.isRequired
 };
 
 export default ConjunctionCard;

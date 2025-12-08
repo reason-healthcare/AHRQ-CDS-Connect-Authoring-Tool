@@ -34,5 +34,3 @@ const TestingParameter: React.FC<TestingParameterProps> = ({ handleUpdateParamet
 };
 
 export default TestingParameter;
-
-

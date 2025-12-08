@@ -58,6 +58,8 @@ export const generateElement = ({
   switch (option) {
     case 'demographics':
     case 'listOperations':
+    case 'medicationStatements':
+    case 'medicationRequests':
       return _.cloneDeep(template.entries.find(entry => entry.id === subOption));
 
     case 'baseElements': {
@@ -232,6 +234,15 @@ export const getElementEntries = ({ entryType, artifact, elementTemplates, exter
           label: entry.name
         }));
       return listOperationsOptions.concat(operationsOptions);
+    case 'medicationStatements':
+    case 'medicationRequests': {
+      // Handle Medications template entries separately
+      const medicationsTemplate = elementTemplates.find(template => template.name === 'Medications');
+      if (!medicationsTemplate) return [];
+      const entryName = entryType === 'medicationStatements' ? 'Medication Statement' : 'Medication Request';
+      const entry = medicationsTemplate.entries.find(e => e.name === entryName);
+      return entry ? [{ value: entry.id, label: entry.name }] : [];
+    }
     default:
       return null;
   }

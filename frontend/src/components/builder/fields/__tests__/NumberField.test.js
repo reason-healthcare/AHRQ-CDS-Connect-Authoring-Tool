@@ -26,17 +26,27 @@ describe('<NumberField />', () => {
 
     fireEvent.change(numberInput, { target: { value: '10' } });
 
-    expect(handleUpdateField).toBeCalledWith({ age: 10 });
+    expect(handleUpdateField).toBeCalledWith({
+      exclusive: false,
+      id: 'age',
+      name: 'age',
+      value: 10
+    });
   });
 
   it('changes input with type float', () => {
     const handleUpdateField = jest.fn();
-    renderComponent({ typeOfNumber: 'float', handleUpdateField });
+    renderComponent({ isInteger: false, handleUpdateField });
 
     const numberInput = document.querySelector('input[type="number"]');
 
     fireEvent.change(numberInput, { target: { value: '10.02345' } });
 
-    expect(handleUpdateField).toBeCalledWith({ age: 10.02345 });
+    expect(handleUpdateField).toBeCalledWith({
+      exclusive: false,
+      id: 'age',
+      name: 'age',
+      value: 10.02345
+    });
   });
 });

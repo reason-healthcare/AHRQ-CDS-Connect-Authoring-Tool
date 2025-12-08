@@ -3,7 +3,6 @@ import { Field, FieldProps } from 'formik';
 import { Paper } from '@mui/material';
 import clsx from 'clsx';
 
-import { isCpgComplete } from 'utils/fields';
 import { useFieldStyles } from 'styles/hooks';
 import useStyles from './styles';
 
@@ -104,5 +103,3 @@ const NestedField: React.FC<NestedFieldProps> = memo(
 NestedField.displayName = 'NestedField';
 
 export default NestedField;
-
-

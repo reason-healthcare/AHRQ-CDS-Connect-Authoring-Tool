@@ -10,7 +10,14 @@ import Tutorial from './Tutorial';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from './styles';
 
-const TabPanel = ({ children, value, index, ...props }) => (
+interface TabPanelProps {
+  children?: React.ReactNode;
+  value: number;
+  index: number;
+  [key: string]: unknown;
+}
+
+const TabPanel: React.FC<TabPanelProps> = ({ children, value, index, ...props }) => (
   <div
     role="tabpanel"
     hidden={value !== index}
@@ -22,17 +29,21 @@ const TabPanel = ({ children, value, index, ...props }) => (
   </div>
 );
 
-const a11yProps = index => ({
+const a11yProps = (index: number): { id: string; 'aria-controls': string } => ({
   id: `tab-${index}`,
   'aria-controls': `tabpanel-${index}`
 });
 
-const Documentation = ({ activeTab = 0 }) => {
+interface DocumentationProps {
+  activeTab?: number;
+}
+
+const Documentation: React.FC<DocumentationProps> = ({ activeTab = 0 }) => {
   const styles = useStyles();
   const spacingStyles = useSpacingStyles();
-  const [value, setValue] = useState(activeTab);
+  const [value, setValue] = useState<number>(activeTab);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
   };
 

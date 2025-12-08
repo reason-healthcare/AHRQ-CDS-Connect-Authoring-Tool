@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Button } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 
 import ModifierModalHeader from './ModifierModalHeader';
 import ModifierSelector from './ModifierSelector';
@@ -12,59 +14,78 @@ import { ruleTreeIsEmpty } from './ModifierBuilder/utils/ruleTreeIsEmpty';
 import { Modal } from 'components/elements';
 import { updateArtifact } from 'actions/artifacts';
 import { resourceMap } from 'queries/modifier-builder/fetchResource';
+import type { Instance, Modifier } from 'utils/instances';
+import type { ModifierTree } from './types';
 import useStyles from './styles';
 import ruleIsComplete from './ModifierBuilder/utils/ruleIsComplete';
 
-const ModifierModal = ({
+type DisplayMode = 'selectModifiers' | 'buildModifier' | 'editModifier' | 'selectFhirVersion' | null;
+
+interface ModifierModalProps {
+  elementInstance: Instance;
+  handleCloseModal: () => void;
+  handleUpdateModifiers: (modifiers: Modifier[], fhirVersion: string) => void;
+  hasLimitedModifiers?: boolean;
+  modifierToEdit?: ModifierTree;
+}
+
+const ModifierModal: React.FC<ModifierModalProps> = ({
   elementInstance,
   handleCloseModal,
   handleUpdateModifiers,
   hasLimitedModifiers = false,
   modifierToEdit
 }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
-  const [displayMode, setDisplayMode] = useState(modifierToEdit ? 'editModifier' : null);
-  const [modifiersToAdd, setModifiersToAdd] = useState(modifierToEdit ? [modifierToEdit] : []);
-  const [fhirVersion, setFhirVersion] = useState(artifact.fhirVersion);
-  const dispatch = useDispatch();
+  const artifact = useAppSelector(state => state.artifacts.artifact);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(modifierToEdit ? 'editModifier' : null);
+  const [modifiersToAdd, setModifiersToAdd] = useState<Array<Modifier & { uniqueId?: string; name?: string }>>(
+    modifierToEdit ? [modifierToEdit as unknown as Modifier & { uniqueId?: string; name?: string }] : []
+  );
+  const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion ?? '');
+  const dispatch = useAppDispatch();
   const styles = useStyles();
   const typeSupportedByBuilder =
-    Boolean(resourceMap[elementInstance.returnType]) &&
-    (fhirVersion === '' || resourceMap[elementInstance.returnType].supportedVersions.includes(fhirVersion));
-  const hasModifiers = elementInstance.modifiers?.length !== 0;
+    Boolean(resourceMap[elementInstance.returnType ?? '']) &&
+    (fhirVersion === '' || resourceMap[elementInstance.returnType ?? '']?.supportedVersions.includes(fhirVersion));
+  const hasModifiers = (elementInstance.modifiers?.length ?? 0) !== 0;
 
   let modalTitle = 'Add Modifiers';
   if (displayMode === 'selectModifiers') modalTitle = 'Select Modifiers';
   if (displayMode === 'buildModifier') modalTitle = 'Build Modifier';
   if (displayMode === 'editModifier') modalTitle = 'Edit Modifier';
 
-  const handleSaveModal = async () => {
-    if (fhirVersion !== artifact.fhirVersion) await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
+  const handleSaveModal = async (): Promise<void> => {
+    if (fhirVersion !== artifact.fhirVersion) {
+      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
+    }
     handleUpdateModifiers(
-      modifierToEdit ? modifiersToAdd : elementInstance.modifiers.concat(modifiersToAdd),
+      modifierToEdit ? modifiersToAdd : [...(elementInstance.modifiers ?? []), ...modifiersToAdd],
       fhirVersion
     );
     handleCloseModal();
   };
 
-  const handleReset = () => {
-    setFhirVersion(artifact.fhirVersion);
+  const handleReset = (): void => {
+    setFhirVersion(artifact.fhirVersion ?? '');
     setDisplayMode(null);
     setModifiersToAdd([]);
   };
 
-  const handleSetFhirVersion = newVersion => {
+  const handleSetFhirVersion = (newVersion: string): void => {
     setFhirVersion(newVersion);
     setDisplayMode('buildModifier');
   };
 
   let submitDisabled = true;
-  if (displayMode === 'selectModifiers') submitDisabled = modifiersToAdd.length === 0;
-  else if (displayMode === 'buildModifier' || displayMode === 'editModifier')
+  if (displayMode === 'selectModifiers') {
+    submitDisabled = modifiersToAdd.length === 0;
+  } else if (displayMode === 'buildModifier' || displayMode === 'editModifier') {
+    const firstModifier = modifiersToAdd[0] as unknown as ModifierTree | undefined;
     submitDisabled =
       modifiersToAdd.length === 0 ||
-      ruleTreeIsEmpty(modifiersToAdd[0]) ||
-      !modifiersToAdd[0]?.where?.rules?.every(rule => ruleIsComplete(rule));
+      (firstModifier && ruleTreeIsEmpty(firstModifier)) ||
+      !(firstModifier?.where?.rules?.every(rule => ruleIsComplete(rule)) ?? false);
+  }
 
   return (
     <Modal
@@ -130,7 +151,7 @@ const ModifierModal = ({
 
         {(displayMode === 'buildModifier' || displayMode === 'editModifier') && (
           <ModifierBuilder
-            elementInstanceReturnType={elementInstance.returnType}
+            elementInstanceReturnType={elementInstance.returnType ?? ''}
             fhirVersion={fhirVersion}
             handleGoBack={handleReset}
             modifiersToAdd={modifiersToAdd}
@@ -141,14 +162,6 @@ const ModifierModal = ({
       </div>
     </Modal>
   );
-};
-
-ModifierModal.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  handleCloseModal: PropTypes.func.isRequired,
-  handleUpdateModifiers: PropTypes.func.isRequired,
-  hasLimitedModifiers: PropTypes.bool,
-  modifierToEdit: PropTypes.object
 };
 
 export default ModifierModal;

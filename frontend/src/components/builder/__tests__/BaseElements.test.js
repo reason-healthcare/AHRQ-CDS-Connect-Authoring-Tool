@@ -107,14 +107,14 @@ describe('<BaseElements />', () => {
 
   it('should render ElementSelect to add new base elements', () => {
     const { getByLabelText } = renderComponent({});
-    expect(getByLabelText('Element type')).toBeInTheDocument();
+    expect(getByLabelText('Select Element Type')).toBeInTheDocument();
   });
 
   it('should call addBaseElement when adding a new base element', async () => {
     const addBaseElement = jest.fn();
     const { getByLabelText, getByRole } = renderComponent({ addBaseElement, baseElements: [] });
 
-    const elementSelect = getByLabelText('Element type');
+    const elementSelect = getByLabelText('Select Element Type');
     await userEvent.click(elementSelect);
     await waitFor(() => userEvent.click(getByRole('option', { name: /demographics/i })));
     await waitFor(() => userEvent.click(getByLabelText('Demographics Element')));
@@ -150,7 +150,9 @@ describe('<BaseElements />', () => {
     const groupElement = getByTestId('group-element').parentNode.parentNode;
     const nameInput = groupElement.querySelector('input[type="text"]');
     await userEvent.type(nameInput, 'new list name');
-    expect(updateBaseElementLists).toBeCalled();
+    await waitFor(() => {
+      expect(updateBaseElementLists).toBeCalled();
+    });
   });
 
   it('should call updateBaseElementLists when deleting a base element list', async () => {

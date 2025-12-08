@@ -1,7 +1,9 @@
 import React from 'react';
 import { Waypoint } from 'react-waypoint';
-import { useSelector } from 'react-redux';
 import clsx from 'clsx';
+
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../store/hooks';
 
 import { Link } from 'components/elements';
 import { useTocbotWithWaypoint } from './hooks';
@@ -145,7 +147,7 @@ export const ownership = (
     </li>
     <li>
       <strong>Extensions of the Authoring Tool</strong>: Creator, Author, Publishing Organization, and/or other owner(s)
-      may substantially extend the Authoring Tool so as to constitute a “derivative work” within the meaning of 17 USC
+      may substantially extend the Authoring Tool so as to constitute a "derivative work" within the meaning of 17 USC
       101. The GO encourages all derivative works' widespread distribution, use, and experimentation. When using or
       incorporating the underlying Authoring Tool, owners of derivative work are encouraged to disseminate such work
       under an Apache license.
@@ -156,7 +158,7 @@ export const ownership = (
 export const disclaimers = (
   <ol type="A">
     <li>
-      <strong>No Authoring Tool Warranty</strong>: The GO provides the Authoring Tool “as is.” It excludes all
+      <strong>No Authoring Tool Warranty</strong>: The GO provides the Authoring Tool "as is." It excludes all
       warranties, either express or implied.
     </li>
     <li>
@@ -188,9 +190,9 @@ export const footnotes = (
   </>
 );
 
-const TermsAndConditions = () => {
+const TermsAndConditions: React.FC = () => {
   const { onWaypointEnter, onWaypointLeave } = useTocbotWithWaypoint();
-  const termsAcceptedDate = useSelector(state =>
+  const termsAcceptedDate = useAppSelector(state =>
     state.auth.termsAcceptedDate ? new Date(state.auth.termsAcceptedDate).toLocaleDateString('en-us') : null
   );
   const styles = useStyles();

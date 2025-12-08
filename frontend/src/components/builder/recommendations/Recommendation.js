@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
 import { produce } from 'immer';
@@ -12,9 +12,11 @@ import RecommendationLink from './RecommendationLink';
 import RecommendationSubpopulations from './RecommendationSubpopulations';
 import RecommendationSuggestion from './RecommendationSuggestion';
 
-const updateRecommendation = produce((recommendation, field, value) => {
-  recommendation[field] = value;
-});
+const updateRecommendation = (recommendation, field, value) => {
+  return produce(recommendation, draft => {
+    draft[field] = value;
+  });
+};
 
 const deleteLink = produce((recommendation, index) => {
   recommendation.links.splice(index, 1);
@@ -64,6 +66,11 @@ const Recommendation = ({
   setScrollTo
 }) => {
   const artifact = useSelector(state => state.artifacts.artifact);
+  // Use ref to store current recommendation for use in event handlers to avoid stale closures
+  const recommendationRef = useRef(recommendation);
+  useEffect(() => {
+    recommendationRef.current = recommendation;
+  }, [recommendation]);
   const { comment, links, rationale, subpopulations, suggestions = [], text } = recommendation;
   const [showRationale, setShowRationale] = useState(rationale !== '');
   const [showComment, setShowComment] = useState(false);
@@ -79,7 +86,7 @@ const Recommendation = ({
   );
 
   const deleteRationale = () => {
-    handleUpdateRecommendation(updateRecommendation(recommendation, 'rationale', ''));
+    handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'rationale', ''));
     setShowRationale(false);
   };
 
@@ -90,7 +97,7 @@ const Recommendation = ({
 
   const addLink = () => {
     handleUpdateRecommendation(
-      produce(recommendation, draftRecommendation => {
+      produce(recommendationRef.current, draftRecommendation => {
         draftRecommendation.links.push({ uid: uuidv4(), type: '', label: '', url: '' });
       })
     );
@@ -98,7 +105,7 @@ const Recommendation = ({
 
   const addSuggestion = () => {
     handleUpdateRecommendation(
-      produce(recommendation, draftRecommendation => {
+      produce(recommendationRef.current, draftRecommendation => {
         draftRecommendation.suggestions.push({ uid: uuidv4(), label: '', actions: [] });
       })
     );
@@ -129,7 +136,7 @@ const Recommendation = ({
                 setShowAddSubpopulation={setShowAddSubpopulation}
                 subpopulationOptions={subpopulationOptions}
                 handleUpdateSubpopulations={subpopulations =>
-                  handleUpdateRecommendation(updateRecommendation(recommendation, 'subpopulations', subpopulations))
+                  handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'subpopulations', subpopulations))
                 }
               />
             )}
@@ -139,9 +146,11 @@ const Recommendation = ({
                 fullWidth
                 hiddenLabel
                 multiline
-                onChange={event =>
-                  handleUpdateRecommendation(updateRecommendation(recommendation, 'text', event.target.value))
-                }
+                onChange={event => {
+                  // Use the recommendation prop structure but with the new text value from the event
+                  const updatedRecommendation = { ...recommendationRef.current, text: event.target.value };
+                  handleUpdateRecommendation(updatedRecommendation);
+                }}
                 placeholder="Describe your recommendation"
                 value={text}
               />
@@ -154,7 +163,7 @@ const Recommendation = ({
                   hiddenLabel
                   multiline
                   onChange={event =>
-                    handleUpdateRecommendation(updateRecommendation(recommendation, 'comment', event.target.value))
+                    handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'comment', event.target.value))
                   }
                   placeholder="Add an optional comment"
                   value={comment}
@@ -171,7 +180,7 @@ const Recommendation = ({
           <Box my={1}>
             <RecommendationField
               handleChangeField={event =>
-                handleUpdateRecommendation(updateRecommendation(recommendation, 'rationale', event.target.value))
+                handleUpdateRecommendation(updateRecommendation(recommendationRef.current, 'rationale', event.target.value))
               }
               handleDeleteField={deleteRationale}
               label="Rationale..."
@@ -185,9 +194,9 @@ const Recommendation = ({
           <RecommendationLink
             key={link.uid || index}
             handleChangeLink={(field, value) =>
-              handleUpdateRecommendation(updateLink(recommendation, index, field, value))
+              handleUpdateRecommendation(updateLink(recommendationRef.current, index, field, value))
             }
-            handleDeleteLink={() => handleUpdateRecommendation(deleteLink(recommendation, index))}
+            handleDeleteLink={() => handleUpdateRecommendation(deleteLink(recommendationRef.current, index))}
             label={`Link${links.length > 1 ? ` ${index + 1}` : ''}...`}
             link={link}
           />
@@ -196,13 +205,13 @@ const Recommendation = ({
         {suggestions.map((suggestion, index) => (
           <RecommendationSuggestion
             key={suggestion.uid || index}
-            addAction={action => handleUpdateRecommendation(addAction(recommendation, index, action))}
+            addAction={action => handleUpdateRecommendation(addAction(recommendationRef.current, index, action))}
             updateAction={(action, actionIndex) =>
-              handleUpdateRecommendation(updateAction(recommendation, index, action, actionIndex))
+              handleUpdateRecommendation(updateAction(recommendationRef.current, index, action, actionIndex))
             }
-            updateSuggestion={label => handleUpdateRecommendation(updateSuggestion(recommendation, index, label))}
-            deleteAction={actionIndex => handleUpdateRecommendation(deleteAction(recommendation, index, actionIndex))}
-            deleteSuggestion={() => handleUpdateRecommendation(deleteSuggestion(recommendation, index))}
+            updateSuggestion={label => handleUpdateRecommendation(updateSuggestion(recommendationRef.current, index, label))}
+            deleteAction={actionIndex => handleUpdateRecommendation(deleteAction(recommendationRef.current, index, actionIndex))}
+            deleteSuggestion={() => handleUpdateRecommendation(deleteSuggestion(recommendationRef.current, index))}
             index={index}
             suggestion={suggestion}
           />

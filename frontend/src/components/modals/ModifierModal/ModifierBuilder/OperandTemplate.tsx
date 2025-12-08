@@ -1,13 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Box, Stack } from '@mui/material';
 
 import { Dropdown, MultipleSelect } from 'components/elements';
 import { EditorsTemplate } from 'components/builder/templates';
 import { changeToCase } from 'utils/strings';
+import type { Rule, Operand, ResourceOption } from '../types';
 import useStyles from '../styles';
 
-const OperandTemplate = ({ handleUpdateRule, resource, rule, selectedOperands }) => {
+interface OperandTemplateProps {
+  handleUpdateRule: (rule: Rule) => void;
+  resource: ResourceOption | null;
+  rule: Rule;
+  selectedOperands: Operand[];
+}
+
+const OperandTemplate: React.FC<OperandTemplateProps> = ({ handleUpdateRule, resource, rule, selectedOperands }) => {
   const styles = useStyles();
 
   return (
@@ -20,9 +27,9 @@ const OperandTemplate = ({ handleUpdateRule, resource, rule, selectedOperands })
             <Box mr="10px">
               <EditorsTemplate
                 handleUpdateEditor={newValue => handleUpdateRule({ ...rule, [operand.id]: newValue })}
-                isInterval={operand.typeSpecifier.type === 'IntervalTypeSpecifier'}
-                isList={operand.typeSpecifier.type === 'ListTypeSpecifier'}
-                type={changeToCase(operand.typeSpecifier.editorType, 'snakeCase')}
+                isInterval={operand.typeSpecifier?.type === 'IntervalTypeSpecifier'}
+                isList={operand.typeSpecifier?.type === 'ListTypeSpecifier'}
+                type={changeToCase(operand.typeSpecifier?.editorType ?? '', 'snakeCase')}
                 value={rule[operand.id]}
               />
             </Box>
@@ -30,12 +37,12 @@ const OperandTemplate = ({ handleUpdateRule, resource, rule, selectedOperands })
 
           {operand.type === 'selector' && operand.selectionRequiresPredefinedCodes && (
             <MultipleSelect
-              // allowCustomInput={resource.allowsCustomCodes} // TODO: add support
+              // allowCustomInput={resource?.allowsCustomCodes} // TODO: add support
               label="Code(s)"
               onChange={newValue => handleUpdateRule({ ...rule, [operand.id]: newValue || [] })}
-              options={resource.predefinedCodes?.sort() || []}
+              options={(resource?.predefinedCodes?.sort() ?? []) as string[]}
               sx={{ width: { xs: '750px', xl: '910px' } }}
-              value={rule[operand.id] || []}
+              value={(rule[operand.id] as string[]) || []}
             />
           )}
 
@@ -43,9 +50,9 @@ const OperandTemplate = ({ handleUpdateRule, resource, rule, selectedOperands })
             <Dropdown
               label={operand.name || 'Select...'}
               onChange={event => handleUpdateRule({ ...rule, [operand.id]: event.target.value || [] })}
-              options={operand.selectionValues || []}
+              options={(operand.selectionValues ?? []) as Array<{ value: string; label: string }>}
               sx={{ width: { xs: '150px', xxl: '200px' } }}
-              value={rule[operand.id] || ''}
+              value={(rule[operand.id] as string) || ''}
             />
           )}
 
@@ -56,13 +63,6 @@ const OperandTemplate = ({ handleUpdateRule, resource, rule, selectedOperands })
       ))}
     </>
   );
-};
-
-OperandTemplate.propTypes = {
-  handleUpdateRule: PropTypes.func.isRequired,
-  resource: PropTypes.object.isRequired,
-  rule: PropTypes.object.isRequired,
-  selectedOperands: PropTypes.array.isRequired
 };
 
 export default OperandTemplate;

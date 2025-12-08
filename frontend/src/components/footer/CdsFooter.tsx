@@ -67,5 +67,3 @@ const CdsFooter: React.FC = () => {
 };
 
 export default CdsFooter;
-
-

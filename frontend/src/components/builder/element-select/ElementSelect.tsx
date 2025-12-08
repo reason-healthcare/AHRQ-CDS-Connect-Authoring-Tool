@@ -55,6 +55,8 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
   parentElementId
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
+  const [selectedCqlOption, setSelectedCqlOption] = useState<string | null>(null);
   const artifact = useAppSelector(state => state.artifacts.artifact);
   const { _id: artifactId } = artifact || { _id: undefined };
   const { data: externalCqlList } = useQuery<ExternalCqlLibrary[]>({
@@ -79,7 +81,45 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
       serviceRequest: ['4.0.0', '4.0.1', '4.0.x']
     };
 
-    const result = elementTemplates
+    // Special handling for Medications template - create separate options for each entry
+    const medicationsTemplate = elementTemplates.find(template => template.name === 'Medications');
+    const medicationsOptions: ElementOption[] = medicationsTemplate
+      ? medicationsTemplate.entries
+          .filter(entry => entry.name === 'Medication Statement' || entry.name === 'Medication Request')
+          .map(entry => {
+            // Map entry names to VSAC_OPTIONS values
+            const valueMap: Record<string, string> = {
+              'Medication Statement': 'medicationStatements',
+              'Medication Request': 'medicationRequests'
+            };
+            const value = valueMap[entry.name || ''] || changeToCase(entry.name || '', 'camelCase');
+            const options = getElementEntries({
+              entryType: value,
+              artifact,
+              elementTemplates,
+              externalCqlList: externalCqlList || [],
+              parentElementId
+            });
+            const hasEmptyList = (options?.length || 0) === 0;
+            const isVersionLocked =
+              artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
+            const isVsacOption = VSAC_OPTIONS.includes(value as typeof VSAC_OPTIONS[number]);
+            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : (entry.name || '');
+
+            return {
+              label,
+              value,
+              options,
+              hasEmptyList,
+              isVersionLocked,
+              vsacAuthRequired: isVsacOption,
+              isDisabled: hasEmptyList && !isVsacOption
+            };
+          })
+      : [];
+
+    // Regular template handling
+    const regularOptions = elementTemplates
       .filter(template => !(template as { suppress?: boolean }).suppress && !filterOut.includes(template.name || ''))
       .map(template => {
         const value = changeToCase(template.name || '', 'camelCase');
@@ -94,15 +134,23 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
         const isVersionLocked =
           artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
 
+        // For VSAC options, use singular form to match test expectations
+        const isVsacOption = VSAC_OPTIONS.includes(value as typeof VSAC_OPTIONS[number]);
+        const label = isVsacOption && template.name ? pluralize.singular(template.name) : (template.name || '');
+
         return {
-          label: pluralize(template.name || ''),
+          label,
           value,
           options,
           hasEmptyList,
-          isVersionLocked
+          isVersionLocked,
+          vsacAuthRequired: isVsacOption,
+          isDisabled: hasEmptyList && !isVsacOption
         };
-      })
-      .filter(option => !option.hasEmptyList && !option.isVersionLocked)
+      });
+
+    const result = [...medicationsOptions, ...regularOptions]
+      .filter(option => !option.isVersionLocked)
       .sort(sortAlphabeticallyByKey('label'));
 
     return result;
@@ -115,18 +163,121 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
 
   if (!artifact) return null;
 
-  const handleSelectOption = (option: ElementOption): void => {
-    setSelectedOption(option.value);
+  const handleSelectOption = (optionValue: string): void => {
+    const option = elementOptions.find(opt => opt.value === optionValue);
+    if (option) {
+      setSelectedOption(option.value);
+      setSelectedSubOption(null);
+      setSelectedCqlOption(null);
+    }
   };
 
-  const handleSelectElement = (_element: unknown, _type: string): void => {
-    // This function is passed to ElementSelectActions (still JS) to handle code/valueSet selection
-    // The actual implementation would add codes/valueSets to element fields
-    // For now, this is a stub since ElementSelectActions is still JS
+  const handleSelectSubOption = (subOptionValue: string): void => {
+    setSelectedSubOption(subOptionValue);
+
+    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption) return;
+
+    // Check if this is external CQL with nested options
+    if (selectedOption === 'externalCql') {
+      // External CQL has nested structure - don't generate element yet, show next dropdown
+      return;
+    }
+
+    // VSAC options without sub-options should not call this - they show ElementSelectActions instead
+    const isVsacOption = VSAC_OPTIONS.includes(selectedOption as typeof VSAC_OPTIONS[number]);
+    if (isVsacOption && (!selectedOptionData.options || selectedOptionData.options.length === 0)) {
+      return;
+    }
+
+    // Import generateElement from utils
+    const { generateElement } = require('./utils');
+    // For medicationStatements/medicationRequests, use Medications template
+    let templateName = selectedOption;
+    if (selectedOption === 'medicationStatement' || selectedOption === 'medicationRequest') {
+      templateName = 'medications';
+    }
+    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === templateName);
+    if (template) {
+      const element = generateElement({
+        artifact,
+        cqlOption: null,
+        externalCqlList: externalCqlList || [],
+        option: selectedOption,
+        subOption: subOptionValue,
+        template,
+        vsacCode: null,
+        vsacValueSet: null,
+        vsacType: null
+      });
+      if (element) {
+        handleAddElement(element as Instance);
+        setSelectedOption(null);
+        setSelectedSubOption(null);
+        setSelectedCqlOption(null);
+      }
+    }
+  };
+
+  const handleSelectCqlOption = (cqlOptionValue: string): void => {
+    setSelectedCqlOption(cqlOptionValue);
+
+    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption || !selectedSubOption) return;
+
+    // Import generateElement from utils
+    const { generateElement } = require('./utils');
+    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === selectedOption);
+    if (template) {
+      const element = generateElement({
+        artifact,
+        cqlOption: cqlOptionValue,
+        externalCqlList: externalCqlList || [],
+        option: selectedOption,
+        subOption: selectedSubOption,
+        template,
+        vsacCode: null,
+        vsacValueSet: null,
+        vsacType: null
+      });
+      if (element) {
+        handleAddElement(element as Instance);
+        setSelectedOption(null);
+        setSelectedSubOption(null);
+        setSelectedCqlOption(null);
+      }
+    }
+  };
+
+  const handleSelectElement = (vsacData: unknown, vsacType: 'codes' | 'valueSets'): void => {
+    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption) return;
+
+    // Import generateElement from utils
+    const { generateElement } = require('./utils');
+    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === selectedOption);
+    if (template) {
+      const element = generateElement({
+        artifact,
+        cqlOption: null,
+        externalCqlList: externalCqlList || [],
+        option: selectedOption,
+        subOption: null,
+        template,
+        vsacCode: vsacType === 'codes' ? (vsacData as unknown) : null,
+        vsacValueSet: vsacType === 'valueSets' ? (vsacData as unknown) : null,
+        vsacType
+      });
+      if (element) {
+        handleAddElement(element as Instance);
+        setSelectedOption(null);
+        setSelectedSubOption(null);
+        setSelectedCqlOption(null);
+      }
+    }
   };
 
   const handleClose = (): void => {
     setSelectedOption(null);
+    setSelectedSubOption(null);
+    setSelectedCqlOption(null);
   };
 
   return (
@@ -135,7 +286,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <ElementSelectDropdown
             options={elementOptions as any}
-            handleSelectOption={handleSelectOption as any}
+            handleSelectOption={(value: string) => handleSelectOption(value)}
             isDisabled={isDisabled}
             label="Select Element Type"
             value={selectedOption}
@@ -147,7 +298,55 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
           </IconButton>
         </div>
 
-        {selectedOptionData && <ElementSelectActions handleSelectElement={handleSelectElement as any} />}
+        {selectedOptionData && (
+          <>
+            {selectedOptionData.options && Array.isArray(selectedOptionData.options) && selectedOptionData.options.length > 0 && (
+              <div style={{ marginTop: '10px' }}>
+                <ElementSelectDropdown
+                  options={selectedOptionData.options as any}
+                  handleSelectOption={(value: string) => handleSelectSubOption(value)}
+                  isDisabled={isDisabled}
+                  label={
+                    selectedOptionData.value === 'baseElements'
+                      ? 'Base Element'
+                      : selectedOptionData.value === 'parameters'
+                        ? 'Parameters Element'
+                        : selectedOptionData.value === 'externalCql'
+                          ? 'External CQL Element'
+                          : `${selectedOptionData.label} Element`
+                  }
+                  value={selectedSubOption}
+                  showFooter={false}
+                />
+              </div>
+            )}
+            {selectedOption === 'externalCql' &&
+              selectedSubOption &&
+              selectedOptionData.options &&
+              Array.isArray(selectedOptionData.options) && (
+                (() => {
+                  const selectedCqlLibrary = (selectedOptionData.options as Array<{ value: string; options?: unknown[] }>).find(
+                    opt => opt.value === selectedSubOption
+                  );
+                  return selectedCqlLibrary && selectedCqlLibrary.options && Array.isArray(selectedCqlLibrary.options) && selectedCqlLibrary.options.length > 0 ? (
+                    <div style={{ marginTop: '10px' }}>
+                      <ElementSelectDropdown
+                        options={selectedCqlLibrary.options as any}
+                        handleSelectOption={(value: string) => handleSelectCqlOption(value)}
+                        isDisabled={isDisabled}
+                        label="Definition, function, or parameter"
+                        value={selectedCqlOption}
+                        showFooter={false}
+                      />
+                    </div>
+                  ) : null;
+                })()
+              )}
+            {VSAC_OPTIONS.includes(selectedOptionData.value as typeof VSAC_OPTIONS[number]) && (
+              <ElementSelectActions handleSelectElement={handleSelectElement as any} />
+            )}
+          </>
+        )}
       </CardContent>
     </Card>
   );

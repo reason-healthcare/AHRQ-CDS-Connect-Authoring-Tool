@@ -29,5 +29,3 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient }) => {
 };
 
 export default PatientCard;
-
-

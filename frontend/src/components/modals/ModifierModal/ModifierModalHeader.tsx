@@ -1,18 +1,26 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Card, CardContent } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon, Check as CheckIcon } from '@mui/icons-material';
 import clsx from 'clsx';
 
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../../store/hooks';
+
 import ExpressionPhrase from 'components/builder/ExpressionPhrase';
 import { changeToCase } from 'utils/strings';
 import { getReturnType } from 'utils/instances';
+import type { Instance, Modifier } from 'utils/instances';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';
 
-const ModifierModalHeader = ({ elementInstance, modifiersToAdd }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
+interface ModifierModalHeaderProps {
+  elementInstance: Instance;
+  modifiersToAdd: Array<Modifier & { uniqueId?: string; name?: string }>;
+}
+
+const ModifierModalHeader: React.FC<ModifierModalHeaderProps> = ({ elementInstance, modifiersToAdd }) => {
+  const artifact = useAppSelector(state => state.artifacts.artifact);
   const { baseElements } = artifact;
   const modifiersReturnType = modifiersToAdd[modifiersToAdd.length - 1]?.returnType;
   const spacingStyles = useSpacingStyles();
@@ -24,7 +32,7 @@ const ModifierModalHeader = ({ elementInstance, modifiersToAdd }) => {
         <div className={styles.headerTag}>
           <div className={clsx(styles.headerIndicator, styles.headerIndicatorHighlight)}>
             <ExpressionPhrase
-              instance={{ ...elementInstance, modifiers: [...elementInstance.modifiers, ...modifiersToAdd] }}
+              instance={{ ...elementInstance, modifiers: [...(elementInstance.modifiers ?? []), ...modifiersToAdd] }}
               baseElements={baseElements}
               inModal={true}
             />
@@ -34,7 +42,7 @@ const ModifierModalHeader = ({ elementInstance, modifiersToAdd }) => {
         <div className={styles.headerTag}>
           <div className={styles.headerIndicator} data-testid="modifier-return-type">
             <span className={styles.headerIndicatorLabel}>Return Type:</span>
-            {changeToCase(elementInstance.returnType, 'capitalCase')}
+            {changeToCase(elementInstance.returnType ?? '', 'capitalCase')}
             {modifiersReturnType && (
               <>
                 <ArrowForwardIcon className={spacingStyles.horizontalPadding} fontSize="small" />
@@ -42,13 +50,16 @@ const ModifierModalHeader = ({ elementInstance, modifiersToAdd }) => {
                 {changeToCase(modifiersReturnType, 'capitalCase')}
               </>
             )}
-            {!modifiersReturnType && elementInstance.modifiers.length > 0 && (
+            {!modifiersReturnType && (elementInstance.modifiers?.length ?? 0) > 0 && (
               <>
                 <ArrowForwardIcon className={spacingStyles.horizontalPadding} fontSize="small" />
-                {getReturnType(elementInstance.returnType, elementInstance.modifiers) === 'boolean' && (
+                {getReturnType(elementInstance.returnType ?? '', elementInstance.modifiers ?? []) === 'boolean' && (
                   <CheckIcon fontSize="small" />
                 )}
-                {changeToCase(getReturnType(elementInstance.returnType, elementInstance.modifiers), 'capitalCase')}
+                {changeToCase(
+                  getReturnType(elementInstance.returnType ?? '', elementInstance.modifiers ?? []),
+                  'capitalCase'
+                )}
               </>
             )}
           </div>
@@ -56,11 +67,6 @@ const ModifierModalHeader = ({ elementInstance, modifiersToAdd }) => {
       </CardContent>
     </Card>
   );
-};
-
-ModifierModalHeader.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  modifiersToAdd: PropTypes.array.isRequired
 };
 
 export default ModifierModalHeader;

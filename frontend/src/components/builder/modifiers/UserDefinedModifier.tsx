@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../../store/hooks';
+
 import { ModifierModal } from 'components/modals';
 import type { Instance, Modifier } from '../../../utils/instances';
+import type { ModifierTree } from '../../modals/ModifierModal/types';
 import makeStyles from './styles';
 
 interface UserDefinedModifierProps {
@@ -22,6 +26,13 @@ const UserDefinedModifier: React.FC<UserDefinedModifierProps> = ({
   const [showModifierModal, setShowModifierModal] = useState(false);
   const modifierStyles = makeStyles();
 
+  const handleUpdateModifiers = (modifiers: Modifier[], fhirVersion: string): void => {
+    // For UserDefinedModifier, we only update the single modifier
+    if (modifiers.length > 0) {
+      handleUpdateModifier(modifiers[0]);
+    }
+  };
+
   return (
     <div className={modifierStyles.customModifier}>
       <div className={modifierStyles.modifierMargin}>{label}</div>
@@ -34,8 +45,8 @@ const UserDefinedModifier: React.FC<UserDefinedModifierProps> = ({
         <ModifierModal
           elementInstance={elementInstance}
           handleCloseModal={() => setShowModifierModal(false)}
-          handleUpdateModifiers={handleUpdateModifier}
-          modifierToEdit={modifier}
+          handleUpdateModifiers={handleUpdateModifiers}
+          modifierToEdit={modifier as unknown as ModifierTree}
         />
       )}
     </div>

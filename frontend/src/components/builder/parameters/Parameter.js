@@ -75,9 +75,9 @@ const Parameter = ({
       commentField={{ id: uniqueId, name: 'Comment', value: comment }}
       disableDeleteMessage={parameterIsUsed && 'To delete this parameter, remove all references to it.'}
       disableTitleField={parameterIsUsed}
-      handleDelete={handleDeleteParameter}
-      handleUpdateComment={event => handleUpdateParameter({ ...parameter, comment: event[uniqueId] })}
-      handleUpdateTitleField={event => handleUpdateParameter({ ...parameter, name: event[uniqueId] })}
+      handleDelete={() => handleDeleteParameter(uniqueId)}
+      handleUpdateComment={event => handleUpdateParameter({ ...parameter, comment: event.value })}
+      handleUpdateTitleField={event => handleUpdateParameter({ ...parameter, name: event.value })}
       hasErrors={(hasDuplicateName && !hasChangedUse) || hasErrors}
       label="parameter"
       setShowAllContent={setShowAllContent}

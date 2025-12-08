@@ -40,6 +40,25 @@ export interface Subpopulation {
   name?: string;
 }
 
+export interface RecommendationLink {
+  uid?: string;
+  type?: string;
+  label?: string;
+  url?: string;
+}
+
+export interface RecommendationAction {
+  type?: string;
+  description?: string;
+  resource?: Record<string, unknown>;
+}
+
+export interface RecommendationSuggestion {
+  uid?: string;
+  label?: string;
+  actions?: RecommendationAction[];
+}
+
 export interface Recommendation {
   uid?: string;
   grade?: string;
@@ -47,6 +66,8 @@ export interface Recommendation {
   rationale?: string;
   comment?: string;
   subpopulations?: Subpopulation[];
+  links?: RecommendationLink[];
+  suggestions?: RecommendationSuggestion[];
 }
 
 export interface Parameter {

@@ -128,5 +128,3 @@ const AhrqHeader: React.FC = () => {
 };
 
 export default AhrqHeader;
-
-

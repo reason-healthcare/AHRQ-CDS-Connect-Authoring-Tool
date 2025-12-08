@@ -1,6 +1,8 @@
 // Uses colors from the Atom One Light syntax highlighting theme: https://github.com/atom/one-light-syntax
 
-const theme = {
+import type { PrismTheme } from 'prism-react-renderer';
+
+const theme: PrismTheme = {
   plain: {
     color: '#32333a',
     backgroundColor: '#f9f9f9'

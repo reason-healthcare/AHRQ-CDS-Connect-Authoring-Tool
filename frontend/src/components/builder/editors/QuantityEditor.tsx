@@ -30,31 +30,58 @@ const QuantityEditor: React.FC<QuantityEditorProps> = ({ errors, handleUpdateEdi
   const fieldStyles = useFieldStyles();
 
   const handleChange = (newValue: string | number, inputType: string): void => {
-    if (newValue && Number.isNaN(Number(newValue))) return;
+    // Skip numeric validation for unit changes
+    if (inputType !== 'unit' && newValue && Number.isNaN(Number(newValue))) return;
 
     const unit = inputType === 'unit' ? (newValue as string) || '' : (value as QuantityEditorValue)?.unit || '';
     const escapedQuoteUnit = (unit ? unit.replace(/'/g, "\\'") : unit) || '1';
 
     if (isInterval) {
       const firstQuantity =
-        (inputType === 'firstQuantity' ? newValue : (value as QuantityEditorValue)?.firstQuantity) || null;
+        inputType === 'firstQuantity'
+          ? newValue && !Number.isNaN(Number(newValue))
+            ? String(newValue)
+            : null
+          : (value as QuantityEditorValue)?.firstQuantity != null
+            ? String((value as QuantityEditorValue).firstQuantity)
+            : null;
       const secondQuantity =
-        (inputType === 'secondQuantity' ? newValue : (value as QuantityEditorValue)?.secondQuantity) || null;
+        inputType === 'secondQuantity'
+          ? newValue && !Number.isNaN(Number(newValue))
+            ? String(newValue)
+            : null
+          : (value as QuantityEditorValue)?.secondQuantity != null
+            ? String((value as QuantityEditorValue).secondQuantity)
+            : null;
+      const firstQuantityNum = firstQuantity ? Number(firstQuantity) : 0;
+      const secondQuantityNum = secondQuantity ? Number(secondQuantity) : 0;
+      // Only add .0 if the string doesn't already contain a decimal point
       const firstQuantityStr =
-        firstQuantity != null ? `${firstQuantity}${isInteger(firstQuantity) ? '.0' : ''} '${escapedQuoteUnit}'` : null;
+        firstQuantity != null
+          ? `${firstQuantity}${!firstQuantity.includes('.') && isInteger(firstQuantityNum) ? '.0' : ''} '${escapedQuoteUnit}'`
+          : null;
       const secondQuantityStr =
         secondQuantity != null
-          ? `${secondQuantity}${isInteger(secondQuantity) ? '.0' : ''} '${escapedQuoteUnit}'`
+          ? `${secondQuantity}${!secondQuantity.includes('.') && isInteger(secondQuantityNum) ? '.0' : ''} '${escapedQuoteUnit}'`
           : null;
       const str = `Interval[${firstQuantityStr},${secondQuantityStr}]`;
       handleUpdateEditor(
-        firstQuantity || secondQuantity || unit
+        firstQuantity != null || secondQuantity != null || unit
           ? ({ firstQuantity, secondQuantity, unit, str } as QuantityEditorValue)
           : null
       );
     } else {
-      const quantity = inputType === 'quantity' ? newValue : (value as QuantityEditorValue)?.quantity || '';
-      const str = `${quantity}${isInteger(quantity) ? '.0' : ''} '${escapedQuoteUnit}'`;
+      const quantity =
+        inputType === 'quantity'
+          ? newValue && !Number.isNaN(Number(newValue))
+            ? String(newValue)
+            : ''
+          : (value as QuantityEditorValue)?.quantity != null
+            ? String((value as QuantityEditorValue).quantity)
+            : '';
+      const quantityNum = quantity ? Number(quantity) : 0;
+      // Only add .0 if the string doesn't already contain a decimal point
+      const str = `${quantity}${!quantity.includes('.') && isInteger(quantityNum) ? '.0' : ''} '${escapedQuoteUnit}'`;
       handleUpdateEditor(quantity || unit ? ({ quantity, unit, str } as QuantityEditorValue) : null);
     }
   };

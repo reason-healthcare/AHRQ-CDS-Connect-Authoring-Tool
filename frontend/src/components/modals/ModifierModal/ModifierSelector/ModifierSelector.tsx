@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, IconButton } from '@mui/material';
@@ -8,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import _ from 'lodash';
 
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../../../store/hooks';
+
 import ModifierSelectorRow from './ModifierSelectorRow';
 import ModifierDropdownItem from './ModifierDropdownItem';
 import ModifierDropdownFooter from './ModifierDropdownFooter';
@@ -15,22 +17,42 @@ import { Dropdown } from 'components/elements';
 import { fetchModifiers } from 'queries/modifiers';
 import { sortAlphabeticallyByKey } from 'utils/sort';
 import { allModifiersValid } from 'utils/instances';
+import type { Instance, Modifier } from 'utils/instances';
 import { useFieldStyles, useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';
 
-const ModifierSelector = ({
+interface SelectableModifier extends Modifier {
+  name: string;
+  returnType?: string;
+  type?: string;
+}
+
+interface ModifierWithUniqueId extends Modifier {
+  uniqueId?: string;
+  name?: string;
+}
+
+interface ModifierSelectorProps {
+  elementInstance: Instance;
+  handleGoBack: () => void;
+  hasLimitedModifiers: boolean;
+  modifiersToAdd: ModifierWithUniqueId[];
+  setModifiersToAdd: (modifiers: ModifierWithUniqueId[]) => void;
+}
+
+const ModifierSelector: React.FC<ModifierSelectorProps> = ({
   elementInstance,
   handleGoBack,
   hasLimitedModifiers,
   modifiersToAdd,
   setModifiersToAdd
 }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
-  const query = { artifactId: artifact?._id };
+  const artifact = useAppSelector(state => state.artifacts.artifact);
+  const query = { artifactId: artifact?._id ?? '' };
   const modifiersQuery = useQuery({
     queryKey: ['modifiers', query],
     queryFn: () => fetchModifiers(query),
-    enabled: query.artifactId != null
+    enabled: query.artifactId != null && query.artifactId !== ''
   });
   const modifiersByInputType = modifiersQuery.data?.modifiersByInputType ?? {};
   const fieldStyles = useFieldStyles();
@@ -40,9 +62,11 @@ const ModifierSelector = ({
   const newModifiers = elementInstance.modifiers?.concat(modifiersToAdd) || modifiersToAdd;
   const returnTypeWithNewModifiers =
     newModifiers.length === 0 ? elementInstance.returnType : newModifiers[newModifiers.length - 1].returnType;
-  let selectableModifiers = modifiersByInputType[returnTypeWithNewModifiers] ?? [];
-  if (hasLimitedModifiers)
+  let selectableModifiers: SelectableModifier[] = (modifiersByInputType[returnTypeWithNewModifiers ?? ''] ??
+    []) as unknown as SelectableModifier[];
+  if (hasLimitedModifiers) {
     selectableModifiers = selectableModifiers.filter(({ returnType }) => returnType === elementInstance.returnType);
+  }
   const modifierOptions = selectableModifiers.map(selectableModifier => {
     return {
       value: selectableModifier.id,
@@ -51,14 +75,19 @@ const ModifierSelector = ({
     };
   });
 
-  const handleSelectModifier = modifierId => {
-    setTimeout(() => document.activeElement.blur(), 0); // removes focus from dropdown after selection
+  const handleSelectModifier = (modifierId: string): void => {
+    setTimeout(() => {
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement) activeElement.blur();
+    }, 0); // removes focus from dropdown after selection
     const modifierToAdd = _.cloneDeep(selectableModifiers.find(modifier => modifier.id === modifierId));
-    modifierToAdd.uniqueId = `${modifierId}-${uuidv4()}`;
-    setModifiersToAdd(modifiersToAdd.concat([modifierToAdd]));
+    if (modifierToAdd) {
+      (modifierToAdd as ModifierWithUniqueId).uniqueId = `${modifierId}-${uuidv4()}`;
+      setModifiersToAdd(modifiersToAdd.concat([modifierToAdd as ModifierWithUniqueId]));
+    }
   };
 
-  const handleUpdateModifier = (index, values) => {
+  const handleUpdateModifier = (index: number, values: Record<string, unknown>): void => {
     const newModifiersToAdd = _.cloneDeep(modifiersToAdd);
     newModifiersToAdd[index].values = { ...newModifiersToAdd[index].values, ...values };
     setModifiersToAdd(newModifiersToAdd);
@@ -129,21 +158,17 @@ const ModifierSelector = ({
               label="Select modifier..."
               onChange={event => handleSelectModifier(event.target.value)}
               options={modifierOptions.sort(sortAlphabeticallyByKey('label'))}
-              renderItem={option => <ModifierDropdownItem option={option} />}
+              renderItem={option => (
+                <ModifierDropdownItem
+                  option={option as { isExternal?: boolean; label: string; value: string; [key: string]: unknown }}
+                />
+              )}
             />
           </div>
         </div>
       </div>
     </>
   );
-};
-
-ModifierSelector.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  handleGoBack: PropTypes.func.isRequired,
-  hasLimitedModifiers: PropTypes.bool.isRequired,
-  modifiersToAdd: PropTypes.array.isRequired,
-  setModifiersToAdd: PropTypes.func.isRequired
 };
 
 export default ModifierSelector;

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Alert, Card, CardContent, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import clsx from 'clsx';
@@ -8,9 +7,19 @@ import { ModifierForm } from 'components/builder/modifiers';
 import { Tooltip } from 'components/elements';
 import { modifierCanBeRemoved } from 'components/builder/modifiers/utils';
 import { validateModifier } from 'utils/instances';
+import type { Instance, Modifier } from 'utils/instances';
 import useStyles from '../styles';
 
-const ModifierSelectorRow = ({
+interface ModifierSelectorRowProps {
+  elementInstance: Instance;
+  handleRemoveModifier: () => void;
+  handleUpdateModifier: (values: Record<string, unknown>) => void;
+  isFirst: boolean;
+  modifier: Modifier & { uniqueId?: string; name?: string };
+  modifiersToAdd: Array<Modifier & { uniqueId?: string; name?: string }>;
+}
+
+const ModifierSelectorRow: React.FC<ModifierSelectorRowProps> = ({
   elementInstance,
   handleRemoveModifier,
   handleUpdateModifier,
@@ -21,7 +30,7 @@ const ModifierSelectorRow = ({
   const styles = useStyles();
   const validationWarning = validateModifier(modifier);
   const { canBeRemoved, tooltipText } = modifierCanBeRemoved(
-    Boolean(elementInstance.usedBy?.length > 0),
+    Boolean((elementInstance.usedBy?.length ?? 0) > 0),
     modifiersToAdd.indexOf(modifier),
     elementInstance.returnType,
     modifiersToAdd
@@ -61,15 +70,6 @@ const ModifierSelectorRow = ({
       </div>
     </div>
   );
-};
-
-ModifierSelectorRow.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  handleRemoveModifier: PropTypes.func.isRequired,
-  handleUpdateModifier: PropTypes.func.isRequired,
-  isFirst: PropTypes.bool.isRequired,
-  modifier: PropTypes.object.isRequired,
-  modifiersToAdd: PropTypes.array.isRequired
 };
 
 export default ModifierSelectorRow;

@@ -12,13 +12,35 @@ import {
 } from '../fields';
 
 import { Link } from 'components/elements';
-import nuccProviderTaxonomy from '../../data/nuccProviderTaxonomyV20.0'; // http://nucc.org/
-import fhirWorkflowTaskCodes from '../../data/fhirWorkflowTaskCodesV3'; // https://terminology.hl7.org/1.0.0/ValueSet-v3-ActTaskCode.html
-import fhirClinicalVenueCodes from '../../data/fhirClinicalVenueCodesV3'; // https://terminology.hl7.org/1.0.0/ValueSet-v3-ServiceDeliveryLocationRoleType.html
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nuccProviderTaxonomy = require('../../data/nuccProviderTaxonomyV20.0.json'); // http://nucc.org/
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fhirWorkflowTaskCodes = require('../../data/fhirWorkflowTaskCodesV3.json'); // https://terminology.hl7.org/1.0.0/ValueSet-v3-ActTaskCode.html
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fhirClinicalVenueCodes = require('../../data/fhirClinicalVenueCodesV3.json'); // https://terminology.hl7.org/1.0.0/ValueSet-v3-ServiceDeliveryLocationRoleType.html
+
+interface DropdownOption {
+  value: string;
+  label: string;
+}
+
+interface FieldConfig {
+  name: string;
+  label?: string;
+  component: React.ComponentType<Record<string, unknown>> | React.ComponentType<unknown>;
+  type?: string;
+  helperText?: React.ReactNode;
+  options?: DropdownOption[];
+  conditions?: Record<string, Array<Record<string, unknown>>>;
+  buttonText?: string;
+  fields?: Array<Record<string, unknown>>;
+  defaultValue?: Record<string, unknown>;
+  required?: boolean;
+}
 
 // helper text
 
-const versionHelperText = (
+export const versionHelperText = (
   <>
     Version should follow the Apache APR versioning scheme (e.g., 1.0.0). See{' '}
     <Link
@@ -30,7 +52,7 @@ const versionHelperText = (
   </>
 );
 
-const cpgScoreHelperText = (
+export const cpgScoreHelperText = (
   <>
     The CPG score is the percentage of optional CPG-on-FHIR fields completed on this form.{' '}
     <Link
@@ -55,19 +77,19 @@ const relatedArtifactCitationHelperText = 'Bibliographic citation for the artifa
 
 // options
 
-const statusOptions = [
+const statusOptions: DropdownOption[] = [
   { value: 'draft', label: 'draft' },
   { value: 'active', label: 'active' },
   { value: 'retired', label: 'retired' },
   { value: 'unknown', label: 'unknown' }
 ];
 
-const experimentalOptions = [
+const experimentalOptions: DropdownOption[] = [
   { value: 'true', label: 'true' },
   { value: 'false', label: 'false' }
 ];
 
-const contextTypeOptions = [
+const contextTypeOptions: DropdownOption[] = [
   { value: 'gender', label: 'gender' },
   { value: 'ageRange', label: 'age range' },
   { value: 'clinicalFocus', label: 'clinical focus' },
@@ -79,20 +101,20 @@ const contextTypeOptions = [
   { value: 'program', label: 'program' }
 ];
 
-const contextTypeGenderOptions = [
+const contextTypeGenderOptions: DropdownOption[] = [
   { value: 'female', label: 'female' },
   { value: 'male', label: 'male' },
   { value: 'other', label: 'other' },
   { value: 'unknown', label: 'unknown' }
 ];
 
-const contextTypeUserOptions = nuccProviderTaxonomy.map(taxonomy => {
+const contextTypeUserOptions: DropdownOption[] = nuccProviderTaxonomy.map(taxonomy => {
   let display = taxonomy.Classification;
   if (taxonomy.Specialization !== '') display = `${display} - ${taxonomy.Specialization}`;
   return { value: `user-${taxonomy.Code}`, label: `${taxonomy.Code} - ${display}` };
 });
 
-const contextTypeWorkflowSettingOptions = [
+const contextTypeWorkflowSettingOptions: DropdownOption[] = [
   { value: 'ambulatory', label: 'ambulatory' },
   { value: 'emergency', label: 'emergency' },
   { value: 'field', label: 'field' },
@@ -106,17 +128,17 @@ const contextTypeWorkflowSettingOptions = [
   { value: 'virtual', label: 'virtual' }
 ];
 
-const contextTypeWorkflowTaskOptions = fhirWorkflowTaskCodes.map(taskCode => ({
+const contextTypeWorkflowTaskOptions: DropdownOption[] = fhirWorkflowTaskCodes.map(taskCode => ({
   value: taskCode.Code,
   label: `${taskCode.Code} - ${taskCode.Display}`
 }));
 
-const contextTypeClinicalVenueOptions = fhirClinicalVenueCodes.map(venueCode => ({
+const contextTypeClinicalVenueOptions: DropdownOption[] = fhirClinicalVenueCodes.map(venueCode => ({
   value: venueCode.Code,
   label: `${venueCode.Code} - ${venueCode.Display}`
 }));
 
-const unitOfTimeOptions = [
+const unitOfTimeOptions: DropdownOption[] = [
   { value: 'seconds', label: 'seconds' },
   { value: 'minutes', label: 'minutes' },
   { value: 'hours', label: 'hours' },
@@ -126,11 +148,11 @@ const unitOfTimeOptions = [
   { value: 'years', label: 'years' }
 ];
 
-const relatedArtifactOptions = [{ value: 'citation', label: 'Citation' }];
+const relatedArtifactOptions: DropdownOption[] = [{ value: 'citation', label: 'Citation' }];
 
 // conditions
 
-const contextTypeConditions = {
+const contextTypeConditions: Record<string, Array<Record<string, unknown>>> = {
   gender: [
     {
       type: 'input',
@@ -198,7 +220,7 @@ const contextTypeConditions = {
   program: [{ name: 'program', label: 'Program', component: TextField }]
 };
 
-const relatedArtifactConditions = {
+const relatedArtifactConditions: Record<string, Array<Record<string, unknown>>> = {
   citation: [
     {
       type: 'input',
@@ -226,7 +248,7 @@ const relatedArtifactConditions = {
 
 // fields
 
-const contextFields = [
+const contextFields: Array<Record<string, unknown>> = [
   {
     name: 'contextType',
     label: 'Context Type',
@@ -236,16 +258,16 @@ const contextFields = [
   }
 ];
 
-const topicFields = [
+const topicFields: Array<Record<string, unknown>> = [
   { type: 'button', name: 'topicVSAC', component: AuthenticateVSACField },
   { type: 'button', name: 'topicCode', component: CodeSelectField }
 ];
 
-const authorFields = [{ name: 'author', component: TextField }];
-const reviewerFields = [{ name: 'reviewer', component: TextField }];
-const endorserFields = [{ name: 'endorser', component: TextField }];
+const authorFields: Array<Record<string, unknown>> = [{ name: 'author', component: TextField }];
+const reviewerFields: Array<Record<string, unknown>> = [{ name: 'reviewer', component: TextField }];
+const endorserFields: Array<Record<string, unknown>> = [{ name: 'endorser', component: TextField }];
 
-const relatedArtifactFields = [
+const relatedArtifactFields: Array<Record<string, unknown>> = [
   {
     name: 'relatedArtifactType',
     label: 'Type',
@@ -255,7 +277,7 @@ const relatedArtifactFields = [
   }
 ];
 
-const cpgFields = [
+const cpgFields: FieldConfig[] = [
   { name: 'description', label: 'Description', component: TextAreaField },
   { name: 'url', label: 'URL', component: TextField, helperText: urlHelperText },
   { name: 'status', label: 'Status', component: AutocompleteField, options: statusOptions },
@@ -347,4 +369,3 @@ const cpgFields = [
 ];
 
 export default cpgFields;
-export { versionHelperText, cpgScoreHelperText };

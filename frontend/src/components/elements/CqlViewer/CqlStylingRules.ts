@@ -1,6 +1,25 @@
 // Based on https://github.com/HL7/cql/blob/master/spec/dist/cql.js
 
-const rules = {
+interface CqlStylingRule {
+  pattern?: RegExp;
+  lookbehind?: boolean;
+  greedy?: boolean;
+}
+
+interface CqlStylingRules {
+  result: RegExp;
+  datetime: RegExp;
+  comment: CqlStylingRule;
+  string: CqlStylingRule;
+  variable: CqlStylingRule;
+  keyword: RegExp;
+  boolean: RegExp;
+  number: RegExp;
+  punctuation: RegExp;
+  operator: RegExp;
+}
+
+const rules: CqlStylingRules = {
   // The 'result' and 'datetime' rules were added to the base CQL highlighting rules
   result: /==> ..+/,
   datetime: /@[T0-9:-]+/,

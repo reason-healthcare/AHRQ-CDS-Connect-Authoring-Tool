@@ -42,11 +42,15 @@ const ListGroup = ({
   const hasErrors = alerts.filter(a => a.showAlert && a.alertSeverity === 'error').length > 0 || hasNestedWarning;
 
   const updateElement = field => {
-    const fieldId = Object.keys(field)[0];
-    const value = field[fieldId];
+    // Field comes in as { id, name, type, value } from StringField
+    // We need to extract the id and value to update the field
+    const fieldId = field.id || Object.keys(field)[0];
+    const value = field.value !== undefined ? field.value : field[fieldId];
     const fieldToUpdate = getFieldWithId(listInstance.fields, fieldId);
-    fieldToUpdate.value = value;
-    updateLists(listInstance);
+    if (fieldToUpdate) {
+      fieldToUpdate.value = value;
+      updateLists(listInstance);
+    }
   };
 
   const addInstanceInGroup = (name, template, path) => {

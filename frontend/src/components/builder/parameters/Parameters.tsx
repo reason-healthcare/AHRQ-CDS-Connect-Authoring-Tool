@@ -33,7 +33,8 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
       comment: null,
       name: null,
       type: 'boolean',
-      uniqueId: uuidv4()
+      uniqueId: uuidv4(),
+      value: null
     };
     const newParameters = (parameters || []).concat([newParameter]);
     handleUpdateParameters(newParameters);
@@ -44,8 +45,23 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
     handleUpdateParameters(newParameters);
   };
 
-  const updateParameter = (uniqueId: string | undefined, updatedParameter: Partial<ParameterType>): void => {
-    const newParameters = (parameters || []).map(p => (p.uniqueId === uniqueId ? { ...p, ...updatedParameter } : p));
+  const updateParameter = (uniqueIdOrUpdatedParameter: string | undefined | Partial<ParameterType>, updatedParameter?: Partial<ParameterType>): void => {
+    // Handle both signatures: (uniqueId, updatedParameter) and (updatedParameter)
+    let uniqueId: string | undefined;
+    let updates: Partial<ParameterType>;
+
+    if (updatedParameter !== undefined) {
+      // Called as (uniqueId, updatedParameter)
+      uniqueId = uniqueIdOrUpdatedParameter as string | undefined;
+      updates = updatedParameter;
+    } else {
+      // Called as (updatedParameter) - extract uniqueId from the parameter object
+      const param = uniqueIdOrUpdatedParameter as Partial<ParameterType> & { uniqueId?: string };
+      uniqueId = param.uniqueId;
+      updates = param;
+    }
+
+    const newParameters = (parameters || []).map(p => (p.uniqueId === uniqueId ? { ...p, ...updates } : p));
     handleUpdateParameters(newParameters);
   };
 
@@ -55,7 +71,11 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
         <h3>Parameters</h3>
         <div>
           <Tooltip title={showAllContent ? 'Collapse all' : 'Expand all'}>
-            <IconButton onClick={() => setShowAllContent(!showAllContent)} size="small">
+            <IconButton
+              aria-label={showAllContent ? 'Collapse all' : 'Expand all'}
+              onClick={() => setShowAllContent(!showAllContent)}
+              size="small"
+            >
               {showAllContent ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </IconButton>
           </Tooltip>
@@ -69,10 +89,12 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
         parameters.map((parameter, index) => (
           <Parameter
             key={parameter.uniqueId}
+            allElements={allElements}
             elementNames={elementNames}
             handleDeleteParameter={deleteParameter}
             handleUpdateParameter={updateParameter}
             parameter={parameter}
+            setShowAllContent={setShowAllContent}
             showAllContent={showAllContent}
           />
         ))

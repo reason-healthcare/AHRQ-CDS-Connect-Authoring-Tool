@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { FastField, useFormikContext, FieldInputProps, FieldMetaProps, FormikProps } from 'formik';
+import { FastField, useFormikContext, FieldInputProps, FormikProps } from 'formik';
 import { Autocomplete, TextField } from '@mui/material';
 import clsx from 'clsx';
 
@@ -92,5 +92,3 @@ const AutocompleteField: React.FC<AutocompleteFieldProps> = memo(
 AutocompleteField.displayName = 'AutocompleteField';
 
 export default AutocompleteField;
-
-

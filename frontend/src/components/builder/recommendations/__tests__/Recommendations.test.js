@@ -214,7 +214,7 @@ describe('<Recommendations />', () => {
     const handleUpdateRecommendations = jest.fn();
     render(ui({ handleUpdateRecommendations }));
 
-    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /new recommendation/i })));
+    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add recommendation/i })));
 
     expect(handleUpdateRecommendations).toHaveBeenCalledWith(
       recommendations.concat({
@@ -230,15 +230,20 @@ describe('<Recommendations />', () => {
     );
   });
 
-  it('can update a recommendation', () => {
+  it('can update a recommendation', async () => {
     const handleUpdateRecommendations = jest.fn();
     render(ui({ handleUpdateRecommendations }));
 
-    fireEvent.change(screen.queryAllByPlaceholderText('Describe your recommendation')[0], {
-      target: { name: 'text', value: 'Recommendation #1 Edited' }
-    });
+    const textField = screen.queryAllByPlaceholderText('Describe your recommendation')[0];
+    await userEvent.clear(textField);
+    await userEvent.type(textField, 'Recommendation #1 Edited');
 
-    expect(handleUpdateRecommendations).toHaveBeenCalledWith([
+    // userEvent.type triggers onChange for each character, so check the last call
+    expect(handleUpdateRecommendations).toHaveBeenCalled();
+    const calls = handleUpdateRecommendations.mock.calls;
+    const lastCall = calls[calls.length - 1];
+    expect(lastCall[0][0].text).toBe('Recommendation #1 Edited');
+    expect(lastCall[0]).toEqual([
       {
         ...recommendations[0],
         text: 'Recommendation #1 Edited'

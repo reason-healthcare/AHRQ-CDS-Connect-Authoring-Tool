@@ -5,7 +5,12 @@ import clsx from 'clsx';
 import { useTocbotWithWaypoint } from './hooks';
 import useStyles from './styles';
 
-const DataTypeGuide = ({ gtmKey, dapURL }) => {
+interface DataTypeGuideProps {
+  gtmKey?: string;
+  dapURL?: string;
+}
+
+const DataTypeGuide: React.FC<DataTypeGuideProps> = () => {
   const { onWaypointEnter, onWaypointLeave } = useTocbotWithWaypoint();
   const styles = useStyles();
 

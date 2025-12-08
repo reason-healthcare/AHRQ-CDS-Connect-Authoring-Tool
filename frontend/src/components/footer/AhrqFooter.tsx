@@ -277,5 +277,3 @@ const AhrqFooter: React.FC = () => {
 };
 
 export default AhrqFooter;
-
-

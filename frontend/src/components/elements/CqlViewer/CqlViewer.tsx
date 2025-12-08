@@ -1,19 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Prism } from 'prism-react-renderer';
+import type { Grammar } from 'prismjs';
 import CodeViewer from './CodeViewer';
 import cqlStylingRules from './CqlStylingRules';
 import cqlStylingTheme from './CqlStylingTheme';
 
-Prism.languages.cql = cqlStylingRules;
+Prism.languages.cql = cqlStylingRules as Grammar;
+
+interface CqlViewerProps {
+  code: string;
+}
 
 // Component that shows syntax highlighted CQL code
-const CqlViewer = ({ code }) => {
+const CqlViewer: React.FC<CqlViewerProps> = ({ code }) => {
   return <CodeViewer code={code} language={'cql'} theme={cqlStylingTheme} />;
-};
-
-CqlViewer.propTypes = {
-  code: PropTypes.string.isRequired
 };
 
 export default CqlViewer;

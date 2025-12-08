@@ -23,7 +23,9 @@ export function extractOtherPatientResourceData({
   const displayedResources = Object.keys(patientResourceKeys[fhirVersion as keyof typeof patientResourceKeys] || {});
 
   const otherResourceTypes: OtherResourceType[] = [];
-  patient.entry?.forEach(entry => {
+  // Handle both patient.entry and patient.patient.entry structures
+  const entry = patient.entry || patient.patient?.entry;
+  entry?.forEach(entry => {
     const resource = entry.resource.resourceType;
     if (displayedResources.indexOf(resource) === -1 && resource !== 'Patient') {
       // other resource
@@ -51,7 +53,9 @@ export function extractPatientResourceData(
     resourceType = resourceName;
   }
 
-  const resources = patient.entry?.filter(entry => entry.resource.resourceType === resourceType) || [];
+  // Handle both patient.entry and patient.patient.entry structures
+  const entry = patient.entry || patient.patient?.entry;
+  const resources = entry?.filter(entry => entry.resource.resourceType === resourceType) || [];
 
   const data: Record<string, unknown>[] = [];
   resources.forEach(resource => {

@@ -89,5 +89,3 @@ const ValueSetSelectModal: React.FC<ValueSetSelectModalProps> = ({
 };
 
 export default ValueSetSelectModal;
-
-

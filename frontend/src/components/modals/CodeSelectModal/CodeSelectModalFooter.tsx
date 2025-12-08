@@ -19,5 +19,3 @@ const CodeSelectModalFooter: React.FC<CodeSelectModalFooterProps> = ({ isValidCo
 );
 
 export default CodeSelectModalFooter;
-
-

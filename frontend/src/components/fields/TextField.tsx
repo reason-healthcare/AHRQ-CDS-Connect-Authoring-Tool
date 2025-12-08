@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { FastField, useFormikContext, FieldInputProps, FieldMetaProps, FormikProps } from 'formik';
+import { FastField, useFormikContext, FieldInputProps, FormikProps } from 'formik';
 import { TextField as MuiTextField } from '@mui/material';
 import clsx from 'clsx';
 
@@ -94,5 +94,3 @@ const TextField: React.FC<TextFieldProps> = memo(
 TextField.displayName = 'TextField';
 
 export default TextField;
-
-

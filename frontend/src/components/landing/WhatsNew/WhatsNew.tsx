@@ -97,5 +97,3 @@ const WhatsNew: React.FC = () => {
 };
 
 export default WhatsNew;
-
-

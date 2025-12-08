@@ -70,5 +70,3 @@ const ValueSetSelectModalHeader: React.FC<ValueSetSelectModalHeaderProps> = ({
 };
 
 export default ValueSetSelectModalHeader;
-
-
