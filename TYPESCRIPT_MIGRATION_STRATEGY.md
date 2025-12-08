@@ -600,12 +600,12 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `ElementSelect.js` → `ElementSelect.tsx` ✅
 - `utils.js` → `utils.ts` (pending - utility file)
 
-**Batch 4.9 - Artifact Element Components (4 files):** (Partial - 1 file migrated)
+**Batch 4.9 - Artifact Element Components (4 files):** ✅ **COMPLETE**
 - `ArtifactElement.js` → `ArtifactElement.tsx` ✅
-- `ArtifactElementActions.js` → `ArtifactElementActions.tsx` (pending)
-- `ArtifactElementBody.js` → `ArtifactElementBody.tsx` (pending)
-- `SelectModifierAction.js` → `SelectModifierAction.tsx` (pending)
-- `VSACOptionsAction.js` → `VSACOptionsAction.tsx` (pending)
+- `ArtifactElementActions.js` → `ArtifactElementActions.tsx` ✅
+- `ArtifactElementBody.js` → `ArtifactElementBody.tsx` ✅
+- `SelectModifierAction.js` → `SelectModifierAction.tsx` ✅
+- `VSACOptionsAction.js` → `VSACOptionsAction.tsx` ✅
 
 **Batch 4.10 - Group Element Components (2 files):** ✅ **COMPLETE**
 - `GroupElement.js` → `GroupElement.tsx` ✅
@@ -616,20 +616,21 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `RecommendationCard.js` → `RecommendationCard.tsx` ✅
 - `SummaryDetails.js` → `SummaryDetails.tsx` ✅
 
-**Batch 4.12 - Builder Utilities (7 files):**
-- `utils/getAllElements.js` → `getAllElements.ts`
-- `utils/getBaseElementsInUse.js` → `getBaseElementsInUse.ts`
-- `utils/getElementNames.js` → `getElementNames.ts`
-- `utils/getFHIRVersion.js` → `getFHIRVersion.ts`
-- `utils/getLibrariesInUse.js` → `getLibrariesInUse.ts`
-- `utils/getParametersInUse.js` → `getParametersInUse.ts`
-- `utils/getTab.js` → `getTab.ts`
-- `utils/getTree.js` → `getTree.ts`
+**Batch 4.12 - Builder Utilities (8 files):** ✅ **COMPLETE**
+- `utils/getAllElements.js` → `getAllElements.ts` ✅
+- `utils/getBaseElementsInUse.js` → `getBaseElementsInUse.ts` ✅
+- `utils/getElementNames.js` → `getElementNames.ts` ✅
+- `utils/getFHIRVersion.js` → `getFHIRVersion.ts` ✅
+- `utils/getLibrariesInUse.js` → `getLibrariesInUse.ts` ✅
+- `utils/getParametersInUse.js` → `getParametersInUse.ts` ✅
+- `utils/getTab.js` → `getTab.ts` ✅
+- `utils/getTree.js` → `getTree.ts` ✅
+- `utils/index.ts` ✅ (created for exports)
 
-**Batch 4.13 - Builder Workspace Components (3 files):**
-- `workspace/WorkspaceBlurb.js` → `WorkspaceBlurb.tsx`
-- `workspace/blurbs.js` → `blurbs.ts`
-- `workspace/tabUtils.js` → `tabUtils.ts`
+**Batch 4.13 - Builder Workspace Components (3 files):** ✅ **COMPLETE**
+- `workspace/WorkspaceBlurb.js` → `WorkspaceBlurb.tsx` ✅
+- `workspace/blurbs.js` → `blurbs.ts` ✅
+- `workspace/tabUtils.js` → `tabUtils.ts` ✅
 
 **Batch 4.14 - Builder Other Components (4 files):** ✅ **COMPLETE**
 - `ConjunctionGroup.js` → `ConjunctionGroup.tsx` ✅
@@ -637,14 +638,14 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `ListGroup.js` → `ListGroup.tsx` ✅
 - `Subpopulation.js` → `Subpopulation.tsx` ✅
 
-**Batch 4.15 - Builder Supporting Components (4 files):**
-- `parameters/Parameter.js` → `Parameter.tsx`
-- `parameters/utils.js` → `utils.ts`
-- `modifiers/ModifierForm.js` → `ModifierForm.tsx`
-- `modifiers/utils.js` → `utils.ts`
-- `base-elements/utils.js` → `utils.ts`
-- `templates/ModifiersTemplate.js` → `ModifiersTemplate.tsx`
-- `editors/utils.js` → `utils.ts`
+**Batch 4.15 - Builder Supporting Components (7 files):** ✅ **COMPLETE**
+- `parameters/Parameter.js` → `Parameter.tsx` ✅
+- `parameters/utils.js` → `utils.ts` ✅
+- `modifiers/ModifierForm.js` → `ModifierForm.tsx` ✅
+- `modifiers/utils.js` → `utils.ts` ✅
+- `base-elements/utils.js` → `utils.ts` ✅
+- `templates/ModifiersTemplate.js` → `ModifiersTemplate.tsx` ✅
+- `editors/utils.js` → `utils.ts` ✅
 
 **AI Batch Conversion Pattern:**
 

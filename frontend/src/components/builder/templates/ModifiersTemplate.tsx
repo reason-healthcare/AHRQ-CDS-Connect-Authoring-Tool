@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../../../store/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Divider, IconButton, Stack } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -13,8 +12,18 @@ import { fetchModifiers } from 'queries/modifiers';
 import { validateModifier } from 'utils/instances';
 import { changeToCase } from 'utils/strings';
 import { modifierCanBeRemoved } from 'components/builder/modifiers/utils';
+import type { Instance, Modifier } from '../../../utils/instances';
 
-const ModifierTemplate = ({
+interface ModifierTemplateProps {
+  baseElementIsUsed: boolean;
+  elementInstance: Instance;
+  handleRemoveModifier: (index: number) => void;
+  handleUpdateModifier: (index: number, modifier: Modifier | Modifier[]) => void;
+  index: number;
+  modifier: Modifier;
+}
+
+const ModifierTemplate: React.FC<ModifierTemplateProps> = ({
   baseElementIsUsed,
   elementInstance,
   handleRemoveModifier,
@@ -23,25 +32,25 @@ const ModifierTemplate = ({
   modifier
 }) => {
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
-  const artifact = useSelector(state => state.artifacts.artifact);
+  const artifact = useAppSelector(state => state.artifacts.artifact);
   const query = { artifactId: artifact?._id };
   const modifiersQuery = useQuery({
     queryKey: ['modifiers', query],
     queryFn: () => fetchModifiers(query),
     enabled: query.artifactId != null
   });
-  const modifierMap = modifiersQuery.data?.modifierMap ?? {};
+  const modifierMap = (modifiersQuery.data?.modifierMap as Record<string, { values?: unknown }>) || {};
 
   // Reset values on modifiers that were not previously set or saved in the database
-  if (!modifier.values && modifierMap[modifier.id] && modifierMap[modifier.id].values) {
-    modifier.values = modifierMap[modifier.id].values;
+  if (!modifier.values && modifierMap[modifier.id || ''] && modifierMap[modifier.id || ''].values) {
+    modifier.values = modifierMap[modifier.id || ''].values;
   }
 
   const { modifiers, returnType } = elementInstance;
-  const { canBeRemoved, tooltipText } = modifierCanBeRemoved(Boolean(baseElementIsUsed), index, returnType, modifiers);
+  const { canBeRemoved, tooltipText } = modifierCanBeRemoved(Boolean(baseElementIsUsed), index, returnType, modifiers || []);
   const validationWarning = validateModifier(modifier);
 
-  const handleDeleteModifier = () => {
+  const handleDeleteModifier = (): void => {
     handleRemoveModifier(index);
     setShowDeleteConfirmationModal(false);
   };
@@ -52,7 +61,6 @@ const ModifierTemplate = ({
         <ModifierForm
           elementInstance={elementInstance}
           handleUpdateModifier={modifier => handleUpdateModifier(index, modifier)}
-          index={index}
           modifier={modifier}
         />
 
@@ -85,7 +93,7 @@ const ModifierTemplate = ({
         >
           <>
             <div>Modifier Name: {modifier.name || 'Custom Modifier'}</div>
-            <div>Return Type: {changeToCase(modifier.returnType, 'capitalCase')}</div>
+            <div>Return Type: {changeToCase(modifier.returnType || '', 'capitalCase')}</div>
           </>
         </DeleteConfirmationModal>
       )}
@@ -93,7 +101,19 @@ const ModifierTemplate = ({
   );
 };
 
-const ModifiersTemplate = ({ baseElementIsUsed, elementInstance, handleRemoveModifier, handleUpdateModifier }) => {
+interface ModifiersTemplateProps {
+  baseElementIsUsed?: boolean;
+  elementInstance: Instance;
+  handleRemoveModifier: (index: number) => void;
+  handleUpdateModifier: (index: number, modifier: Modifier | Modifier[]) => void;
+}
+
+const ModifiersTemplate: React.FC<ModifiersTemplateProps> = ({
+  baseElementIsUsed,
+  elementInstance,
+  handleRemoveModifier,
+  handleUpdateModifier
+}) => {
   const { modifiers } = elementInstance;
 
   return (
@@ -101,28 +121,22 @@ const ModifiersTemplate = ({ baseElementIsUsed, elementInstance, handleRemoveMod
       <ElementCardLabel label="Modifiers" mt="10px" />
 
       <Stack width="100%">
-        {modifiers.map((modifier, index) => (
-          <ModifierTemplate
-            key={index}
-            baseElementIsUsed={baseElementIsUsed}
-            elementInstance={elementInstance}
-            handleRemoveModifier={handleRemoveModifier}
-            handleUpdateModifier={handleUpdateModifier}
-            index={index}
-            isLastModifier={index + 1 === modifiers.length}
-            modifier={modifier}
-          />
-        ))}
+        {modifiers &&
+          modifiers.map((modifier, index) => (
+            <ModifierTemplate
+              key={index}
+              baseElementIsUsed={Boolean(baseElementIsUsed)}
+              elementInstance={elementInstance}
+              handleRemoveModifier={handleRemoveModifier}
+              handleUpdateModifier={handleUpdateModifier}
+              index={index}
+              modifier={modifier}
+            />
+          ))}
       </Stack>
     </Stack>
   );
 };
 
-ModifiersTemplate.propTypes = {
-  baseElementIsUsed: PropTypes.bool,
-  elementInstance: PropTypes.object.isRequired,
-  handleRemoveModifier: PropTypes.func.isRequired,
-  handleUpdateModifier: PropTypes.func.isRequired
-};
-
 export default ModifiersTemplate;
+

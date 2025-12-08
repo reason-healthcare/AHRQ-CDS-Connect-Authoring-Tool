@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import {
   BooleanComparisonModifier,
@@ -18,18 +17,25 @@ import {
   WithUnitModifier
 } from 'components/builder/modifiers';
 import getModifierExpression from 'components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression';
+import type { Instance, Modifier } from '../../../utils/instances';
 
-const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
+interface ModifierFormProps {
+  elementInstance: Instance;
+  handleUpdateModifier: (modifier: Modifier | Modifier[]) => void;
+  modifier: Modifier;
+}
+
+const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpdateModifier, modifier }) => {
   switch (modifier.type || modifier.id) {
     case 'ValueComparisonNumber':
       return (
         <ValueComparisonModifier
           handleUpdateModifier={handleUpdateModifier}
           values={{
-            maxOperator: modifier.values?.maxOperator || '',
-            maxValue: modifier.values?.maxValue ?? '',
-            minOperator: modifier.values?.minOperator || '',
-            minValue: modifier.values?.minValue ?? ''
+            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
+            maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
+            minOperator: (modifier.values as { minOperator?: string })?.minOperator || '',
+            minValue: (modifier.values as { minValue?: string | number })?.minValue ?? ''
           }}
         />
       );
@@ -38,11 +44,11 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
         <ValueComparisonModifier
           handleUpdateModifier={handleUpdateModifier}
           values={{
-            maxOperator: modifier.values?.maxOperator || '',
-            maxValue: modifier.values?.maxValue ?? '',
-            minOperator: modifier.values?.minOperator || '',
-            minValue: modifier.values?.minValue ?? '',
-            unit: modifier.values?.unit || ''
+            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
+            maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
+            minOperator: (modifier.values as { minOperator?: string })?.minOperator || '',
+            minValue: (modifier.values as { minValue?: string | number })?.minValue ?? '',
+            unit: (modifier.values as { unit?: string })?.unit || ''
           }}
         />
       );
@@ -50,31 +56,43 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
       return (
         <LookBackModifier
           handleUpdateModifier={handleUpdateModifier}
-          unit={modifier.values?.unit}
-          value={modifier.values?.value}
+          unit={(modifier.values as { unit?: string })?.unit}
+          value={(modifier.values as { value?: string | number })?.value}
         />
       );
     case 'WithUnit':
-      return <WithUnitModifier handleUpdateModifier={handleUpdateModifier} unit={modifier.values?.unit} />;
+      return (
+        <WithUnitModifier handleUpdateModifier={handleUpdateModifier} unit={(modifier.values as { unit?: string })?.unit} />
+      );
     case 'BooleanComparison':
-      return <BooleanComparisonModifier handleUpdateModifier={handleUpdateModifier} value={modifier.values?.value} />;
+      return (
+        <BooleanComparisonModifier
+          handleUpdateModifier={handleUpdateModifier}
+          value={(modifier.values as { value?: boolean })?.value}
+        />
+      );
     case 'CheckExistence':
-      return <CheckExistenceModifier handleUpdateModifier={handleUpdateModifier} value={modifier.values?.value} />;
+      return (
+        <CheckExistenceModifier
+          handleUpdateModifier={handleUpdateModifier}
+          value={(modifier.values as { value?: boolean })?.value}
+        />
+      );
     case 'ConvertObservation':
       return (
         <SelectModifier
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
-          value={modifier.values?.value}
+          value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'Qualifier':
       return (
         <QualifierModifier
-          code={modifier.values?.code}
+          code={(modifier.values as { code?: string })?.code}
           handleUpdateModifier={handleUpdateModifier}
-          qualifier={modifier.values?.qualifier}
-          valueSet={modifier.values?.valueSet}
+          qualifier={(modifier.values as { qualifier?: string })?.qualifier}
+          valueSet={(modifier.values as { valueSet?: string })?.valueSet}
         />
       );
     case 'BeforeDateTimePrecise':
@@ -84,9 +102,9 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
           values={{
-            date: modifier.values?.date || '',
-            time: modifier.values?.time || '',
-            precision: modifier.values?.precision || ''
+            date: (modifier.values as { date?: string })?.date || '',
+            time: (modifier.values as { time?: string })?.time || '',
+            precision: (modifier.values as { precision?: string })?.precision || ''
           }}
         />
       );
@@ -97,8 +115,8 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
           values={{
-            time: modifier.values?.time || '',
-            precision: modifier.values?.precision || ''
+            time: (modifier.values as { time?: string })?.time || '',
+            precision: (modifier.values as { precision?: string })?.precision || ''
           }}
         />
       );
@@ -109,8 +127,8 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
         <QuantityModifier
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
-          unit={modifier.values?.unit}
-          value={modifier.values?.value}
+          unit={(modifier.values as { unit?: string })?.unit}
+          value={(modifier.values as { value?: string | number })?.value}
         />
       );
     case 'ContainsInteger':
@@ -123,7 +141,7 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
         <NumberModifier
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
-          value={modifier.values?.value}
+          value={(modifier.values as { value?: string | number })?.value}
         />
       );
     case 'ContainsDateTime':
@@ -133,7 +151,10 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
         <DateTimeModifier
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
-          values={{ date: modifier.values?.date || '', time: modifier.values?.time || '' }}
+          values={{
+            date: (modifier.values as { date?: string })?.date || '',
+            time: (modifier.values as { time?: string })?.time || ''
+          }}
         />
       );
     case 'EqualsString':
@@ -143,7 +164,7 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
         <StringModifier
           handleUpdateModifier={handleUpdateModifier}
           name={modifier.name}
-          value={modifier.values?.value}
+          value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'ExternalModifier':
@@ -153,7 +174,7 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
           handleUpdateModifier={handleUpdateModifier}
           modifierArguments={modifier.arguments}
           name={modifier.name}
-          values={modifier.values?.value}
+          values={(modifier.values as { value?: unknown })?.value}
         />
       );
 
@@ -171,10 +192,5 @@ const ModifierForm = ({ elementInstance, handleUpdateModifier, modifier }) => {
   }
 };
 
-ModifierForm.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  handleUpdateModifier: PropTypes.func.isRequired,
-  modifier: PropTypes.object.isRequired
-};
-
 export default ModifierForm;
+

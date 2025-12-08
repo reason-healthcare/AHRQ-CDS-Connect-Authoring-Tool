@@ -1,4 +1,20 @@
-export const blurbs = {
+interface Blurb {
+  blurb: string;
+  link: string;
+}
+
+interface Blurbs {
+  inclusions: Blurb;
+  exclusions: Blurb;
+  subpopulations: Blurb;
+  baseElements: Blurb;
+  recommendations: Blurb;
+  parameters: Blurb;
+  errors: Blurb;
+  externalCQL: Blurb;
+}
+
+export const blurbs: Blurbs = {
   inclusions: {
     blurb:
       'Specify criteria to identify a target population that should receive a recommendation from this ' +
@@ -55,3 +71,4 @@ export const blurbs = {
     link: 'documentation/userguide#External_CQL'
   }
 };
+

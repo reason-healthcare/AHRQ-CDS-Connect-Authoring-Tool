@@ -2,7 +2,12 @@ import React from 'react';
 import { HelpLink } from 'components/elements';
 import useStyles from './styles';
 
-const WorkspaceBlurb = ({ blurb, link }) => {
+interface WorkspaceBlurbProps {
+  blurb: string;
+  link: string;
+}
+
+const WorkspaceBlurb: React.FC<WorkspaceBlurbProps> = ({ blurb, link }) => {
   const styles = useStyles();
   return (
     <div className={styles.blurb}>
@@ -13,3 +18,4 @@ const WorkspaceBlurb = ({ blurb, link }) => {
 };
 
 export default WorkspaceBlurb;
+

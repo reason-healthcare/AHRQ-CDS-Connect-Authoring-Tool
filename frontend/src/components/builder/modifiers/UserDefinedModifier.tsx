@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { IconButton } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
-// eslint-disable-next-line import/no-unresolved
-import { useAppSelector } from '../../../store/hooks';
-
 import { ModifierModal } from 'components/modals';
 import type { Instance, Modifier } from '../../../utils/instances';
 import type { ModifierTree } from '../../modals/ModifierModal/types';

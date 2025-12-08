@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Box, Button } from '@mui/material';
 import { Build as WrenchIcon } from '@mui/icons-material';
 
 import { ModifierModal } from 'components/modals';
 import { allModifiersValid, filterRelevantModifiers, getReturnType } from 'utils/instances';
+import type { Instance, Modifier } from '../../../utils/instances';
 
-const SelectModifierAction = ({
+interface SelectModifierActionProps {
+  elementInstance: Instance;
+  hasLimitedModifiers?: boolean;
+  isLoadingModifiers?: boolean;
+  modifiersByInputType: Record<string, Modifier[]>;
+  updateModifiers: (modifiers: Modifier[], fhirVersion?: string | null) => void;
+}
+
+const SelectModifierAction: React.FC<SelectModifierActionProps> = ({
   elementInstance,
   hasLimitedModifiers,
   isLoadingModifiers,
@@ -15,7 +23,9 @@ const SelectModifierAction = ({
 }) => {
   const [showModifierModal, setShowModifierModal] = useState(false);
   const [returnType, setReturnType] = useState(elementInstance.returnType);
-  const [relevantModifiers, setRelevantModifiers] = useState(modifiersByInputType[elementInstance.returnType] || []);
+  const [relevantModifiers, setRelevantModifiers] = useState(
+    modifiersByInputType[elementInstance.returnType || ''] || []
+  );
   const baseElementIsUsed = elementInstance.usedBy ? elementInstance.usedBy.length !== 0 : false;
 
   useEffect(() => {
@@ -26,7 +36,7 @@ const SelectModifierAction = ({
   }, []);
 
   useEffect(() => {
-    const relevantModifiers = filterRelevantModifiers(modifiersByInputType[returnType], elementInstance);
+    const relevantModifiers = filterRelevantModifiers(modifiersByInputType[returnType || ''], elementInstance);
     setRelevantModifiers(relevantModifiers);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [returnType, modifiersByInputType]);
@@ -63,12 +73,5 @@ const SelectModifierAction = ({
   );
 };
 
-SelectModifierAction.propTypes = {
-  elementInstance: PropTypes.object.isRequired,
-  hasLimitedModifiers: PropTypes.bool,
-  isLoadingModifiers: PropTypes.bool,
-  modifiersByInputType: PropTypes.object.isRequired,
-  updateModifiers: PropTypes.func.isRequired
-};
-
 export default SelectModifierAction;
+

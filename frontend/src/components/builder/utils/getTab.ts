@@ -1,4 +1,4 @@
-const tabLabelMap = {
+const tabLabelMap: Record<string, string> = {
   summary: 'Summary',
   expTreeInclude: 'Inclusions',
   expTreeExclude: 'Exclusions',
@@ -10,12 +10,13 @@ const tabLabelMap = {
   externalCql: 'External CQL'
 };
 
-const getTabIndexFromName = tabName => {
+const getTabIndexFromName = (tabName: string): number => {
   return Object.keys(tabLabelMap).indexOf(tabName);
 };
 
-const getTabNameFromIndex = tabIndex => {
-  return Object.values(tabLabelMap)[tabIndex];
+const getTabNameFromIndex = (tabIndex: number): string => {
+  return Object.values(tabLabelMap)[tabIndex] || '';
 };
 
 export { getTabIndexFromName, getTabNameFromIndex };
+

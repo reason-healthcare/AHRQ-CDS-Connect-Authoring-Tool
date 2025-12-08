@@ -1,11 +1,21 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Stack } from '@mui/material';
 
 import SelectModifierAction from './SelectModifierAction';
 import VSACOptionsAction from './VSACOptionsAction';
+import type { Instance, Modifier } from '../../../utils/instances';
 
-const ArtifactElementActions = ({
+interface ArtifactElementActionsProps {
+  allowsVSAC: boolean;
+  hasLimitedModifiers?: boolean;
+  elementInstance: Instance;
+  handleUpdateElement: (newElementField: Record<string, unknown>) => void;
+  isLoadingModifiers?: boolean;
+  modifiersByInputType: Record<string, Modifier[]>;
+  updateModifiers: (modifiers: Modifier[], fhirVersion?: string | null) => void;
+}
+
+const ArtifactElementActions: React.FC<ArtifactElementActionsProps> = ({
   allowsVSAC,
   hasLimitedModifiers,
   elementInstance,
@@ -32,14 +42,5 @@ const ArtifactElementActions = ({
   );
 };
 
-ArtifactElementActions.propTypes = {
-  allowsVSAC: PropTypes.bool.isRequired,
-  hasLimitedModifiers: PropTypes.bool,
-  elementInstance: PropTypes.object.isRequired,
-  handleUpdateElement: PropTypes.func.isRequired,
-  isLoadingModifiers: PropTypes.bool,
-  modifiersByInputType: PropTypes.object.isRequired,
-  updateModifiers: PropTypes.func.isRequired
-};
-
 export default ArtifactElementActions;
+
