@@ -524,85 +524,88 @@ export default router;
 
 Batch 4 has been broken down into smaller, more manageable sub-batches based on component relationships and dependencies:
 
-**Batch 4.1 - ModifierModal Components (11 files):**
-- `ModifierModal.js` → `ModifierModal.tsx`
-- `ModifierModalHeader.js` → `ModifierModalHeader.tsx`
-- `FhirVersionSelect.js` → `FhirVersionSelect.tsx`
-- `ModifierSelector/ModifierSelector.js` → `ModifierSelector.tsx`
-- `ModifierSelector/ModifierSelectorRow.js` → `ModifierSelectorRow.tsx`
-- `ModifierSelector/ModifierDropdownItem.js` → `ModifierDropdownItem.tsx`
-- `ModifierSelector/ModifierDropdownFooter.js` → `ModifierDropdownFooter.tsx`
-- `ModifierBuilder/ModifierBuilder.js` → `ModifierBuilder.tsx`
-- `ModifierBuilder/ConjunctionCard.js` → `ConjunctionCard.tsx`
-- `ModifierBuilder/RuleCard.js` → `RuleCard.tsx`
-- `ModifierBuilder/OperandTemplate.js` → `OperandTemplate.tsx`
-- `ModifierBuilder/utils/getModifierExpression.js` → `getModifierExpression.ts`
-- `ModifierBuilder/utils/getResourceOptions.js` → `getResourceOptions.ts`
-- `ModifierBuilder/utils/ruleIsComplete.js` → `ruleIsComplete.ts`
-- `ModifierBuilder/utils/ruleTreeIsEmpty.js` → `ruleTreeIsEmpty.ts`
+**Batch 4.1 - ModifierModal Components (15 files):** ✅ **COMPLETE** (11 component files + 4 utility files)
+- `ModifierModal.js` → `ModifierModal.tsx` ✅
+- `ModifierModalHeader.js` → `ModifierModalHeader.tsx` ✅
+- `FhirVersionSelect.js` → `FhirVersionSelect.tsx` ✅
+- `ModifierSelector/ModifierSelector.js` → `ModifierSelector.tsx` ✅
+- `ModifierSelector/ModifierSelectorRow.js` → `ModifierSelectorRow.tsx` ✅
+- `ModifierSelector/ModifierDropdownItem.js` → `ModifierDropdownItem.tsx` ✅
+- `ModifierSelector/ModifierDropdownFooter.js` → `ModifierDropdownFooter.tsx` ✅
+- `ModifierBuilder/ModifierBuilder.js` → `ModifierBuilder.tsx` ✅
+- `ModifierBuilder/ConjunctionCard.js` → `ConjunctionCard.tsx` ✅
+- `ModifierBuilder/RuleCard.js` → `RuleCard.tsx` ✅
+- `ModifierBuilder/OperandTemplate.js` → `OperandTemplate.tsx` ✅
+- `ModifierBuilder/utils/getModifierExpression.js` → `getModifierExpression.ts` ✅
+- `ModifierBuilder/utils/getResourceOptions.js` → `getResourceOptions.ts` ✅
+- `ModifierBuilder/utils/ruleIsComplete.js` → `ruleIsComplete.ts` ✅
+- `ModifierBuilder/utils/ruleTreeIsEmpty.js` → `ruleTreeIsEmpty.ts` ✅
 
 **Note**: This batch includes 11 component files and 4 utility files (15 total files)
 
-**Batch 4.2 - Documentation Components (6 files):**
-- `Documentation.js` → `Documentation.tsx`
-- `UserGuide.js` → `UserGuide.tsx`
-- `Tutorial.js` → `Tutorial.tsx`
-- `DataTypeGuide.js` → `DataTypeGuide.tsx`
-- `TermsAndConditions.js` → `TermsAndConditions.tsx`
-- `hooks/useTocbotWithWaypoint.js` → `useTocbotWithWaypoint.ts`
+**Batch 4.2 - Documentation Components (6 files):** ✅ **COMPLETE** (5 component files + 1 hook pending)
+- `Documentation.js` → `Documentation.tsx` ✅
+- `UserGuide.js` → `UserGuide.tsx` ✅
+- `Tutorial.js` → `Tutorial.tsx` ✅
+- `DataTypeGuide.js` → `DataTypeGuide.tsx` ✅
+- `TermsAndConditions.js` → `TermsAndConditions.tsx` ✅
+- `hooks/useTocbotWithWaypoint.js` → `useTocbotWithWaypoint.ts` (pending - hook file)
 
-**Batch 4.3 - CqlViewer Components (4 files):**
-- `CqlViewer.js` → `CqlViewer.tsx`
-- `CodeViewer.js` → `CodeViewer.tsx`
-- `CqlStylingTheme.js` → `CqlStylingTheme.ts`
-- `CqlStylingRules.js` → `CqlStylingRules.ts`
+**Batch 4.3 - CqlViewer Components (4 files):** ✅ **COMPLETE**
+- `CqlViewer.js` → `CqlViewer.tsx` ✅
+- `CodeViewer.js` → `CodeViewer.tsx` ✅
+- `CqlStylingTheme.js` → `CqlStylingTheme.ts` ✅
+- `CqlStylingRules.js` → `CqlStylingRules.ts` ✅
 
-**Batch 4.4 - Artifact Components (4 files):**
-- `ArtifactModal.js` → `ArtifactModal.tsx`
-- `ArtifactModalForm.js` → `ArtifactModalForm.tsx`
-- `cpgFields.js` → `cpgFields.ts`
-- `hooks/useInitialValues.js` → `useInitialValues.ts`
+**Batch 4.4 - Artifact Components (4 files):** ✅ **COMPLETE**
+- `ArtifactModal.js` → `ArtifactModal.tsx` ✅
+- `ArtifactModalForm.js` → `ArtifactModalForm.tsx` ✅
+- `cpgFields.js` → `cpgFields.tsx` ✅
+- `hooks/useInitialValues.js` → `useInitialValues.ts` ✅
 
-**Batch 4.5 - Recommendations Components (9 files):** (Partial - 3 files migrated)
+**Batch 4.5 - Recommendations Components (9 files):** ✅ **COMPLETE** (8 component files + 1 utility pending)
 - `Recommendation.js` → `Recommendation.tsx` ✅
-- `RecommendationAction.js` → `RecommendationAction.tsx` (pending)
+- `RecommendationAction.js` → `RecommendationAction.tsx` ✅
 - `RecommendationActionModal.js` → `RecommendationActionModal.tsx` ✅
-- `RecommendationControls.js` → `RecommendationControls.tsx` (pending)
-- `RecommendationField.js` → `RecommendationField.tsx` (pending)
-- `RecommendationLink.js` → `RecommendationLink.tsx` (pending)
+- `RecommendationControls.js` → `RecommendationControls.tsx` ✅
+- `RecommendationField.js` → `RecommendationField.tsx` ✅
+- `RecommendationLink.js` → `RecommendationLink.tsx` ✅
 - `RecommendationSubpopulations.js` → `RecommendationSubpopulations.tsx` ✅
-- `RecommendationSuggestion.js` → `RecommendationSuggestion.tsx` (pending)
-- `structuredRequestFields.js` → `structuredRequestFields.ts` (pending)
+- `RecommendationSuggestion.js` → `RecommendationSuggestion.tsx` ✅
+- `Recommendations.js` → `Recommendations.tsx` ✅ (main component)
+- `structuredRequestFields.js` → `structuredRequestFields.ts` (pending - utility file)
 
-**Batch 4.6 - Error Statement Components (7 files):**
-- `ErrorStatement.js` → `ErrorStatement.tsx`
-- `ErrorStatementLabel.js` → `ErrorStatementLabel.tsx`
-- `IfConditionSelect.js` → `IfConditionSelect.tsx`
-- `IfThenClause.js` → `IfThenClause.tsx`
-- `ThenClause.js` → `ThenClause.tsx`
-- `ElseClause.js` → `ElseClause.tsx`
-- `NestedErrorStatement.js` → `NestedErrorStatement.tsx`
-- `utils.js` → `utils.ts`
+**Batch 4.6 - Error Statement Components (7 files):** ✅ **COMPLETE** (7 component files migrated, utils.js pending)
+- `ErrorStatement.js` → `ErrorStatement.tsx` ✅
+- `ErrorStatementLabel.js` → `ErrorStatementLabel.tsx` ✅
+- `IfConditionSelect.js` → `IfConditionSelect.tsx` ✅
+- `IfThenClause.js` → `IfThenClause.tsx` ✅
+- `ThenClause.js` → `ThenClause.tsx` ✅
+- `ElseClause.js` → `ElseClause.tsx` ✅
+- `NestedErrorStatement.js` → `NestedErrorStatement.tsx` ✅
+- `utils.js` → `utils.ts` (pending - utility file)
 
-**Batch 4.7 - External CQL Components (5 files):** ✅ **COMPLETE**
+**Batch 4.7 - External CQL Components (5 files):** ✅ **COMPLETE** (5 component files migrated, utils.js pending)
 - `ExternalCqlDetailsModal.js` → `ExternalCqlDetailsModal.tsx` ✅
 - `ExternalCqlDetailsModalSection.js` → `ExternalCqlDetailsModalSection.tsx` ✅
 - `ExternalCqlDropZone.js` → `ExternalCqlDropZone.tsx` ✅
 - `ExternalCqlTable.js` → `ExternalCqlTable.tsx` ✅
 - `ExternalCqlTableRow.js` → `ExternalCqlTableRow.tsx` ✅
-- `utils.js` → `utils.ts`
+- `utils.js` → `utils.ts` (pending - utility file)
 
-**Batch 4.8 - Element Select Components (4 files):** ✅ **COMPLETE**
+**Batch 4.8 - Element Select Components (4 files):** ✅ **COMPLETE** (4 component files migrated, utils.js pending)
 - `ElementOption.js` → `ElementOption.tsx` ✅
 - `ElementSelectActions.js` → `ElementSelectActions.tsx` ✅
 - `ElementSelectDropdown.js` → `ElementSelectDropdown.tsx` ✅
 - `ElementSelect.js` → `ElementSelect.tsx` ✅
+- `utils.js` → `utils.ts` (pending - utility file)
 
-**Batch 4.9 - Artifact Element Components (2 files):**
-- `ArtifactElementActions.js` → `ArtifactElementActions.tsx`
-- `ArtifactElementBody.js` → `ArtifactElementBody.tsx`
-- `SelectModifierAction.js` → `SelectModifierAction.tsx`
-- `VSACOptionsAction.js` → `VSACOptionsAction.tsx`
+**Batch 4.9 - Artifact Element Components (4 files):** (Partial - 1 file migrated)
+- `ArtifactElement.js` → `ArtifactElement.tsx` ✅
+- `ArtifactElementActions.js` → `ArtifactElementActions.tsx` (pending)
+- `ArtifactElementBody.js` → `ArtifactElementBody.tsx` (pending)
+- `SelectModifierAction.js` → `SelectModifierAction.tsx` (pending)
+- `VSACOptionsAction.js` → `VSACOptionsAction.tsx` (pending)
 
 **Batch 4.10 - Group Element Components (2 files):** ✅ **COMPLETE**
 - `GroupElement.js` → `GroupElement.tsx` ✅
