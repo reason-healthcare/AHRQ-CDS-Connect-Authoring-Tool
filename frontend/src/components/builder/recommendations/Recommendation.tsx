@@ -14,16 +14,20 @@ import RecommendationSuggestion from './RecommendationSuggestion';
 import type {
   Recommendation as RecommendationType,
   Subpopulation,
-  RecommendationAction as RecommendationActionType
+  RecommendationAction as RecommendationActionType,
+  RecommendationLink as RecommendationLinkType,
+  RecommendationSuggestion as RecommendationSuggestionType
 } from '../../../types/artifact';
+
+type RecommendationFieldValue = string | Subpopulation[] | RecommendationLinkType[] | RecommendationSuggestionType[];
 
 const updateRecommendation = (
   recommendation: RecommendationType,
-  field: string,
-  value: unknown
+  field: keyof RecommendationType,
+  value: RecommendationFieldValue
 ): RecommendationType => {
   return produce(recommendation, draft => {
-    (draft as Record<string, unknown>)[field] = value;
+    (draft as Record<keyof RecommendationType, RecommendationFieldValue>)[field] = value;
   });
 };
 
@@ -33,11 +37,13 @@ const deleteLink = produce((recommendation: RecommendationType, index: number) =
   }
 });
 
-const updateLink = produce((recommendation: RecommendationType, index: number, field: string, value: string) => {
-  if (recommendation.links && recommendation.links[index]) {
-    (recommendation.links[index] as Record<string, unknown>)[field] = value;
+const updateLink = produce(
+  (recommendation: RecommendationType, index: number, field: keyof RecommendationLinkType, value: string) => {
+    if (recommendation.links && recommendation.links[index]) {
+      (recommendation.links[index] as Record<keyof RecommendationLinkType, string>)[field] = value;
+    }
   }
-});
+);
 
 const addAction = produce((recommendation: RecommendationType, index: number, action: RecommendationActionType) => {
   if (recommendation.suggestions && recommendation.suggestions[index]) {
@@ -245,7 +251,9 @@ const Recommendation: React.FC<RecommendationProps> = ({
           <RecommendationLink
             key={link.uid || index}
             handleChangeLink={(field, value) =>
-              handleUpdateRecommendation(updateLink(recommendationRef.current, index, field, value))
+              handleUpdateRecommendation(
+                updateLink(recommendationRef.current, index, field as keyof RecommendationLinkType, value)
+              )
             }
             handleDeleteLink={() => handleUpdateRecommendation(deleteLink(recommendationRef.current, index))}
             label={`Link${links.length > 1 ? ` ${index + 1}` : ''}...`}

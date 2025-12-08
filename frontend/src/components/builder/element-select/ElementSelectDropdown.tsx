@@ -20,14 +20,34 @@ interface ElementSelectOption {
   value: string;
   hasEmptyList?: boolean;
   isVersionLocked?: boolean;
-  [key: string]: unknown;
+  vsacAuthRequired?: boolean;
+  statementType?: string;
+  arguments?: Array<{ name?: string; type?: string; [key: string]: string | number | boolean | undefined }>;
+  displayReturnType?: string;
+  options?: ElementSelectOption[];
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | React.ReactNode
+    | ElementSelectOption[]
+    | Array<{ name?: string; type?: string; [key: string]: string | number | boolean | undefined }>
+    | undefined;
 }
+
+type DropdownOptionType = {
+  label?: string;
+  value: string | number;
+  isSubheader?: boolean;
+  isDisabled?: boolean;
+  [key: string]: string | number | boolean | React.ReactNode | undefined;
+};
 
 interface ElementSelectDropdownProps {
   handleSelectOption: (value: string) => void;
   isDisabled?: boolean;
   label: string;
-  options: ElementSelectOption[];
+  options: Array<string | number | DropdownOptionType | ElementSelectOption>;
   showFooter?: boolean;
   value: string;
 }
@@ -49,14 +69,16 @@ const ElementSelectDropdown: React.FC<ElementSelectDropdownProps> = ({
       Footer={
         showFooter && (
           <div>
-            {options.some(option => option.hasEmptyList) && (
+            {options.some(option => typeof option === 'object' && 'hasEmptyList' in option && option.hasEmptyList) && (
               <div>
                 <NotInterestedIcon className={spacingStyles.marginRight} fontSize="small" />
                 No named options to select
               </div>
             )}
 
-            {options.some(option => option.isVersionLocked) && (
+            {options.some(
+              option => typeof option === 'object' && 'isVersionLocked' in option && option.isVersionLocked
+            ) && (
               <div>
                 <LockIcon className={spacingStyles.marginRight} fontSize="small" />
                 Version locked

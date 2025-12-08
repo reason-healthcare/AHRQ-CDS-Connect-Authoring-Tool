@@ -14,9 +14,9 @@ interface ExternalCqlDetailsModalProps {
     fhirVersion?: string;
     createdAt?: string;
     details?: {
-      parameters?: Array<{ name?: string; [key: string]: unknown }>;
-      functions?: Array<{ name?: string; [key: string]: unknown }>;
-      definitions?: Array<{ name?: string; [key: string]: unknown }>;
+      parameters?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+      functions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+      definitions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
     };
   };
 }

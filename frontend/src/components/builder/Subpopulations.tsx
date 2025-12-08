@@ -153,9 +153,11 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
                 editingConjunction?: boolean
               ) => editInstance(treeName, fields, path, editingConjunction, subpopulation.uniqueId)} // Edit elements inside subpopulations
               handleDeleteSubpopulationElement={deleteSubpopulation}
-              handleUpdateSubpopulationElement={setSubpopulationName}
+              handleUpdateSubpopulationElement={(name: string, uniqueId: string) => {
+                setSubpopulationName(name, uniqueId || undefined);
+              }}
               hasErrors={hasErrors}
-              subpopulation={subpopulation}
+              subpopulation={subpopulation as Instance}
               subpopulationUniqueId={subpopulation.uniqueId}
               updateInstanceModifiers={updateInstanceModifiers}
             />

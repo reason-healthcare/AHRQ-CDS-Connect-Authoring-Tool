@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch } from '../../../store/hooks';
 import { Card, CardContent, IconButton } from '@mui/material';
 import { Link as LinkIcon } from '@mui/icons-material';
 import clsx from 'clsx';
@@ -9,16 +9,27 @@ import { setActiveTab, setScrollToId } from 'actions/navigation';
 import { getTabIndexFromName } from 'components/builder/utils';
 import { useTextStyles } from 'styles/hooks';
 import useStyles from './styles';
+import type { Recommendation } from '../../../types/artifact';
 
-const RecommendationCard = ({ depth, label, linkId, recommendation, text }) => {
+interface RecommendationCardProps {
+  depth: number;
+  label: string;
+  linkId?: string;
+  recommendation?: Recommendation;
+  text: string;
+}
+
+const RecommendationCard: React.FC<RecommendationCardProps> = ({ depth, label, linkId, recommendation, text }) => {
   const tabIndex = getTabIndexFromName('recommendations');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const textStyles = useTextStyles();
   const styles = useStyles();
 
   const handleLinkToElement = () => {
-    dispatch(setScrollToId(linkId));
-    dispatch(setActiveTab(tabIndex));
+    if (linkId) {
+      dispatch(setScrollToId(linkId));
+      dispatch(setActiveTab(tabIndex));
+    }
   };
 
   return (
@@ -29,29 +40,34 @@ const RecommendationCard = ({ depth, label, linkId, recommendation, text }) => {
             <span className={textStyles.bold}>{label}</span>: {text}
           </div>
 
-          {recommendation?.subpopulations.map((subpopulation, index) => (
-            <RecommendationCard key={index} depth={1} label="Subpopulation" text={subpopulation} />
+          {recommendation?.subpopulations?.map((subpopulation, index) => (
+            <RecommendationCard
+              key={index}
+              depth={1}
+              label="Subpopulation"
+              text={subpopulation.subpopulationName || ''}
+            />
           ))}
 
           {recommendation?.rationale && (
             <RecommendationCard depth={1} label="Rationale" text={recommendation.rationale} />
           )}
 
-          {recommendation?.links.map((link, index) => (
+          {recommendation?.links?.map((link, index) => (
             <RecommendationCard
               key={index}
               depth={1}
               label="Link"
-              text={"label: '" + link.label + "', url: '" + link.address + "'"}
+              text={"label: '" + (link.label || '') + "', url: '" + (link.url || '') + "'"}
             />
           ))}
 
-          {recommendation?.suggestions.map((suggestion, index) => (
-            <RecommendationCard key={index} depth={1} label="Suggestion" text={suggestion.label} />
+          {recommendation?.suggestions?.map((suggestion, index) => (
+            <RecommendationCard key={index} depth={1} label="Suggestion" text={suggestion.label || ''} />
           ))}
         </div>
 
-        {recommendation && (
+        {recommendation && linkId && (
           <IconButton aria-label="link" color="primary" onClick={handleLinkToElement} size="large">
             <LinkIcon />
           </IconButton>
@@ -59,14 +75,6 @@ const RecommendationCard = ({ depth, label, linkId, recommendation, text }) => {
       </CardContent>
     </Card>
   );
-};
-
-RecommendationCard.propTypes = {
-  depth: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired,
-  linkId: PropTypes.string,
-  recommendation: PropTypes.object,
-  text: PropTypes.string.isRequired
 };
 
 export default RecommendationCard;

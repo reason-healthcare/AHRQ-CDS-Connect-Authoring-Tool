@@ -563,16 +563,16 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `cpgFields.js` → `cpgFields.ts`
 - `hooks/useInitialValues.js` → `useInitialValues.ts`
 
-**Batch 4.5 - Recommendations Components (9 files):**
-- `Recommendation.js` → `Recommendation.tsx`
-- `RecommendationAction.js` → `RecommendationAction.tsx`
-- `RecommendationActionModal.js` → `RecommendationActionModal.tsx`
-- `RecommendationControls.js` → `RecommendationControls.tsx`
-- `RecommendationField.js` → `RecommendationField.tsx`
-- `RecommendationLink.js` → `RecommendationLink.tsx`
-- `RecommendationSubpopulations.js` → `RecommendationSubpopulations.tsx`
-- `RecommendationSuggestion.js` → `RecommendationSuggestion.tsx`
-- `structuredRequestFields.js` → `structuredRequestFields.ts`
+**Batch 4.5 - Recommendations Components (9 files):** (Partial - 3 files migrated)
+- `Recommendation.js` → `Recommendation.tsx` ✅
+- `RecommendationAction.js` → `RecommendationAction.tsx` (pending)
+- `RecommendationActionModal.js` → `RecommendationActionModal.tsx` ✅
+- `RecommendationControls.js` → `RecommendationControls.tsx` (pending)
+- `RecommendationField.js` → `RecommendationField.tsx` (pending)
+- `RecommendationLink.js` → `RecommendationLink.tsx` (pending)
+- `RecommendationSubpopulations.js` → `RecommendationSubpopulations.tsx` ✅
+- `RecommendationSuggestion.js` → `RecommendationSuggestion.tsx` (pending)
+- `structuredRequestFields.js` → `structuredRequestFields.ts` (pending)
 
 **Batch 4.6 - Error Statement Components (7 files):**
 - `ErrorStatement.js` → `ErrorStatement.tsx`
@@ -584,19 +584,19 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `NestedErrorStatement.js` → `NestedErrorStatement.tsx`
 - `utils.js` → `utils.ts`
 
-**Batch 4.7 - External CQL Components (5 files):**
-- `ExternalCqlDetailsModal.js` → `ExternalCqlDetailsModal.tsx`
-- `ExternalCqlDetailsModalSection.js` → `ExternalCqlDetailsModalSection.tsx`
-- `ExternalCqlDropZone.js` → `ExternalCqlDropZone.tsx`
-- `ExternalCqlTable.js` → `ExternalCqlTable.tsx`
-- `ExternalCqlTableRow.js` → `ExternalCqlTableRow.tsx`
+**Batch 4.7 - External CQL Components (5 files):** ✅ **COMPLETE**
+- `ExternalCqlDetailsModal.js` → `ExternalCqlDetailsModal.tsx` ✅
+- `ExternalCqlDetailsModalSection.js` → `ExternalCqlDetailsModalSection.tsx` ✅
+- `ExternalCqlDropZone.js` → `ExternalCqlDropZone.tsx` ✅
+- `ExternalCqlTable.js` → `ExternalCqlTable.tsx` ✅
+- `ExternalCqlTableRow.js` → `ExternalCqlTableRow.tsx` ✅
 - `utils.js` → `utils.ts`
 
-**Batch 4.8 - Element Select Components (4 files):**
-- `ElementOption.js` → `ElementOption.tsx`
-- `ElementSelectActions.js` → `ElementSelectActions.tsx`
-- `ElementSelectDropdown.js` → `ElementSelectDropdown.tsx`
-- `utils.js` → `utils.ts`
+**Batch 4.8 - Element Select Components (4 files):** ✅ **COMPLETE**
+- `ElementOption.js` → `ElementOption.tsx` ✅
+- `ElementSelectActions.js` → `ElementSelectActions.tsx` ✅
+- `ElementSelectDropdown.js` → `ElementSelectDropdown.tsx` ✅
+- `ElementSelect.js` → `ElementSelect.tsx` ✅
 
 **Batch 4.9 - Artifact Element Components (2 files):**
 - `ArtifactElementActions.js` → `ArtifactElementActions.tsx`
@@ -604,14 +604,14 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `SelectModifierAction.js` → `SelectModifierAction.tsx`
 - `VSACOptionsAction.js` → `VSACOptionsAction.tsx`
 
-**Batch 4.10 - Group Element Components (2 files):**
-- `GroupElement.js` → `GroupElement.tsx`
-- `ConjunctionTypeSelect.js` → `ConjunctionTypeSelect.tsx`
+**Batch 4.10 - Group Element Components (2 files):** ✅ **COMPLETE**
+- `GroupElement.js` → `GroupElement.tsx` ✅
+- `ConjunctionTypeSelect.js` → `ConjunctionTypeSelect.tsx` ✅
 
-**Batch 4.11 - Summary Components (3 files):**
-- `InclusionExclusionCard.js` → `InclusionExclusionCard.tsx`
-- `RecommendationCard.js` → `RecommendationCard.tsx`
-- `SummaryDetails.js` → `SummaryDetails.tsx`
+**Batch 4.11 - Summary Components (3 files):** ✅ **COMPLETE**
+- `InclusionExclusionCard.js` → `InclusionExclusionCard.tsx` ✅
+- `RecommendationCard.js` → `RecommendationCard.tsx` ✅
+- `SummaryDetails.js` → `SummaryDetails.tsx` ✅
 
 **Batch 4.12 - Builder Utilities (7 files):**
 - `utils/getAllElements.js` → `getAllElements.ts`
@@ -628,11 +628,11 @@ Batch 4 has been broken down into smaller, more manageable sub-batches based on 
 - `workspace/blurbs.js` → `blurbs.ts`
 - `workspace/tabUtils.js` → `tabUtils.ts`
 
-**Batch 4.14 - Builder Other Components (4 files):**
-- `ConjunctionGroup.js` → `ConjunctionGroup.tsx`
-- `ExpressionPhrase.js` → `ExpressionPhrase.tsx`
-- `ListGroup.js` → `ListGroup.tsx`
-- `Subpopulation.js` → `Subpopulation.tsx`
+**Batch 4.14 - Builder Other Components (4 files):** ✅ **COMPLETE**
+- `ConjunctionGroup.js` → `ConjunctionGroup.tsx` ✅
+- `ExpressionPhrase.js` → `ExpressionPhrase.tsx` ✅ (converted from class to functional component)
+- `ListGroup.js` → `ListGroup.tsx` ✅
+- `Subpopulation.js` → `Subpopulation.tsx` ✅
 
 **Batch 4.15 - Builder Supporting Components (4 files):**
 - `parameters/Parameter.js` → `Parameter.tsx`

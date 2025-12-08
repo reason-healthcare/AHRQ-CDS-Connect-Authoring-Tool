@@ -12,10 +12,11 @@ import { fetchArtifact, saveArtifact } from 'queries/artifacts';
 import { addExternalCql } from 'queries/external-cql';
 import { useDropZoneStyles, useSpacingStyles } from 'styles/hooks';
 import type { Artifact } from 'types/artifact';
+import type { ExternalCqlLibrary } from 'types/query';
 
 interface AddExternalCqlError {
   statusText?: string;
-  cqlErrors?: Array<{ message?: string; [key: string]: unknown }>;
+  cqlErrors?: Array<{ message?: string; [key: string]: string | number | boolean | undefined }>;
 }
 
 const ExternalCqlDropZone: React.FC = () => {
@@ -36,7 +37,7 @@ const ExternalCqlDropZone: React.FC = () => {
         { artifactId: id },
         {
           onSuccess: data => {
-            dispatch(loadArtifact(data) as unknown as { type: string });
+            dispatch(loadArtifact(data));
           }
         }
       );
@@ -52,7 +53,7 @@ const ExternalCqlDropZone: React.FC = () => {
         { artifact },
         {
           onSuccess: data => {
-            dispatch(loadArtifact(data) as unknown as { type: string });
+            dispatch(loadArtifact(data));
           }
         }
       );
@@ -60,10 +61,14 @@ const ExternalCqlDropZone: React.FC = () => {
       console.error('Save artifact failed:', error);
     }
   }, [invokeSaveArtifact, artifact, dispatch]);
-  const addMutation = useMutation({
-    mutationFn: addExternalCql,
-    onSuccess: (message: string | unknown) => {
-      if (typeof message === 'string') setMessage(message);
+  const addMutation = useMutation<
+    ExternalCqlLibrary,
+    AddExternalCqlError,
+    { library: Record<string, string | number | boolean | undefined> }
+  >({
+    mutationFn: async ({ library }) => addExternalCql(library),
+    onSuccess: (library: ExternalCqlLibrary) => {
+      setMessage('Library successfully added');
       if (artifact._id) {
         queryClient.refetchQueries({ queryKey: ['externalCql', artifact._id] }).then(() => {
           queryClient.invalidateQueries({ queryKey: ['modifiers'] });
@@ -72,6 +77,7 @@ const ExternalCqlDropZone: React.FC = () => {
       }
     },
     onError: (error: AddExternalCqlError) => {
+      setMessage(null); // Clear success message if any
       setUploadErrorMessage(error.statusText || 'An error occurred.');
       setUploadCqlErrors(
         error.cqlErrors ? [...new Set(error.cqlErrors.map(err => err.message || '').filter(Boolean))] : null
@@ -102,10 +108,10 @@ const ExternalCqlDropZone: React.FC = () => {
             cqlFileContent: fileContentToSend,
             fileType: cqlFileType,
             artifact
-          };
+          } as unknown as Record<string, string | number | boolean | undefined>;
           setUploadErrorMessage(null);
           handleSaveArtifact();
-          addMutation.mutate(library);
+          addMutation.mutate({ library });
         } else {
           setUploadErrorMessage('Invalid file type. Only .cql and .zip files can be uploaded.');
         }

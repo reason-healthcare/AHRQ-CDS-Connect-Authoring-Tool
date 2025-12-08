@@ -9,7 +9,7 @@ interface ElementOptionProps {
     value: string;
     vsacAuthRequired?: boolean;
     statementType?: string;
-    arguments?: Array<unknown>;
+    arguments?: Array<{ name?: string; type?: string; [key: string]: string | number | boolean | undefined }>;
     displayReturnType?: string;
     hasEmptyList?: boolean;
     isVersionLocked?: boolean;

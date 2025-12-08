@@ -4,7 +4,8 @@ import { Dropdown } from 'components/elements';
 interface ConjunctionOption {
   id: string;
   name: string;
-  [key: string]: unknown;
+  suppress?: boolean;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface ConjunctionTypeSelectProps {
@@ -31,7 +32,17 @@ const ConjunctionTypeSelect: React.FC<ConjunctionTypeSelectProps> = ({ editInsta
       label={name ? null : 'Select one'}
       labelKey="name"
       onChange={event => handleTypeChange(event, options)}
-      options={options as any}
+      options={
+        options as Array<
+          | string
+          | number
+          | {
+              label?: string;
+              value: string | number;
+              [key: string]: string | number | boolean | React.ReactNode | undefined;
+            }
+        >
+      }
       sx={{ margin: '20px 0', width: '12em' }}
       value={name || ''}
       valueKey="id"

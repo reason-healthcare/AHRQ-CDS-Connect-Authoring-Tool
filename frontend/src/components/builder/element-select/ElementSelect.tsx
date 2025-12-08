@@ -47,7 +47,13 @@ interface ElementOption {
   isVersionLocked?: boolean;
   vsacAuthRequired?: boolean;
   isDisabled?: boolean;
-  [key: string]: unknown;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | React.ReactNode
+    | Array<{ label: string; value: string; options?: Array<{ value: string; label: string }> }>
+    | undefined;
 }
 
 const ElementSelect: React.FC<ElementSelectProps> = ({
@@ -250,7 +256,18 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
     }
   };
 
-  const handleSelectElement = (vsacData: unknown, vsacType: 'codes' | 'valueSets'): void => {
+  interface CodeSelection {
+    display: string;
+    code: string;
+    codeSystem: { name: string; id: string };
+  }
+
+  interface ValueSetSelection {
+    name: string;
+    oid: string;
+  }
+
+  const handleSelectElement = (vsacData: CodeSelection | ValueSetSelection, vsacType: 'codes' | 'valueSets'): void => {
     if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption) return;
 
     // Import generateElement from utils
@@ -264,8 +281,8 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
         option: selectedOption,
         subOption: null,
         template,
-        vsacCode: vsacType === 'codes' ? (vsacData as unknown) : null,
-        vsacValueSet: vsacType === 'valueSets' ? (vsacData as unknown) : null,
+        vsacCode: vsacType === 'codes' ? (vsacData as CodeSelection) : null,
+        vsacValueSet: vsacType === 'valueSets' ? (vsacData as ValueSetSelection) : null,
         vsacType
       });
       if (element) {
@@ -288,7 +305,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
       <CardContent>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <ElementSelectDropdown
-            options={elementOptions as any}
+            options={elementOptions}
             handleSelectOption={(value: string) => handleSelectOption(value)}
             isDisabled={isDisabled}
             label="Select Element Type"
@@ -308,7 +325,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
               selectedOptionData.options.length > 0 && (
                 <div style={{ marginTop: '10px' }}>
                   <ElementSelectDropdown
-                    options={selectedOptionData.options as any}
+                    options={selectedOptionData.options}
                     handleSelectOption={(value: string) => handleSelectSubOption(value)}
                     isDisabled={isDisabled}
                     label={
@@ -331,7 +348,14 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
               Array.isArray(selectedOptionData.options) &&
               (() => {
                 const selectedCqlLibrary = (
-                  selectedOptionData.options as Array<{ value: string; options?: unknown[] }>
+                  selectedOptionData.options as Array<{
+                    value: string;
+                    options?: Array<{
+                      value: string;
+                      label: string;
+                      [key: string]: string | number | boolean | React.ReactNode | undefined;
+                    }>;
+                  }>
                 ).find(opt => opt.value === selectedSubOption);
                 return selectedCqlLibrary &&
                   selectedCqlLibrary.options &&
@@ -339,7 +363,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
                   selectedCqlLibrary.options.length > 0 ? (
                   <div style={{ marginTop: '10px' }}>
                     <ElementSelectDropdown
-                      options={selectedCqlLibrary.options as any}
+                      options={selectedCqlLibrary.options}
                       handleSelectOption={(value: string) => handleSelectCqlOption(value)}
                       isDisabled={isDisabled}
                       label="Definition, function, or parameter"
@@ -350,7 +374,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
                 ) : null;
               })()}
             {VSAC_OPTIONS.includes(selectedOptionData.value as (typeof VSAC_OPTIONS)[number]) && (
-              <ElementSelectActions handleSelectElement={handleSelectElement as any} />
+              <ElementSelectActions handleSelectElement={handleSelectElement} />
             )}
           </>
         )}

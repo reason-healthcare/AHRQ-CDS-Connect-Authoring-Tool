@@ -1,6 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved
+import { useAppSelector } from '../../store/hooks';
 import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import fetchTemplates from 'queries/fetchTemplates';
@@ -8,11 +8,56 @@ import { ArtifactElement } from 'components/builder/artifact-element';
 import { GroupElement, ConjunctionTypeSelect } from 'components/builder/group-element';
 import createTemplateInstance from 'utils/templates';
 import { getElementErrors, hasDuplicateName, hasGroupNestedWarning, hasWarnings } from 'utils/warnings';
-import requiredIf from 'utils/prop_types';
 import { getLabelForInstance } from 'utils/instances';
 import { getAllElements, getElementNames } from './utils';
+import type { Instance } from '../../utils/instances';
 
-const ConjunctionGroup = ({
+interface ConjunctionGroupProps {
+  addInstance: (
+    treeName: string,
+    instance: Instance,
+    parentPath: string,
+    uid?: string | null,
+    currentIndex?: number | null,
+    incomingTree?: Instance | null,
+    updatedReturnType?: string | null
+  ) => void;
+  baseIndentLevel?: number;
+  deleteInstance: (
+    treeName: string,
+    path: string,
+    elementsToAdd?: Array<{ instance: Instance; path: string; index?: number }> | null,
+    uid?: string | null,
+    updatedReturnType?: string | null
+  ) => void;
+  disableAddElement?: boolean;
+  disableIndent?: boolean;
+  editInstance: (
+    treeName: string,
+    editedFields: Array<Record<string, unknown>> | Record<string, unknown>,
+    path: string,
+    editingConjunctionType?: boolean,
+    uid?: string | null
+  ) => void;
+  elementUniqueId?: string;
+  getPath?: (id: string | undefined) => string;
+  instance: Instance;
+  options?: string;
+  root: boolean;
+  subpopulationUniqueId?: string;
+  treeName: string;
+  updateInstanceModifiers: (
+    treeName: string,
+    modifiers: unknown[],
+    path: string,
+    uid?: string | null,
+    updatedReturnType?: string | null,
+    fhirVersion?: string | null
+  ) => void;
+  validateReturnType?: boolean;
+}
+
+const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
   addInstance,
   baseIndentLevel,
   deleteInstance,
@@ -29,24 +74,24 @@ const ConjunctionGroup = ({
   updateInstanceModifiers,
   validateReturnType
 }) => {
-  const artifact = useSelector(state => state.artifacts.artifact);
-  const { data: templates, isLoading: isTemplatesLoading } = useQuery({
+  const artifact = useAppSelector(state => state.artifacts.artifact);
+  const { data: templates, isPending: isTemplatesLoading } = useQuery({
     queryKey: ['templates'],
     queryFn: () => fetchTemplates(),
     staleTime: Infinity
   });
 
-  if (isTemplatesLoading) {
+  if (isTemplatesLoading || !artifact) {
     return <CircularProgress />;
   }
 
-  const baseElements = artifact.baseElements;
+  const baseElements = artifact.baseElements || [];
   const allElements = getAllElements(artifact) ?? [];
   const instanceNames = getElementNames(allElements);
-  const parameters = artifact.parameters.filter(({ name }) => name?.length);
+  const parameters = (artifact.parameters || []).filter(({ name }) => name?.length);
 
-  const conjunctionGroupOptions = templates.find(t => t.name === 'Operations').entries ?? [];
-  const listOperationOptions = templates.find(t => t.name === 'List Operations').entries ?? [];
+  const conjunctionGroupOptions = templates?.find(t => t.name === 'Operations')?.entries ?? [];
+  const listOperationOptions = templates?.find(t => t.name === 'List Operations')?.entries ?? [];
   const selectOptions = options === 'listOperations' ? listOperationOptions : (conjunctionGroupOptions ?? []);
   const hasDuplicateNameWarning = hasDuplicateName(instance, instanceNames, baseElements, parameters, allElements);
   const hasNestedWarning = hasGroupNestedWarning(
@@ -55,24 +100,27 @@ const ConjunctionGroup = ({
     baseElements,
     parameters,
     allElements,
-    validateReturnType
+    validateReturnType || false
   );
 
   // if root component, returns root artifact path, otherwise calls child's getPath function with artifact id
-  const getPath = () => {
+  const getPath = (): string => {
     if (root) {
-      return instance.path;
+      return instance.path || '';
     }
-    return getPathOfParent(instance.uniqueId);
+    if (getPathOfParent) {
+      return getPathOfParent(instance.uniqueId || '');
+    }
+    return '';
   };
 
-  const getChildsPath = id => {
+  const getChildsPath = (id: string): string => {
     const artifactTree = instance;
-    const childIndex = artifactTree.childInstances.findIndex(instance => instance.uniqueId === id);
+    const childIndex = (artifactTree.childInstances || []).findIndex(inst => inst.uniqueId === id);
     return `${getPath()}.childInstances.${childIndex}`;
   };
 
-  const getIndentParity = path => {
+  const getIndentParity = (path: string): string => {
     const level = path.split('.').filter(pathSection => pathSection === 'childInstances').length;
     if (level % 2 === (baseIndentLevel ?? 0)) {
       return 'even';
@@ -80,13 +128,13 @@ const ConjunctionGroup = ({
     return 'odd';
   };
 
-  const indentClickHandler = element => {
+  const indentClickHandler = (element: Instance): void => {
     if (disableAddElement) {
       return;
     }
 
     // Decide what type of conjunction group to create when indenting
-    let conjunctionType;
+    let conjunctionType: { id?: string; name?: string; [key: string]: unknown } | undefined;
     if (instance.name === 'Or') {
       conjunctionType = conjunctionGroupOptions.find(template => template.id === 'And');
     } else {
@@ -94,35 +142,39 @@ const ConjunctionGroup = ({
       conjunctionType = conjunctionGroupOptions.find(template => template.id === 'Or');
     }
 
-    if (element.conjunction) {
+    if (element.conjunction && conjunctionType) {
       // Indenting a conjunction group (and it's children)
-      const newInstance = createTemplateInstance(conjunctionType, [element]);
+      const newInstance = createTemplateInstance(conjunctionType, [element]) as Instance;
       const parentPath = getPath().split('.').slice(0, -2).join('.'); // Path of parent of conjunction group
       const index = Number(getPath().split('.').pop()); // Index of to indent group at
       const toAdd = [{ instance: newInstance, path: parentPath, index }];
 
       deleteInstance(treeName, getPath(), toAdd);
-    } else {
+    } else if (conjunctionType) {
       // Indent a single templateInstance
-      const newInstance = createTemplateInstance(conjunctionType, [element]);
-      const index = Number(getChildsPath(element.uniqueId).split('.').pop()); // Index to add new conjunction at
+      const newInstance = createTemplateInstance(conjunctionType, [element]) as Instance;
+      const index = Number(
+        getChildsPath(element.uniqueId || '')
+          .split('.')
+          .pop()
+      ); // Index to add new conjunction at
       const toAdd = [{ instance: newInstance, path: getPath(), index }];
 
-      deleteInstance(treeName, getChildsPath(element.uniqueId), toAdd);
+      deleteInstance(treeName, getChildsPath(element.uniqueId || ''), toAdd);
     }
   };
 
-  const outdentClickHandler = element => {
+  const outdentClickHandler = (element: Instance): void => {
     if (disableAddElement) {
       return;
     }
     if (element.conjunction) {
       // Outdenting a conjunction group. Removes the conjunction, readds each child to the conjunction's parent
-      const toAdd = element.childInstances.map((child, i) => {
+      const toAdd = (element.childInstances || []).map((child, i) => {
         // Path of the parent where items get added
         const parentPath = getPath().split('.').slice(0, -2).join('.');
-        let index = getPath().split('.').pop(); // Index of the conjunction group
-        index = Number(index) + i; // Index to add the conjunction's children at
+        const indexStr = getPath().split('.').pop() || '0';
+        const index = Number(indexStr) + i; // Index to add the conjunction's children at
         return { instance: child, path: parentPath, index };
       });
 
@@ -131,14 +183,14 @@ const ConjunctionGroup = ({
       // Outdenting a single templateInstance
       // Path of the parent of the group instance is coming from. This is where it will be readded
       const parentPath = getPath().split('.').slice(0, -2).join('.');
-      let index = getPath().split('.').pop(); // Index of the parent
-      index = Number(index) + 1; // Readd the child that is being outdented right below the parent it came from
+      const indexStr = getPath().split('.').pop() || '0';
+      const index = Number(indexStr) + 1; // Readd the child that is being outdented right below the parent it came from
       const toAdd = [{ instance: element, path: parentPath, index }];
-      deleteInstance(treeName, getChildsPath(element.uniqueId), toAdd);
+      deleteInstance(treeName, getChildsPath(element.uniqueId || ''), toAdd);
     }
   };
 
-  const renderArtifactElement = (instance, group) => (
+  const renderArtifactElement = (instance: Instance, group: Instance): React.ReactElement => (
     <div key={instance.uniqueId} className="card-group-section" id={instance.uniqueId}>
       <ArtifactElement
         alerts={getElementErrors(instance, allElements, baseElements, instanceNames, parameters)}
@@ -146,38 +198,52 @@ const ConjunctionGroup = ({
         allowOutdent={getPath() !== ''} // cannot outdent if at the root
         baseElementInUsedList={!!disableAddElement}
         elementInstance={instance}
-        handleDeleteElement={() => deleteInstance(treeName, getChildsPath(instance.uniqueId))}
+        handleDeleteElement={() => deleteInstance(treeName, getChildsPath(instance.uniqueId || ''))}
         handleIndent={() => indentClickHandler(instance)}
         handleOutdent={() => outdentClickHandler(instance)}
         handleUpdateElement={newElementField =>
-          editInstance(treeName, newElementField, getChildsPath(instance.uniqueId), false)
+          editInstance(treeName, newElementField, getChildsPath(instance.uniqueId || ''), false)
         }
-        hasErrors={hasWarnings(instance, instanceNames, baseElements, parameters, allElements, validateReturnType)}
-        indentParity={getIndentParity(getChildsPath(instance.uniqueId))}
+        hasErrors={hasWarnings(
+          instance,
+          instanceNames,
+          baseElements,
+          parameters,
+          allElements,
+          validateReturnType || false
+        )}
+        indentParity={getIndentParity(getChildsPath(instance.uniqueId || ''))}
         label={getLabelForInstance(instance, baseElements)}
         updateModifiers={(modifiers, fhirVersion) =>
           updateInstanceModifiers(
             treeName,
             modifiers,
-            getChildsPath(instance.uniqueId),
-            subpopulationUniqueId,
+            getChildsPath(instance.uniqueId || ''),
+            subpopulationUniqueId || null,
             null,
             fhirVersion
           )
         }
-        validateReturnType={validateReturnType}
+        validateReturnType={validateReturnType || false}
       />
 
       <ConjunctionTypeSelect
         editInstance={type => editInstance(treeName, type, getPath(), true)}
         name={group.name}
-        options={selectOptions}
+        options={
+          selectOptions as Array<{
+            id: string;
+            name: string;
+            suppress?: boolean;
+            [key: string]: string | number | boolean | undefined;
+          }>
+        }
       />
     </div>
   );
 
-  const renderChildren = () =>
-    instance.childInstances.map(child => {
+  const renderChildren = (): React.ReactElement[] =>
+    (instance.childInstances || []).map(child => {
       // return null if child instance conjunction is false
       if (child.conjunction) {
         return (
@@ -201,7 +267,14 @@ const ConjunctionGroup = ({
             <ConjunctionTypeSelect
               editInstance={type => editInstance(treeName, type, getPath(), true)}
               name={instance.name}
-              options={selectOptions}
+              options={
+                selectOptions as Array<{
+                  id: string;
+                  name: string;
+                  suppress?: boolean;
+                  [key: string]: string | number | boolean | undefined;
+                }>
+              }
             />
           </div>
         );
@@ -218,7 +291,13 @@ const ConjunctionGroup = ({
       disable={!!disableAddElement}
       elementUniqueId={elementUniqueId}
       groupInstance={instance}
-      handleAddElement={template => addInstance(treeName, createTemplateInstance(template), getPath())}
+      handleAddElement={template =>
+        addInstance(
+          treeName,
+          createTemplateInstance(template as { id?: string; [key: string]: unknown }) as Instance,
+          getPath()
+        )
+      }
       handleDeleteElement={() => deleteInstance(treeName, getPath())}
       handleIndent={() => indentClickHandler(instance)}
       handleOutdent={() => outdentClickHandler(instance)}
@@ -230,24 +309,6 @@ const ConjunctionGroup = ({
       {renderChildren()}
     </GroupElement>
   );
-};
-
-ConjunctionGroup.propTypes = {
-  addInstance: PropTypes.func.isRequired,
-  baseIndentLevel: PropTypes.number,
-  deleteInstance: PropTypes.func.isRequired,
-  disableAddElement: PropTypes.bool,
-  disableIndent: PropTypes.bool,
-  editInstance: PropTypes.func.isRequired,
-  elementUniqueId: PropTypes.string,
-  getPath: requiredIf(PropTypes.func, props => !props.root), // path needed for children
-  instance: PropTypes.object.isRequired,
-  options: PropTypes.string,
-  root: PropTypes.bool.isRequired,
-  subpopulationUniqueId: PropTypes.string,
-  treeName: PropTypes.string.isRequired,
-  updateInstanceModifiers: PropTypes.func.isRequired,
-  validateReturnType: PropTypes.bool
 };
 
 export default ConjunctionGroup;

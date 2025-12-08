@@ -17,10 +17,15 @@ interface ExternalCqlTableRowProps {
     fhirVersion?: string;
     updatedAt?: string;
     details?: {
-      parameters?: Array<{ name?: string; [key: string]: unknown }>;
-      functions?: Array<{ name?: string; [key: string]: unknown }>;
-      definitions?: Array<{ name?: string; [key: string]: unknown }>;
-      [key: string]: unknown;
+      parameters?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+      functions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+      definitions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+      [key: string]:
+        | string
+        | number
+        | boolean
+        | Array<{ name?: string; [key: string]: string | number | boolean | undefined }>
+        | undefined;
     };
   };
   handleDeleteLibrary: (library: ExternalCqlLibrary) => void;

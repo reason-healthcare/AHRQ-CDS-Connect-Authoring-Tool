@@ -10,8 +10,19 @@ import {
 
 import { CodeSelectModal, ValueSetSelectModal, VSACAuthenticationModal } from 'components/modals';
 
+interface CodeSelection {
+  display: string;
+  code: string;
+  codeSystem: { name: string; id: string };
+}
+
+interface ValueSetSelection {
+  name: string;
+  oid: string;
+}
+
 interface ElementSelectActionsProps {
-  handleSelectElement: (item: unknown, type: 'codes' | 'valueSets') => void;
+  handleSelectElement: (item: CodeSelection | ValueSetSelection, type: 'codes' | 'valueSets') => void;
 }
 
 const ElementSelectActions: React.FC<ElementSelectActionsProps> = ({ handleSelectElement }) => {

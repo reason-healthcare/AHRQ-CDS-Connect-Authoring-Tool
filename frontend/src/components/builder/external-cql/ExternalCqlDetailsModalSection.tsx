@@ -16,10 +16,15 @@ import { changeToCase } from 'utils/strings';
 
 interface Definition {
   name?: string;
-  operand?: Array<{ name?: string; [key: string]: unknown }>;
+  operand?: Array<{ name?: string; type?: string; [key: string]: string | number | boolean | undefined }>;
   displayReturnType?: string;
   calculatedReturnType?: string;
-  [key: string]: unknown;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | Array<{ name?: string; type?: string; [key: string]: string | number | boolean | undefined }>
+    | undefined;
 }
 
 interface ExternalCqlDetailsModalSectionProps {

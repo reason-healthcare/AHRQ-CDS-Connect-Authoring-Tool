@@ -1,13 +1,29 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
-import InclusionExclusionCard from './InclusionExclusionCard';
+import InclusionExclusionCard, { type InclusionExclusionChild } from './InclusionExclusionCard';
 import RecommendationCard from './RecommendationCard';
 import { useSpacingStyles, useTextStyles } from 'styles/hooks';
 import useStyles from './styles';
+import type { Recommendation } from '../../../types/artifact';
 
-const SummaryDetails = ({ summaryType, summaryDetails }) => {
+interface RecommendationSummaryItem {
+  recommendationId?: string;
+  recommendationText?: string;
+}
+
+interface SummaryDetailsData {
+  childInstances?: InclusionExclusionChild[];
+  recommendations?: RecommendationSummaryItem[] | Recommendation[];
+  operand?: string;
+}
+
+interface SummaryDetailsProps {
+  summaryType: 'expTreeInclude' | 'expTreeExclude' | 'recommendations';
+  summaryDetails: SummaryDetailsData;
+}
+
+const SummaryDetails: React.FC<SummaryDetailsProps> = ({ summaryType, summaryDetails }) => {
   const isInclusion = summaryType === 'expTreeInclude';
   const isRecommendation = summaryType === 'recommendations';
   const spacingStyles = useSpacingStyles();
@@ -36,20 +52,37 @@ const SummaryDetails = ({ summaryType, summaryDetails }) => {
       )}
 
       {isRecommendation
-        ? summaryDetails.recommendations.map((recommendation, index) => (
-            <RecommendationCard
-              key={index}
-              depth={0}
-              label="Recommendation"
-              linkId={recommendation.recommendationId}
-              recommendation={recommendation}
-              text={recommendation.recommendationText}
-            />
-          ))
-        : summaryDetails.childInstances.map((child, index) => (
+        ? summaryDetails.recommendations?.map((recommendation, index) => {
+            if ('recommendationId' in recommendation) {
+              const item = recommendation as RecommendationSummaryItem;
+              return (
+                <RecommendationCard
+                  key={index}
+                  depth={0}
+                  label="Recommendation"
+                  linkId={item.recommendationId}
+                  recommendation={undefined}
+                  text={item.recommendationText || ''}
+                />
+              );
+            } else {
+              const rec = recommendation as Recommendation;
+              return (
+                <RecommendationCard
+                  key={index}
+                  depth={0}
+                  label="Recommendation"
+                  linkId={rec.uid}
+                  recommendation={rec}
+                  text={rec.text || ''}
+                />
+              );
+            }
+          })
+        : summaryDetails.childInstances?.map((child, index) => (
             <InclusionExclusionCard
               key={index}
-              children={child.childInstances}
+              children={child.childInstances || []}
               depth={0}
               label={child.elementType}
               linkId={child.elementId}
@@ -62,11 +95,6 @@ const SummaryDetails = ({ summaryType, summaryDetails }) => {
           ))}
     </div>
   );
-};
-
-SummaryDetails.propTypes = {
-  summaryType: PropTypes.oneOf(['expTreeInclude', 'expTreeExclude', 'recommendations']).isRequired,
-  summaryDetails: PropTypes.object.isRequired
 };
 
 export default SummaryDetails;

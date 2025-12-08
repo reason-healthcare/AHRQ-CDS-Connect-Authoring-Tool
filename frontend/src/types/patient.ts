@@ -19,7 +19,9 @@ export interface PatientBundle {
   type: 'collection';
   entry: PatientEntry[];
   id?: string;
-  [key: string]: unknown;
+  timestamp?: string;
+  total?: number;
+  [key: string]: string | number | PatientEntry[] | fhir4.Resource | undefined;
 }
 
 export interface PatientData {

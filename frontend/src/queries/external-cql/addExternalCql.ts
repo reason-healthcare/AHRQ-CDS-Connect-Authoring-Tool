@@ -13,11 +13,21 @@ interface AddExternalCqlLibrary {
 
 const addExternalCql = async (library: AddExternalCqlLibrary): Promise<ExternalCqlLibrary> => {
   try {
-    const { data } = await axios.post<string | ExternalCqlLibrary>(`${process.env.REACT_APP_API_URL}/externalCQL`, {
-      library
-    });
-    if (typeof data === 'string' && /^Unable to upload/.test(data)) {
-      return Promise.reject({ statusText: data, cqlErrors: null } as AddExternalCqlError);
+    const { data } = await axios.post<string | ExternalCqlLibrary | { n?: number; nModified?: number; ok?: number }>(
+      `${process.env.REACT_APP_API_URL}/externalCQL`,
+      {
+        library
+      }
+    );
+    // Handle string error responses (even with 200 status)
+    if (typeof data === 'string') {
+      if (/^Unable to upload/i.test(data) || /already includes/i.test(data)) {
+        return Promise.reject({ statusText: data, cqlErrors: null } as AddExternalCqlError);
+      }
+    }
+    // Handle MongoDB update result - return a minimal library object
+    if (typeof data === 'object' && data !== null && 'n' in data && 'ok' in data) {
+      return { _id: '', name: library.name } as ExternalCqlLibrary;
     }
     return data as ExternalCqlLibrary;
   } catch (error) {

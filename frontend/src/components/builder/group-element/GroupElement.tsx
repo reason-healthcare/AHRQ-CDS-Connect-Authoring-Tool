@@ -27,7 +27,16 @@ interface GroupElementProps {
   handleDeleteElement: () => void;
   handleIndent?: () => void;
   handleOutdent?: () => void;
-  handleUpdateElement: (updatedFields: Record<string, unknown>) => void;
+  handleUpdateElement: (
+    updatedFields: Record<
+      string,
+      | string
+      | number
+      | boolean
+      | null
+      | { id?: string; value?: string | number | { id?: string; name?: string; value?: string; type?: string } | null }
+    >
+  ) => void;
   hasErrors: boolean;
   indentParity?: string;
   isWrapper?: boolean;

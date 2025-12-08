@@ -8,6 +8,7 @@ import SummaryHeader from './SummaryHeader';
 import { CircularProgress } from '@mui/material';
 import type { Artifact } from '../../../types/artifact';
 import type { Instance } from '../../../utils/instances';
+import type { InclusionExclusionChild } from './InclusionExclusionCard';
 
 interface SummaryProps {
   handleSaveArtifact: (artifact: Artifact | null, artifactProps: Record<string, unknown>) => void;
@@ -27,15 +28,15 @@ const Summary: React.FC<SummaryProps> = ({ handleSaveArtifact }) => {
     };
   };
 
-  const getSummaryDetailsFromTree = (
-    tree: Instance
-  ): Array<{
+  interface SummaryTreeItem {
     elementId?: string;
     elementName?: string;
     elementType?: string;
     operand?: string | null;
-    childInstances?: Array<unknown>;
-  }> => {
+    childInstances?: SummaryTreeItem[];
+  }
+
+  const getSummaryDetailsFromTree = (tree: Instance): SummaryTreeItem[] => {
     return (tree.childInstances || []).map(instance => {
       const details = getSummaryDetailsFromInstance(instance);
       return {
@@ -45,7 +46,7 @@ const Summary: React.FC<SummaryProps> = ({ handleSaveArtifact }) => {
     });
   };
 
-  const getSummaryDetailsFromArtifact = (treeName: string) => {
+  const getSummaryDetailsFromArtifact = (treeName: string): SummaryTreeItem[] => {
     if (!artifact) return [];
     const tree = (artifact as Record<string, Instance | undefined>)[treeName] as Instance | undefined;
     if (!tree) return [];
@@ -61,11 +62,15 @@ const Summary: React.FC<SummaryProps> = ({ handleSaveArtifact }) => {
       <SummaryHeader handleSaveArtifact={handleSaveArtifact} />
       <SummaryDetails
         summaryType="expTreeInclude"
-        summaryDetails={{ childInstances: getSummaryDetailsFromArtifact('expTreeInclude') }}
+        summaryDetails={{
+          childInstances: getSummaryDetailsFromArtifact('expTreeInclude') as InclusionExclusionChild[]
+        }}
       />
       <SummaryDetails
         summaryType="expTreeExclude"
-        summaryDetails={{ childInstances: getSummaryDetailsFromArtifact('expTreeExclude') }}
+        summaryDetails={{
+          childInstances: getSummaryDetailsFromArtifact('expTreeExclude') as InclusionExclusionChild[]
+        }}
       />
       <SummaryDetails
         summaryType="recommendations"

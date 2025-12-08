@@ -36,6 +36,8 @@ export interface Instance {
   id?: string;
   cannotHaveModifiers?: boolean;
   path?: string;
+  template?: string;
+  subpopulationName?: string;
 }
 
 interface ElementTemplateGroup {

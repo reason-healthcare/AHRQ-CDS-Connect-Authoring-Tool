@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch } from '../../../store/hooks';
 import { Card, CardContent, IconButton } from '@mui/material';
 import { Link as LinkIcon } from '@mui/icons-material';
 import clsx from 'clsx';
@@ -10,7 +10,27 @@ import { getTabIndexFromName } from 'components/builder/utils';
 import { useTextStyles } from 'styles/hooks';
 import useStyles from './styles';
 
-const InclusionExclusionCard = ({
+export interface InclusionExclusionChild {
+  childInstances?: InclusionExclusionChild[];
+  elementType: string;
+  elementId?: string;
+  operand?: string;
+  elementName?: string;
+}
+
+interface InclusionExclusionCardProps {
+  children: InclusionExclusionChild[];
+  depth: number;
+  label: string;
+  linkId?: string;
+  operand?: string;
+  parentOperand?: string;
+  showOperand?: boolean;
+  summaryType: 'expTreeInclude' | 'expTreeExclude' | 'recommendations';
+  text: string;
+}
+
+const InclusionExclusionCard: React.FC<InclusionExclusionCardProps> = ({
   children,
   depth,
   label,
@@ -22,13 +42,15 @@ const InclusionExclusionCard = ({
   text
 }) => {
   const tabIndex = getTabIndexFromName(summaryType);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const textStyles = useTextStyles();
   const styles = useStyles();
 
   const handleLinkToElement = () => {
-    dispatch(setScrollToId(linkId));
-    dispatch(setActiveTab(tabIndex));
+    if (linkId) {
+      dispatch(setScrollToId(linkId));
+      dispatch(setActiveTab(tabIndex));
+    }
   };
 
   return (
@@ -49,7 +71,7 @@ const InclusionExclusionCard = ({
             {children.map((child, index) => (
               <InclusionExclusionCard
                 key={index}
-                children={child.childInstances}
+                children={child.childInstances || []}
                 depth={depth + 1}
                 label={child.elementType}
                 linkId={child.elementId}
@@ -57,30 +79,20 @@ const InclusionExclusionCard = ({
                 parentOperand={operand}
                 showOperand={index !== 0}
                 summaryType={summaryType}
-                text={child.elementName}
+                text={child.elementName || ''}
               />
             ))}
           </div>
 
-          <IconButton aria-label="link" color="primary" onClick={handleLinkToElement} size="large">
-            <LinkIcon />
-          </IconButton>
+          {linkId && (
+            <IconButton aria-label="link" color="primary" onClick={handleLinkToElement} size="large">
+              <LinkIcon />
+            </IconButton>
+          )}
         </CardContent>
       </Card>
     </>
   );
-};
-
-InclusionExclusionCard.propTypes = {
-  children: PropTypes.array.isRequired,
-  depth: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired,
-  linkId: PropTypes.string,
-  operand: PropTypes.string,
-  parentOperand: PropTypes.string,
-  showOperand: PropTypes.bool,
-  summaryType: PropTypes.oneOf(['expTreeInclude', 'expTreeExclude', 'recommendations']).isRequired,
-  text: PropTypes.string.isRequired
 };
 
 export default InclusionExclusionCard;

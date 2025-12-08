@@ -82,7 +82,17 @@ const RecommendationSubpopulations: React.FC<RecommendationSubpopulationsProps> 
             label="Add a subpopulation"
             labelKey="subpopulationName"
             onChange={event => selectRecommendationSubpopulation(event.target.value)}
-            options={subpopulationOptions as any}
+            options={
+              subpopulationOptions as Array<
+                | string
+                | number
+                | {
+                    label?: string;
+                    value: string | number;
+                    [key: string]: string | number | boolean | React.ReactNode | undefined;
+                  }
+              >
+            }
             sx={{ marginRight: '10px' }}
             value=""
             valueKey="uniqueId"

@@ -31,7 +31,18 @@ export interface ValueSetSearchResult {
     exclusionCriteria?: string;
     purpose?: string;
   };
-  [key: string]: unknown;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | {
+        clinicalFocus?: string;
+        dataElementScope?: string;
+        inclusionCriteria?: string;
+        exclusionCriteria?: string;
+        purpose?: string;
+      }
+    | undefined;
 }
 
 export interface ValueSetSearchResponse {
@@ -40,16 +51,28 @@ export interface ValueSetSearchResponse {
   results: ValueSetSearchResult[];
 }
 
+export interface TemplateEntry {
+  id?: string;
+  name?: string;
+  value?:
+    | string
+    | number
+    | boolean
+    | { id?: string; name?: string; [key: string]: string | number | boolean | undefined };
+  suppress?: boolean;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | { id?: string; name?: string; [key: string]: string | number | boolean | undefined }
+    | undefined;
+}
+
 export interface Template {
   name?: string;
   suppress?: boolean;
-  entries?: Array<{
-    id?: string;
-    name?: string;
-    value?: unknown;
-    [key: string]: unknown;
-  }>;
-  [key: string]: unknown;
+  entries?: TemplateEntry[];
+  [key: string]: string | number | boolean | TemplateEntry[] | undefined;
 }
 
 export interface ConversionFunction {
@@ -57,16 +80,19 @@ export interface ConversionFunction {
   description?: string;
   value?: string;
   name?: string;
-  [key: string]: unknown;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface Operator {
   id: string;
-  [key: string]: unknown;
+  name?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface Resource {
-  [key: string]: unknown;
+  name?: string;
+  supportedVersions?: string[];
+  [key: string]: string | number | boolean | string[] | undefined;
 }
 
 export interface ElmFile {
@@ -82,18 +108,59 @@ export interface CqlFile {
 export interface ExternalCqlLibrary {
   _id: string;
   name?: string;
-  [key: string]: unknown;
+  version?: string;
+  fhirVersion?: string;
+  updatedAt?: string;
+  createdAt?: string;
+  details?: {
+    parameters?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+    functions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+    definitions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+    [key: string]:
+      | string
+      | number
+      | boolean
+      | Array<{ name?: string; [key: string]: string | number | boolean | undefined }>
+      | undefined;
+  };
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | {
+        parameters?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+        functions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+        definitions?: Array<{ name?: string; [key: string]: string | number | boolean | undefined }>;
+        [key: string]:
+          | string
+          | number
+          | boolean
+          | Array<{ name?: string; [key: string]: string | number | boolean | undefined }>
+          | undefined;
+      }
+    | undefined;
+}
+
+export interface ValidationError {
+  message?: string;
+  line?: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
+export interface ValidationWarning {
+  message?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface ValidateArtifactResponse {
-  errors?: unknown[];
-  warnings?: unknown[];
+  errors?: ValidationError[];
+  warnings?: ValidationWarning[];
   cql?: string;
-  [key: string]: unknown;
+  [key: string]: string | number | boolean | ValidationError[] | ValidationWarning[] | undefined;
 }
 
 export interface ViewCqlResponse {
   cqlFiles?: CqlFile[];
   cql?: string;
-  [key: string]: unknown;
+  [key: string]: string | number | boolean | CqlFile[] | undefined;
 }

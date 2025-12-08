@@ -47,10 +47,22 @@ export interface RecommendationLink {
   url?: string;
 }
 
+export interface RecommendationActionResource {
+  resourceType: string;
+  medicationCodeableConcept?: { code?: string; display?: string; system?: string; text?: string; uri?: string };
+  code?: { code?: string; display?: string; system?: string; text?: string; uri?: string };
+  status?: string;
+  intent?: string;
+  priority?: string;
+  reasonCode?: { code?: string; display?: string; system?: string; text?: string; uri?: string };
+  category?: { code?: string; display?: string; system?: string; text?: string; uri?: string };
+  [key: string]: string | { code?: string; display?: string; system?: string; text?: string; uri?: string } | undefined;
+}
+
 export interface RecommendationAction {
   type?: string;
   description?: string;
-  resource?: Record<string, unknown>;
+  resource?: RecommendationActionResource;
 }
 
 export interface RecommendationSuggestion {
@@ -70,13 +82,19 @@ export interface Recommendation {
   suggestions?: RecommendationSuggestion[];
 }
 
+export type ParameterValue =
+  | string
+  | number
+  | { id?: string; name?: string; value?: string | number; type?: string }
+  | null;
+
 export interface Parameter {
   uniqueId?: string;
   name?: string;
   type?: string;
   comment?: string;
   usedBy?: string[];
-  value?: string | number | Record<string, unknown> | null;
+  value?: ParameterValue;
 }
 
 export interface BaseElement extends Instance {
@@ -98,7 +116,19 @@ export interface ErrorStatementIfThenClause {
   statements?: Instance[];
   thenClause?: string;
   useThenClause?: boolean;
-  child?: Record<string, unknown>;
+  child?: {
+    ifCondition?: { label?: string | null; value?: string | null; uniqueId?: string };
+    statements?: Instance[];
+    thenClause?: string;
+    useThenClause?: boolean;
+    [key: string]:
+      | string
+      | boolean
+      | Instance[]
+      | { label?: string | null; value?: string | null; uniqueId?: string }
+      | null
+      | undefined;
+  };
 }
 
 export interface ErrorStatement {
@@ -109,7 +139,9 @@ export interface ErrorStatement {
 
 export interface DataModel {
   version: string;
-  [key: string]: unknown;
+  name?: string;
+  url?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface Artifact {
@@ -135,5 +167,6 @@ export interface Artifact {
 export interface LibraryInUse {
   name: string;
   version?: string;
-  [key: string]: unknown;
+  path?: string;
+  [key: string]: string | number | boolean | undefined;
 }

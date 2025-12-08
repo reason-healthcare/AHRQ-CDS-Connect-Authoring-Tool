@@ -29,9 +29,18 @@ interface CodeableConceptValue {
   text?: string;
 }
 
-interface ActionResource extends Record<string, unknown> {
+type ActionResourceValue = string | CodeableConceptValue | null;
+
+interface ActionResource {
   resourceType: string;
-  [key: string]: unknown;
+  medicationCodeableConcept?: CodeableConceptValue;
+  code?: CodeableConceptValue;
+  status?: string;
+  intent?: string;
+  priority?: string;
+  reasonCode?: CodeableConceptValue;
+  category?: CodeableConceptValue;
+  [key: string]: ActionResourceValue | undefined;
 }
 
 interface ActionState {
@@ -59,12 +68,12 @@ const getCodeFromAction = (value: CodeableConceptValue | null | undefined): Code
   }
 };
 
-const isElementValueEmpty = (value: unknown): boolean =>
+const isElementValueEmpty = (value: ActionResourceValue): boolean =>
   value === '' ||
   (typeof value === 'object' &&
     value !== null &&
-    (value as { code?: string; text?: string }).code === '' &&
-    (value as { code?: string; text?: string }).text === '');
+    (value as CodeableConceptValue).code === '' &&
+    (value as CodeableConceptValue).text === '');
 
 interface RecommendationActionModalProps {
   action: RecommendationActionType;
@@ -81,12 +90,14 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
 }) => {
   const fieldStyles = useFieldStyles();
   const [currentAction, setCurrentAction] = useState<ActionState>(
-    isEmpty(action) ? getInitialAction(type) : (action as unknown as ActionState)
+    isEmpty(action)
+      ? getInitialAction(type)
+      : { description: action.description || '', resource: action.resource as ActionResource }
   );
   const request = allRequests[type as keyof typeof allRequests] as Request;
   const requestElements = request.elements;
 
-  const onChange = (field: string, value: unknown) => {
+  const onChange = (field: string, value: ActionResourceValue) => {
     if (field === 'description') {
       // description is only top level property that changes, so handle it separately to simplify things
       setCurrentAction({ ...currentAction, description: value as string });
@@ -127,7 +138,10 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
   };
 
   const onSubmit = () => {
-    saveAction(currentAction as unknown as RecommendationActionType);
+    saveAction({
+      description: currentAction.description,
+      resource: currentAction.resource
+    } as RecommendationActionType);
   };
 
   const renderInput = (element: RequestElement) => {
