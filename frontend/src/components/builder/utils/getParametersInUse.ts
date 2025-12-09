@@ -25,9 +25,19 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
     .forEach(element => {
       // Handle parameters that are currently used
       const referenceField = getFieldWithType(element.fields, 'reference');
-      if (referenceField?.id === 'parameterReference' && referenceField.value && typeof referenceField.value === 'object' && 'id' in referenceField.value) {
+      if (
+        referenceField?.id === 'parameterReference' &&
+        referenceField.value &&
+        typeof referenceField.value === 'object' &&
+        'id' in referenceField.value
+      ) {
         addParameterUsage(parametersInUse, referenceField.value.id as string, element.uniqueId || '');
-      } else if (referenceField?.id === 'externalCqlReference' && referenceField.value && typeof referenceField.value === 'object' && 'arguments' in referenceField.value) {
+      } else if (
+        referenceField?.id === 'externalCqlReference' &&
+        referenceField.value &&
+        typeof referenceField.value === 'object' &&
+        'arguments' in referenceField.value
+      ) {
         const args = referenceField.value.arguments as Array<{ value?: { argSource?: string; selected?: string } }>;
         args
           ?.map(arg => arg.value)
@@ -39,7 +49,12 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
       }
       // Handle external cql modifiers
       element.modifiers?.forEach((modifier, index) => {
-        if (modifier.type === 'ExternalModifier' && modifier.values && typeof modifier.values === 'object' && 'value' in modifier.values) {
+        if (
+          modifier.type === 'ExternalModifier' &&
+          modifier.values &&
+          typeof modifier.values === 'object' &&
+          'value' in modifier.values
+        ) {
           const modifierValues = modifier.values.value as Array<{ argSource?: string; selected?: string }>;
           modifierValues?.forEach(arg => {
             if (arg?.argSource && arg?.selected && arg.argSource === 'parameter') {
@@ -51,4 +66,3 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
     });
   return parametersInUse;
 }
-

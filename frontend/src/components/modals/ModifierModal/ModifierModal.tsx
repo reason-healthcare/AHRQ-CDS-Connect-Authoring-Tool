@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
 
 // eslint-disable-next-line import/no-unresolved
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';

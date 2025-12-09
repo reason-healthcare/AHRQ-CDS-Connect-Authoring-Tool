@@ -92,7 +92,12 @@ export function getTypeByCqlArgument(cqlArgument: CqlArgument): string | undefin
     return operandTypeSpecifier?.resultTypeSpecifier?.type !== 'ListTypeSpecifier'
       ? fhirTypeMap[typeName]
       : `list_of_${fhirTypeMap[typeName]}s`;
-  else return isInterval && typeName ? intervalArgumentTypeMap[typeName] : typeName ? argumentTypeMap[typeName] : undefined;
+  else
+    return isInterval && typeName
+      ? intervalArgumentTypeMap[typeName]
+      : typeName
+        ? argumentTypeMap[typeName]
+        : undefined;
 }
 
 // errors
@@ -247,4 +252,3 @@ export const getEditorErrors = (type: string, value: EditorValue): EditorErrorRe
     hasErrors: hasErrors(type, errors)
   };
 };
-

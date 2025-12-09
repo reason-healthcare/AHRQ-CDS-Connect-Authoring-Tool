@@ -1,6 +1,5 @@
 import { changeToCase } from 'utils/strings';
 import _ from 'lodash';
-import type { Resource } from '../../../../../types/query';
 import type { ResourceOption } from '../../types';
 
 interface TypeSpecifier {

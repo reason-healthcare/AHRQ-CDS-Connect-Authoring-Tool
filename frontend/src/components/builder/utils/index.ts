@@ -7,4 +7,3 @@ export { getParametersInUse } from './getParametersInUse';
 export { getTabIndexFromName, getTabNameFromIndex } from './getTab';
 export { getTree } from './getTree';
 export { getElements } from './getAllElements';
-

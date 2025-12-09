@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import nock from 'nock';
 import _ from 'lodash';
 import { createTemplateInstance } from 'utils/test_helpers';
-import { render, screen, userEvent, waitFor, within, fireEvent } from 'utils/test-utils';
+import { render, screen, userEvent, waitFor, within } from 'utils/test-utils';
 import {
   genericBaseElementUseInstance,
   genericBaseElementListInstance,

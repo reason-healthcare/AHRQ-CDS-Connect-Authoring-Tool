@@ -5,7 +5,7 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import clsx from 'clsx';
 
 import { Link } from 'components/elements';
-import whatsNewData, { WhatsNewItem } from './whatsNewData';
+import whatsNewData from './whatsNewData';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';
 

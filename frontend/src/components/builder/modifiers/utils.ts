@@ -44,4 +44,3 @@ export const modifierCanBeRemoved = (
 
   return { canBeRemoved, tooltipText };
 };
-

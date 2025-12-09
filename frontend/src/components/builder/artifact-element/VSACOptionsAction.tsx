@@ -140,4 +140,3 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
 };
 
 export default VSACOptionsAction;
-

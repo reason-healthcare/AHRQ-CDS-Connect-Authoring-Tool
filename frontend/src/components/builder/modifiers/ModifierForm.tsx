@@ -62,7 +62,10 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
       );
     case 'WithUnit':
       return (
-        <WithUnitModifier handleUpdateModifier={handleUpdateModifier} unit={(modifier.values as { unit?: string })?.unit} />
+        <WithUnitModifier
+          handleUpdateModifier={handleUpdateModifier}
+          unit={(modifier.values as { unit?: string })?.unit}
+        />
       );
     case 'BooleanComparison':
       return (
@@ -193,4 +196,3 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
 };
 
 export default ModifierForm;
-

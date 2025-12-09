@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Tab, Tabs, TabProps } from '@mui/material';
+import { Tab, Tabs, type TabProps } from '@mui/material';
 import clsx from 'clsx';
 
 import { onVisitExternalForm } from 'utils/handlers';

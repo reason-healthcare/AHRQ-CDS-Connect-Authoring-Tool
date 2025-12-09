@@ -7,7 +7,7 @@ import ConjunctionCard from './ConjunctionCard';
 import getResourceOptions from './utils/getResourceOptions';
 import getModifierExpression from './utils/getModifierExpression';
 import { fetchResource } from 'queries/modifier-builder';
-import type { Instance, Modifier } from '../../../../utils/instances';
+import type { Modifier } from '../../../../utils/instances';
 import type { ModifierTree, ResourceOption } from '../types';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';

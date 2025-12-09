@@ -71,4 +71,3 @@ export const blurbs: Blurbs = {
     link: 'documentation/userguide#External_CQL'
   }
 };
-

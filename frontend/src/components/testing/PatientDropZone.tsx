@@ -7,7 +7,7 @@ import clsx from 'clsx';
 
 import PatientVersionModal from './modals/PatientVersionModal';
 import { addPatient } from 'queries/testing';
-import { autoDetectFHIRVersion, getPatientResource, getPatientResourceType, type PatientData } from 'utils/patients';
+import { autoDetectFHIRVersion, getPatientResource, getPatientResourceType } from 'utils/patients';
 import type { PatientBundle } from '../../types/patient';
 import { useDropZoneStyles, useSpacingStyles } from 'styles/hooks';
 

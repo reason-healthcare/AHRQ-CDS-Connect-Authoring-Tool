@@ -20,4 +20,3 @@ const getElementNames = (allElements: Instance[]): ElementName[] => {
 };
 
 export default getElementNames;
-

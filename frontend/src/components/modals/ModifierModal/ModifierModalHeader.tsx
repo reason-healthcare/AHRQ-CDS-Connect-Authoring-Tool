@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Card, CardContent } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon, Check as CheckIcon } from '@mui/icons-material';
 import clsx from 'clsx';

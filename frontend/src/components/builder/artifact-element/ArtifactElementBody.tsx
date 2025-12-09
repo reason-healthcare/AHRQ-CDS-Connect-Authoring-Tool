@@ -193,16 +193,16 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
 
       {hasBaseElementLinks(elementInstance, baseElements || []) &&
         baseElements &&
-        [...new Set(baseElements.find(baseElement => baseElement.uniqueId === elementInstance.uniqueId)?.usedBy || [])].map(
-          (link, index) => (
-            <ReferenceTemplate
-              key={`standalone-${link}-${index}`}
-              elementNames={instanceNames}
-              referenceInstanceTab={getInstanceById(allElements, link).tab}
-              referenceField={{ id: 'baseElementUse', value: { id: link } }}
-            />
-          )
-        )}
+        [
+          ...new Set(baseElements.find(baseElement => baseElement.uniqueId === elementInstance.uniqueId)?.usedBy || [])
+        ].map((link, index) => (
+          <ReferenceTemplate
+            key={`standalone-${link}-${index}`}
+            elementNames={instanceNames}
+            referenceInstanceTab={getInstanceById(allElements, link).tab}
+            referenceField={{ id: 'baseElementUse', value: { id: link } }}
+          />
+        ))}
 
       {elementInstance.modifiers && elementInstance.modifiers.length > 0 && (
         <ModifiersTemplate
@@ -222,4 +222,3 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
 };
 
 export default ArtifactElementBody;
-

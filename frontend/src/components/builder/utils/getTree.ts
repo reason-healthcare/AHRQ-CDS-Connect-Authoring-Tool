@@ -15,4 +15,3 @@ export const getTree = (
   const index = array.findIndex(e => e.uniqueId === uid);
   return { array, tree: array[index], index };
 };
-

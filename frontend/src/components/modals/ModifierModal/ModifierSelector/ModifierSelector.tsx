@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, IconButton } from '@mui/material';
 import { ArrowBackIos as ArrowBackIosIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';

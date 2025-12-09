@@ -18,4 +18,3 @@ const WorkspaceBlurb: React.FC<WorkspaceBlurbProps> = ({ blurb, link }) => {
 };
 
 export default WorkspaceBlurb;
-

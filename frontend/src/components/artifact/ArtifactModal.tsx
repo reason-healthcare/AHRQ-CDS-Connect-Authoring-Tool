@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Formik, FormikProps } from 'formik';
+// eslint-disable-next-line import/named
+import { Formik, type FormikProps } from 'formik';
 import { formatISO } from 'date-fns';
 
 import ArtifactModalForm from './ArtifactModalForm';

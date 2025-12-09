@@ -37,4 +37,3 @@ const getAllElements = (artifact: Artifact): Instance[] => {
 };
 
 export default getAllElements;
-

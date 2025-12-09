@@ -19,4 +19,3 @@ const getTabNameFromIndex = (tabIndex: number): string => {
 };
 
 export { getTabIndexFromName, getTabNameFromIndex };
-

@@ -39,4 +39,3 @@ export const parametersHaveWarnings = (parameters: Parameter[], elementNames: El
   }
   return false;
 };
-

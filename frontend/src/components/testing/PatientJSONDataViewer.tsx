@@ -1,6 +1,7 @@
 import React from 'react';
 import { themes } from 'prism-react-renderer';
 import CodeViewer from 'components/elements/CqlViewer/CodeViewer';
+import type { PatientBundle } from '../../types/patient';
 
 // Overwrite types used in FHIR JSON to match the CqlStylingTheme
 const theme = {
@@ -36,8 +37,6 @@ const theme = {
     }
   ]
 };
-
-import type { PatientBundle } from '../../types/patient';
 
 interface PatientJSONDataViewerProps {
   data: PatientBundle | Record<string, unknown>;

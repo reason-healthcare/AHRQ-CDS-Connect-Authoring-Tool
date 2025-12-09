@@ -1,5 +1,4 @@
 import type { BaseElement } from '../../../types/artifact';
-import type { Field } from '../../../types/artifact';
 
 export const getBaseElementReturnType = (baseElement: BaseElement): string | undefined =>
   (baseElement.modifiers?.length || 0) > 0
@@ -16,4 +15,3 @@ export const getBaseElementsByType = (baseElements: BaseElement[], type: string)
 
 export const getBaseElementById = (baseElements: BaseElement[], id: string): BaseElement | undefined =>
   baseElements.find(({ uniqueId }) => uniqueId === id);
-

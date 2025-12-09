@@ -25,9 +25,19 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
     .forEach(element => {
       // Handle base elements that are currently used
       const referenceField = getFieldWithType(element.fields, 'reference');
-      if (referenceField?.id === 'baseElementReference' && referenceField.value && typeof referenceField.value === 'object' && 'id' in referenceField.value) {
+      if (
+        referenceField?.id === 'baseElementReference' &&
+        referenceField.value &&
+        typeof referenceField.value === 'object' &&
+        'id' in referenceField.value
+      ) {
         addBaseElementUsage(baseElementsInUse, referenceField.value.id as string, element.uniqueId || '');
-      } else if (referenceField?.id === 'externalCqlReference' && referenceField.value && typeof referenceField.value === 'object' && 'arguments' in referenceField.value) {
+      } else if (
+        referenceField?.id === 'externalCqlReference' &&
+        referenceField.value &&
+        typeof referenceField.value === 'object' &&
+        'arguments' in referenceField.value
+      ) {
         const args = referenceField.value.arguments as Array<{ value?: { argSource?: string; selected?: string } }>;
         args
           ?.map(arg => arg.value)
@@ -39,7 +49,12 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
       }
       // Handle external cql modifiers
       element.modifiers?.forEach((modifier, index) => {
-        if (modifier.type === 'ExternalModifier' && modifier.values && typeof modifier.values === 'object' && 'value' in modifier.values) {
+        if (
+          modifier.type === 'ExternalModifier' &&
+          modifier.values &&
+          typeof modifier.values === 'object' &&
+          'value' in modifier.values
+        ) {
           const modifierValues = modifier.values.value as Array<{ argSource?: string; selected?: string }>;
           modifierValues?.forEach(arg => {
             if (arg?.argSource && arg?.selected && arg.argSource === 'baseElement') {
@@ -51,4 +66,3 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
     });
   return baseElementsInUse;
 }
-

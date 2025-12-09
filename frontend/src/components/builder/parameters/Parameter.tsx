@@ -149,4 +149,3 @@ const Parameter: React.FC<ParameterProps> = ({
 };
 
 export default Parameter;
-

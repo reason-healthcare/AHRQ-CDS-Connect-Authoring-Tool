@@ -54,7 +54,9 @@ export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number
   };
 
   const filteredSubpopulations = (subpopulations || []).filter(({ special }) => !special);
-  const emptySubpopulations = filteredSubpopulations.filter(({ childInstances }) => (childInstances || []).length === 0);
+  const emptySubpopulations = filteredSubpopulations.filter(
+    ({ childInstances }) => (childInstances || []).length === 0
+  );
   const subpopulationInstances = flatten(filteredSubpopulations.map(({ childInstances }) => childInstances || []));
   const hasSubpopulationsErrors = hasGroupNestedWarning(
     subpopulationInstances,
@@ -107,4 +109,3 @@ export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number
 
   return metadata;
 };
-

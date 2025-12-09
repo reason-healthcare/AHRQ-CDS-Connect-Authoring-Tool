@@ -47,7 +47,12 @@ const ModifierTemplate: React.FC<ModifierTemplateProps> = ({
   }
 
   const { modifiers, returnType } = elementInstance;
-  const { canBeRemoved, tooltipText } = modifierCanBeRemoved(Boolean(baseElementIsUsed), index, returnType, modifiers || []);
+  const { canBeRemoved, tooltipText } = modifierCanBeRemoved(
+    Boolean(baseElementIsUsed),
+    index,
+    returnType,
+    modifiers || []
+  );
   const validationWarning = validateModifier(modifier);
 
   const handleDeleteModifier = (): void => {
@@ -139,4 +144,3 @@ const ModifiersTemplate: React.FC<ModifiersTemplateProps> = ({
 };
 
 export default ModifiersTemplate;
-

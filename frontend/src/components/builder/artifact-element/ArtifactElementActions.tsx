@@ -43,4 +43,3 @@ const ArtifactElementActions: React.FC<ArtifactElementActionsProps> = ({
 };
 
 export default ArtifactElementActions;
-
