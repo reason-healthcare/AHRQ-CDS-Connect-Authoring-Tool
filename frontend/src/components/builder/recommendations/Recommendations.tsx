@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Button } from '@mui/material';
 import { produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 
-// eslint-disable-next-line import/no-unresolved
-import { useAppSelector } from '../../../store/hooks';
-
 import Recommendation from './Recommendation';
 import type { Recommendation as RecommendationType } from '../../../types/artifact';
+import type { RootState } from '../../../reducers';
 
 interface RecommendationsProps {
   handleUpdateRecommendations: (recommendations: RecommendationType[]) => void;
@@ -31,98 +30,63 @@ const updateRecommendation = produce(
 
 const Recommendations: React.FC<RecommendationsProps> = ({ handleUpdateRecommendations }) => {
   const [scrollTo, setScrollTo] = useState<string | null>(null);
-  const artifact = useAppSelector(state => state.artifacts.artifact);
-  const { recommendations, subpopulations } = artifact || { recommendations: undefined, subpopulations: undefined };
+  const artifact = useSelector((state: RootState) => state.artifacts.artifact);
+  const { recommendations, subpopulations } = artifact;
 
   useEffect(() => {
     if (scrollTo) {
-      const element = document.getElementById(scrollTo);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setScrollTo(null);
-      }
+      document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+      setScrollTo(null);
     }
   }, [scrollTo]);
 
-  if (!artifact) return null;
-
   const addRecommendation = (): void => {
-    const newRecommendation: RecommendationType = {
-      grade: 'A',
-      text: '',
-      rationale: '',
-      comment: '',
-      uid: uuidv4(),
-      subpopulations: [],
-      links: [],
-      suggestions: []
-    };
-    const newRecommendations = (recommendations || []).concat([newRecommendation]);
-    handleUpdateRecommendations(newRecommendations);
-    setScrollTo(newRecommendation.uid || null);
-  };
-
-  const deleteRecommendation = (index: number): void => {
-    const newRecommendations = produce(recommendations || [], draft => {
-      deleteRecommendations(draft, index);
-    });
-    handleUpdateRecommendations(newRecommendations);
-  };
-
-  const moveRecommendationUp = (index: number): void => {
-    if (index === 0) return;
-    const newRecommendations = produce(recommendations || [], draft => {
-      moveRecommendation(draft, index, index - 1);
-    });
-    handleUpdateRecommendations(newRecommendations);
-  };
-
-  const moveRecommendationDown = (index: number): void => {
-    if (index === (recommendations?.length || 0) - 1) return;
-    const newRecommendations = produce(recommendations || [], draft => {
-      moveRecommendation(draft, index, index + 1);
-    });
-    handleUpdateRecommendations(newRecommendations);
-  };
-
-  const updateRecommendationAtIndex = (index: number, recommendation: RecommendationType): void => {
-    const newRecommendations = produce(recommendations || [], draft => {
-      updateRecommendation(draft, index, recommendation);
-    });
-    handleUpdateRecommendations(newRecommendations);
+    handleUpdateRecommendations(
+      recommendations.concat([
+        {
+          uid: uuidv4(),
+          grade: 'A',
+          subpopulations: [],
+          text: '',
+          rationale: '',
+          comment: '',
+          links: [],
+          suggestions: []
+        }
+      ])
+    );
   };
 
   return (
-    <div>
-      <div>
-        <Button color="primary" onClick={addRecommendation} variant="contained">
-          Add Recommendation
-        </Button>
-      </div>
-
-      {recommendations && recommendations.length > 0 ? (
-        recommendations.map((recommendation, index) => (
+    <>
+      {recommendations.map((recommendation, index) => (
+        <div key={recommendation.uid} id={recommendation.uid}>
           <Recommendation
-            key={recommendation.uid || index}
-            handleDeleteRecommendation={() => deleteRecommendation(index)}
-            handleMoveRecommendation={(direction: 'up' | 'down') => {
-              if (direction === 'up') moveRecommendationUp(index);
-              else moveRecommendationDown(index);
-            }}
-            handleUpdateRecommendation={updatedRecommendation =>
-              updateRecommendationAtIndex(index, updatedRecommendation)
-            }
-            recommendation={recommendation}
+            artifactSubpopulations={subpopulations}
+            canMoveDown={index !== recommendations.length - 1}
             canMoveUp={index > 0}
-            canMoveDown={index < (recommendations.length || 0) - 1}
-            artifactSubpopulations={subpopulations || []}
+            handleDeleteRecommendation={() =>
+              handleUpdateRecommendations(deleteRecommendations(recommendations, index))
+            }
+            handleMoveRecommendation={(direction: 'up' | 'down') => {
+              handleUpdateRecommendations(
+                moveRecommendation(recommendations, index, direction === 'up' ? index - 1 : index + 1)
+              );
+              setScrollTo(recommendation.uid || null);
+            }}
+            handleUpdateRecommendation={(updatedRecommendation: RecommendationType) => {
+              handleUpdateRecommendations(updateRecommendation(recommendations, index, updatedRecommendation));
+            }}
+            recommendation={recommendation}
             setScrollTo={setScrollTo}
           />
-        ))
-      ) : (
-        <div>No recommendations defined.</div>
-      )}
-    </div>
+        </div>
+      ))}
+
+      <Button color="primary" onClick={addRecommendation} variant="contained">
+        New recommendation
+      </Button>
+    </>
   );
 };
 

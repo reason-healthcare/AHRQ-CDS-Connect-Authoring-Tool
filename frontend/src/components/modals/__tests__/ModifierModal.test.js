@@ -71,11 +71,7 @@ describe('<ModifierModal />', () => {
           'FHIR.Range': 'Interval<System.Quantity>'
         }
       })
-      .get(
-        RegExp(
-          '/authoring/api/query/operator\\?typeSpecifier=(Named|List)TypeSpecifier&elementType=(System\\.Concept|FHIR\\.code)'
-        )
-      )
+      .get(RegExp('/authoring/api/query/operator\\?typeSpecifier=(Named|List)TypeSpecifier&elementType=.*'))
       .reply(200, uri => {
         // For simplicity, don't put ALL the possible operators in the mock. Only include ones we use in testing.
         // NOTE: Operators last synced w/ operators.json on Sep 1, 2021.
@@ -467,7 +463,8 @@ describe('<ModifierModal />', () => {
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
 
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Clinical Status' });
       expect(clinicalStatusOption.getAttribute('aria-selected')).toBe('false');
       await userEvent.click(clinicalStatusOption);
@@ -481,11 +478,15 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Clinical Status' });
       await userEvent.click(clinicalStatusOption);
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i });
+      await userEvent.click(operatorCombobox);
+      expect(screen.queryAllByRole('option', { name: /^is null$/i })).toHaveLength(1);
       const isNullOption = screen.getByRole('option', { name: /^is null$/i });
       expect(isNullOption.getAttribute('aria-selected')).toBe('false');
       await userEvent.click(isNullOption);
@@ -499,11 +500,14 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Status' });
       await userEvent.click(clinicalStatusOption);
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i });
+      await userEvent.click(operatorCombobox);
       expect(screen.queryAllByRole('option', { name: /^matches standard code in$/i })).toHaveLength(1);
       expect(screen.queryAllByRole('option', { name: /^matches$/i })).toHaveLength(0);
     });
@@ -515,11 +519,14 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Category' });
       await userEvent.click(clinicalStatusOption);
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i });
+      await userEvent.click(operatorCombobox);
       expect(screen.queryAllByRole('option', { name: /^has at least one standard code in$/i })).toHaveLength(1);
       expect(screen.queryAllByRole('option', { name: /^has only codes in$/i })).toHaveLength(1);
     });
@@ -531,11 +538,14 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Value Codeable Concept' });
       await userEvent.click(clinicalStatusOption);
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i });
+      await userEvent.click(operatorCombobox);
       expect(screen.queryAllByRole('option', { name: /^matches standard code in$/i })).toHaveLength(0);
       expect(screen.queryAllByRole('option', { name: /^matches$/i })).toHaveLength(1);
     });
@@ -547,13 +557,16 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Clinical Status' });
       await userEvent.click(clinicalStatusOption);
       expect(screen.queryAllByText(/clinical status is null/i)).toHaveLength(0);
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
-      const isNullOption = screen.getByRole('option', { name: /^is null$/i });
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i }, { timeout: 5000 });
+      await userEvent.click(operatorCombobox);
+      const isNullOption = await screen.findByRole('option', { name: /^is null$/i }, { timeout: 5000 });
       await userEvent.click(isNullOption);
       expect(screen.queryAllByText(/clinical status is null/i)).toHaveLength(2);
     });
@@ -566,11 +579,14 @@ describe('<ModifierModal />', () => {
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /r4/i })));
       await waitForElementToBeRemoved(screen.getByRole('progressbar'));
       await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add rule/i })));
-      await waitFor(() => userEvent.click(screen.getByTestId('property-select')));
+      const propertyCombobox = screen.getByRole('combobox', { name: /property/i });
+      await waitFor(() => userEvent.click(propertyCombobox));
       const clinicalStatusOption = await screen.findByRole('option', { name: 'Clinical Status' });
       await userEvent.click(clinicalStatusOption);
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
-      const isNullOption = screen.getByRole('option', { name: /^is null$/i });
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i }, { timeout: 5000 });
+      await userEvent.click(operatorCombobox);
+      const isNullOption = await screen.findByRole('option', { name: /^is null$/i }, { timeout: 5000 });
       await userEvent.click(isNullOption);
       expect(screen.queryAllByTestId('modifier-rule')).toHaveLength(1);
 
@@ -642,7 +658,9 @@ describe('<ModifierModal />', () => {
       expect(screen.getByTestId(/edit modifier/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
 
-      await waitFor(() => userEvent.click(screen.getByTestId('operator-select')));
+      // Wait for the operator dropdown to appear after selecting a property
+      const operatorCombobox = await screen.findByRole('combobox', { name: /operator/i });
+      await userEvent.click(operatorCombobox);
       const isNotNullOption = screen.getByRole('option', { name: /^is not null$/i });
       await userEvent.click(isNotNullOption);
       expect(screen.queryAllByText(/clinical status is not null/i)).toHaveLength(2);

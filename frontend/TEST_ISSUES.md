@@ -181,7 +181,23 @@ However, it's not being applied to the DOM element. The issue is:
 2. **Modify `RuleCard`**: Pass `data-testid` directly as a prop to `Dropdown` instead of nested in `SelectProps`
 3. **Update test**: Use alternative query method (e.g., `getByRole('combobox', { name: 'Operator' })`)
 
-**Status:** Documented - needs fix (testId exists in code but not applied to DOM)
+**Status:** ✅ **FIXED**
+
+**Resolution:**
+The issue was resolved by:
+1. **Making the nock mock more permissive**: Updated the regex pattern from `/authoring/api/query/operator\\?typeSpecifier=(Named|List)TypeSpecifier&elementType=(System\\.Concept|FHIR\\.code)` to `/authoring/api/query/operator\\?typeSpecifier=(Named|List)TypeSpecifier&elementType=.*` to match any `elementType` parameter, allowing the operators query to be properly mocked for all property types (including `System.Any`).
+2. **Replacing `getByTestId` with semantic queries**: Changed all tests to use `getByRole('combobox', { name: /property/i })` and `findByRole('combobox', { name: /operator/i })` instead of `getByTestId('property-select')` and `getByTestId('operator-select')`. This approach:
+   - Tests what users actually see and interact with (the label text)
+   - Verifies accessibility (ensures labels are properly associated)
+   - Is more maintainable and follows React Testing Library best practices
+   - No longer requires `data-testid` forwarding logic in the `Dropdown` component
+3. **Simplified `Dropdown.tsx`**: Removed all complex `useLayoutEffect`, `useEffect`, `MutationObserver`, and polling logic that was attempting to forward `data-testid` props. The component is now back to its original simple form.
+4. **Removed `SelectDisplayProps` from `RuleCard.tsx`**: Removed the `data-testid` props from both property and operator dropdowns since they're no longer needed.
+
+**Files Changed:**
+- `frontend/src/components/modals/__tests__/ModifierModal.test.js` - Updated nock mock regex pattern and replaced all `getByTestId` queries with semantic `getByRole`/`findByRole` queries
+- `frontend/src/components/elements/Dropdown/Dropdown.tsx` - Removed all `data-testid` forwarding logic
+- `frontend/src/components/modals/ModifierModal/ModifierBuilder/RuleCard.tsx` - Removed `SelectDisplayProps` containing `data-testid`
 
 ## ListGroup.test.js - Comment Update Test Failure
 

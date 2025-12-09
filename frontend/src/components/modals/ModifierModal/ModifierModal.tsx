@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
-
-// eslint-disable-next-line import/no-unresolved
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 
 import ModifierModalHeader from './ModifierModalHeader';
 import ModifierSelector from './ModifierSelector';
@@ -15,6 +13,7 @@ import { updateArtifact } from 'actions/artifacts';
 import { resourceMap } from 'queries/modifier-builder/fetchResource';
 import type { Instance, Modifier } from 'utils/instances';
 import type { ModifierTree } from './types';
+import type { RootState } from '../../../reducers';
 import useStyles from './styles';
 import ruleIsComplete from './ModifierBuilder/utils/ruleIsComplete';
 
@@ -35,18 +34,18 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
   hasLimitedModifiers = false,
   modifierToEdit
 }) => {
-  const artifact = useAppSelector(state => state.artifacts.artifact);
+  const artifact = useSelector((state: RootState) => state.artifacts.artifact);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(modifierToEdit ? 'editModifier' : null);
   const [modifiersToAdd, setModifiersToAdd] = useState<Array<Modifier & { uniqueId?: string; name?: string }>>(
     modifierToEdit ? [modifierToEdit as unknown as Modifier & { uniqueId?: string; name?: string }] : []
   );
-  const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion ?? '');
-  const dispatch = useAppDispatch();
+  const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion || '');
+  const dispatch = useDispatch();
   const styles = useStyles();
   const typeSupportedByBuilder =
-    Boolean(resourceMap[elementInstance.returnType ?? '']) &&
-    (fhirVersion === '' || resourceMap[elementInstance.returnType ?? '']?.supportedVersions.includes(fhirVersion));
-  const hasModifiers = (elementInstance.modifiers?.length ?? 0) !== 0;
+    Boolean(resourceMap[elementInstance.returnType || '']) &&
+    (fhirVersion === '' || resourceMap[elementInstance.returnType || '']?.supportedVersions.includes(fhirVersion));
+  const hasModifiers = elementInstance.modifiers?.length !== 0;
 
   let modalTitle = 'Add Modifiers';
   if (displayMode === 'selectModifiers') modalTitle = 'Select Modifiers';
@@ -55,17 +54,17 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 
   const handleSaveModal = async (): Promise<void> => {
     if (fhirVersion !== artifact.fhirVersion) {
-      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
+      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }) as unknown as { type: string });
     }
     handleUpdateModifiers(
-      modifierToEdit ? modifiersToAdd : [...(elementInstance.modifiers ?? []), ...modifiersToAdd],
+      modifierToEdit ? modifiersToAdd : (elementInstance.modifiers || []).concat(modifiersToAdd),
       fhirVersion
     );
     handleCloseModal();
   };
 
   const handleReset = (): void => {
-    setFhirVersion(artifact.fhirVersion ?? '');
+    setFhirVersion(artifact.fhirVersion || '');
     setDisplayMode(null);
     setModifiersToAdd([]);
   };
@@ -150,7 +149,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 
         {(displayMode === 'buildModifier' || displayMode === 'editModifier') && (
           <ModifierBuilder
-            elementInstanceReturnType={elementInstance.returnType ?? ''}
+            elementInstanceReturnType={elementInstance.returnType || ''}
             fhirVersion={fhirVersion}
             handleGoBack={handleReset}
             modifiersToAdd={modifiersToAdd}

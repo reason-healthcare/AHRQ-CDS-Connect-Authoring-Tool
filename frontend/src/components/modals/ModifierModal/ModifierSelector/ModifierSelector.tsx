@@ -6,8 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import clsx from 'clsx';
 import _ from 'lodash';
 
-// eslint-disable-next-line import/no-unresolved
-import { useAppSelector } from '../../../../store/hooks';
+import { useSelector } from 'react-redux';
 
 import ModifierSelectorRow from './ModifierSelectorRow';
 import ModifierDropdownItem from './ModifierDropdownItem';
@@ -17,6 +16,7 @@ import { fetchModifiers } from 'queries/modifiers';
 import { sortAlphabeticallyByKey } from 'utils/sort';
 import { allModifiersValid } from 'utils/instances';
 import type { Instance, Modifier } from 'utils/instances';
+import type { RootState } from '../../../../reducers';
 import { useFieldStyles, useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';
 
@@ -46,8 +46,8 @@ const ModifierSelector: React.FC<ModifierSelectorProps> = ({
   modifiersToAdd,
   setModifiersToAdd
 }) => {
-  const artifact = useAppSelector(state => state.artifacts.artifact);
-  const query = { artifactId: artifact?._id ?? '' };
+  const artifact = useSelector((state: RootState) => state.artifacts.artifact);
+  const query = { artifactId: artifact?._id || '' };
   const modifiersQuery = useQuery({
     queryKey: ['modifiers', query],
     queryFn: () => fetchModifiers(query),

@@ -73,8 +73,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
           onChange={event => handleUpdateRule({ ...rule, resourceProperty: event.target.value as string })}
           options={resourceOptions as any}
           SelectProps={{
-            renderValue: renderPropertySelectValue,
-            SelectDisplayProps: { 'data-testid': 'property-select' } as React.HTMLAttributes<HTMLDivElement>
+            renderValue: renderPropertySelectValue
           }}
           sx={{ marginRight: '10px', width: { xs: '300px', xxl: '400px' } }}
           value={resourceProperty ?? ''}
@@ -92,9 +91,7 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
               })
             }
             options={operatorOptions as any}
-            SelectProps={{
-              SelectDisplayProps: { 'data-testid': 'operator-select' } as React.HTMLAttributes<HTMLDivElement>
-            }}
+            SelectProps={{}}
             sx={{ marginRight: '10px', width: { xs: '250px', xxl: '300px' } }}
             value={operator?.id ?? ''}
             valueKey="id"

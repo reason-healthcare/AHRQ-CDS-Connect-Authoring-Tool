@@ -3,13 +3,13 @@ import { Card, CardContent } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon, Check as CheckIcon } from '@mui/icons-material';
 import clsx from 'clsx';
 
-// eslint-disable-next-line import/no-unresolved
-import { useAppSelector } from '../../../store/hooks';
+import { useSelector } from 'react-redux';
 
 import ExpressionPhrase from 'components/builder/ExpressionPhrase';
 import { changeToCase } from 'utils/strings';
 import { getReturnType } from 'utils/instances';
 import type { Instance, Modifier } from 'utils/instances';
+import type { RootState } from '../../../reducers';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from '../styles';
 
@@ -19,7 +19,7 @@ interface ModifierModalHeaderProps {
 }
 
 const ModifierModalHeader: React.FC<ModifierModalHeaderProps> = ({ elementInstance, modifiersToAdd }) => {
-  const artifact = useAppSelector(state => state.artifacts.artifact);
+  const artifact = useSelector((state: RootState) => state.artifacts.artifact);
   const { baseElements } = artifact;
   const modifiersReturnType = modifiersToAdd[modifiersToAdd.length - 1]?.returnType;
   const spacingStyles = useSpacingStyles();

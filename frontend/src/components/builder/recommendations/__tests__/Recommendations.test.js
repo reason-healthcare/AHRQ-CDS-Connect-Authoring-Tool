@@ -197,11 +197,36 @@ describe('<Recommendations />', () => {
 
     mockArtifactWithRecommendations = { ...mockArtifact, recommendations };
 
-    ui = ({ artifact = mockArtifactWithRecommendations, ...props } = {}) => (
-      <Provider store={createStore(x => x, { artifacts: { artifact }, vsac: { apiKey: '1234' } })}>
-        <Recommendations handleUpdateRecommendations={jest.fn()} {...props} />
-      </Provider>
-    );
+    ui = ({ artifact = mockArtifactWithRecommendations, handleUpdateRecommendations = jest.fn(), ...props } = {}) => {
+      // Create a Redux store that updates when handleUpdateRecommendations is called
+      const rootReducer = (state = { artifacts: { artifact }, vsac: { apiKey: '1234' } }, action) => {
+        if (action.type === 'UPDATE_ARTIFACT') {
+          return {
+            ...state,
+            artifacts: {
+              ...state.artifacts,
+              artifact: action.payload
+            }
+          };
+        }
+        return state;
+      };
+      const store = createStore(rootReducer, { artifacts: { artifact }, vsac: { apiKey: '1234' } });
+
+      // Wrap handleUpdateRecommendations to also update the Redux store
+      const wrappedHandleUpdateRecommendations = newRecommendations => {
+        const currentState = store.getState();
+        const updatedArtifact = { ...currentState.artifacts.artifact, recommendations: newRecommendations };
+        store.dispatch({ type: 'UPDATE_ARTIFACT', payload: updatedArtifact });
+        handleUpdateRecommendations(newRecommendations);
+      };
+
+      return (
+        <Provider store={store}>
+          <Recommendations handleUpdateRecommendations={wrappedHandleUpdateRecommendations} {...props} />
+        </Provider>
+      );
+    };
   });
 
   it('can render a list of recommendations', () => {
@@ -214,7 +239,7 @@ describe('<Recommendations />', () => {
     const handleUpdateRecommendations = jest.fn();
     render(ui({ handleUpdateRecommendations }));
 
-    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add recommendation/i })));
+    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /new recommendation/i })));
 
     expect(handleUpdateRecommendations).toHaveBeenCalledWith(
       recommendations.concat({
