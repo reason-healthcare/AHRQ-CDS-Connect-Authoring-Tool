@@ -64,7 +64,7 @@ const Parameter: React.FC<ParameterProps> = ({
       : (value as string | number | null | undefined);
   const editorErrorResult = getEditorErrors(type || '', editorValue);
   const { errors, hasErrors } = editorErrorResult;
-  const templateErrors = errors as { invalidInput?: boolean; incompleteInput?: boolean; [key: string]: unknown };
+  const templateErrors = errors;
   const valueStr = valueToString(value);
   const parameterIsUsed = Boolean(usedBy && usedBy.length !== 0);
   const hasDuplicateName = parameterHasDuplicateName(parameter, elementNames);

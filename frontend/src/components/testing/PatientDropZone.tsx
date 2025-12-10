@@ -36,7 +36,7 @@ const PatientDropZone: React.FC = () => {
   const handleSelectVersion = async (version: string): Promise<void> => {
     try {
       if (patientData) {
-        await asyncAddPatient({ patient: patientData as any, fhirVersion: version });
+        await asyncAddPatient({ patient: patientData, fhirVersion: version });
         setShowPatientVersionModal(false);
         setVersionOptions(['R4', 'STU3', 'DSTU2']);
       }
@@ -67,7 +67,7 @@ const PatientDropZone: React.FC = () => {
             if (versions.length === 1) {
               // If version detected, add the patient right away
               try {
-                await asyncAddPatient({ patient: parsedPatientData as any, fhirVersion: versions[0] });
+                await asyncAddPatient({ patient: parsedPatientData, fhirVersion: versions[0] });
               } catch (error) {
                 console.error('Add patient failed:', error);
               }

@@ -37,7 +37,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
   const artifact = useSelector((state: RootState) => state.artifacts.artifact);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(modifierToEdit ? 'editModifier' : null);
   const [modifiersToAdd, setModifiersToAdd] = useState<Array<Modifier & { uniqueId?: string; name?: string }>>(
-    modifierToEdit ? [modifierToEdit as unknown as Modifier & { uniqueId?: string; name?: string }] : []
+    modifierToEdit ? [{ ...modifierToEdit, uniqueId: modifierToEdit.uniqueId, name: modifierToEdit.name }] : []
   );
   const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion || '');
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 
   const handleSaveModal = async (): Promise<void> => {
     if (fhirVersion !== artifact.fhirVersion) {
-      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }) as unknown as { type: string });
+      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
     }
     handleUpdateModifiers(
       modifierToEdit ? modifiersToAdd : (elementInstance.modifiers || []).concat(modifiersToAdd),
@@ -78,7 +78,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
   if (displayMode === 'selectModifiers') {
     submitDisabled = modifiersToAdd.length === 0;
   } else if (displayMode === 'buildModifier' || displayMode === 'editModifier') {
-    const firstModifier = modifiersToAdd[0] as unknown as ModifierTree | undefined;
+    const firstModifier = modifiersToAdd[0] as ModifierTree | undefined;
     submitDisabled =
       modifiersToAdd.length === 0 ||
       (firstModifier && ruleTreeIsEmpty(firstModifier)) ||

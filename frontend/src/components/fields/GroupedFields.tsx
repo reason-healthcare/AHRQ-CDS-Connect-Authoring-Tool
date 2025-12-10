@@ -10,8 +10,14 @@ import useStyles from './styles';
 
 interface FieldConfig {
   name: string;
-  component: React.ComponentType<any>;
-  [key: string]: any;
+  component: React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
 }
 
 interface FastGroupedFieldProps {
@@ -59,12 +65,15 @@ interface FastGroupedFieldArrayProps {
   label: string;
   buttonText: string;
   fields: FieldConfig[];
-  values: Record<string, any>;
-  defaultValue: Record<string, any>;
-  push: (obj: any) => void;
+  values: Record<string, Array<Record<string, string | number | boolean | null | undefined>>>;
+  defaultValue: Record<string, string | number | boolean | null | undefined>;
+  push: (obj: Record<string, string | number | boolean | null | undefined>) => void;
   remove: (index: number) => void;
   isCpgField: boolean;
-  isCpgComplete: (name: string, values: Record<string, any>) => boolean;
+  isCpgComplete: (
+    name: string,
+    values: Record<string, Array<Record<string, string | number | boolean | null | undefined>>>
+  ) => boolean;
 }
 
 const FastGroupedFieldArray: React.FC<FastGroupedFieldArrayProps> = memo(
@@ -85,9 +94,11 @@ const FastGroupedFieldArray: React.FC<FastGroupedFieldArrayProps> = memo(
         <div className={styles.fieldGroups}>
           {hasGroupedFields && (
             <div className={styles.fieldGroup}>
-              {values[name].map((_value: any, index: number) => (
-                <FastGroupedField name={name} key={index} index={index} remove={remove} fields={fields} />
-              ))}
+              {values[name].map(
+                (_value: Record<string, string | number | boolean | null | undefined>, index: number) => (
+                  <FastGroupedField name={name} key={index} index={index} remove={remove} fields={fields} />
+                )
+              )}
             </div>
           )}
 
@@ -109,9 +120,12 @@ interface GroupedFieldsProps {
   label: string;
   buttonText?: string;
   fields?: FieldConfig[];
-  defaultValue?: Record<string, any>;
+  defaultValue?: Record<string, string | number | boolean | null | undefined>;
   isCpgField?: boolean;
-  isCpgComplete?: (name: string, values: Record<string, any>) => boolean;
+  isCpgComplete?: (
+    name: string,
+    values: Record<string, Array<Record<string, string | number | boolean | null | undefined>>>
+  ) => boolean;
 }
 
 const GroupedFields: React.FC<GroupedFieldsProps> = memo(

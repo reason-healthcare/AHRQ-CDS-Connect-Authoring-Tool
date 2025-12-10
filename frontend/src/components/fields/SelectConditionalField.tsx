@@ -7,8 +7,14 @@ import useStyles from './styles';
 
 interface FieldConfig {
   name: string;
-  component: React.ComponentType<any>;
-  [key: string]: any;
+  component: React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
 }
 
 interface SelectConditionalFieldConditions {

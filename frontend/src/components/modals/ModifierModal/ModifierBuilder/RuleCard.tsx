@@ -75,7 +75,17 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
         <Dropdown
           label="Property"
           onChange={event => handleUpdateRule({ ...rule, resourceProperty: event.target.value as string })}
-          options={resourceOptions as any}
+          options={
+            resourceOptions as Array<
+              | string
+              | number
+              | {
+                  label?: string;
+                  value: string | number;
+                  [key: string]: string | number | boolean | React.ReactNode | undefined;
+                }
+            >
+          }
           SelectProps={{
             renderValue: renderPropertySelectValue
           }}
@@ -94,7 +104,17 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
                 operator: operatorOptions?.find(({ id }) => id === event.target.value)
               })
             }
-            options={operatorOptions as any}
+            options={
+              operatorOptions as Array<
+                | string
+                | number
+                | {
+                    label?: string;
+                    value: string | number;
+                    [key: string]: string | number | boolean | React.ReactNode | undefined;
+                  }
+              >
+            }
             SelectProps={{}}
             sx={{ marginRight: '10px', width: { xs: '250px', xxl: '300px' } }}
             value={operator?.id ?? ''}

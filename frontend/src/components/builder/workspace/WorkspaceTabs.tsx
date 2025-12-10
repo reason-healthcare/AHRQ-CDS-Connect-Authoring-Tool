@@ -20,8 +20,7 @@ import { blurbs } from './blurbs';
 import { getTabMetadata } from './tabUtils';
 import { getFHIRVersion, getTree } from 'components/builder/utils';
 import { findValueAtPath } from 'utils/find';
-import { checkForNeedToPromote, isElementUnionIntersect } from 'utils/lists';
-import type { Artifact, ExpressionTree } from '../../../types/artifact';
+import type { Artifact, ExpressionTree, Subpopulation, Recommendation } from '../../../types/artifact';
 import type { ExternalCqlLibrary } from '../../../types/query';
 import type { Instance, Modifier } from '../../../utils/instances';
 import { useSpacingStyles } from 'styles/hooks';
@@ -29,7 +28,7 @@ import useStyles from './styles';
 
 interface WorkspaceTabsProps {
   externalCqlList: ExternalCqlLibrary[];
-  handleSaveArtifact: (artifact: Artifact | null, artifactProps: Record<string, unknown>) => void;
+  handleSaveArtifact: (artifact: Artifact | null, artifactProps: Partial<Artifact>) => void;
 }
 
 interface TabIconProps {
@@ -51,7 +50,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
   useEffect(() => {
     if (artifact) {
       const metadata = getTabMetadata(artifact, externalCqlList.length);
-      setTabMetadata(metadata as unknown as Record<string, { hasContent: boolean; hasError: boolean }>);
+      setTabMetadata(metadata);
     }
   }, [artifact, externalCqlList]);
 
@@ -69,7 +68,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     const { tree: foundTree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
     const tree = incomingTree || foundTree;
     if (!tree) return;
-    const target = findValueAtPath(tree as unknown as Record<string, unknown>, parentPath) as {
+    const target = findValueAtPath(tree as ExpressionTree, parentPath) as {
       childInstances?: Instance[];
     };
     if (!target.childInstances) return;
@@ -80,10 +79,10 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       (tree as { returnType?: string }).returnType = updatedReturnType;
     }
 
-    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree as unknown as Record<string, unknown> };
+    let artifactPropsToUpdate: Partial<Artifact> = { [treeName]: tree as ExpressionTree };
     if (treeArray != null && treeIndex != null) {
       treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { [treeName]: treeArray as unknown as Record<string, unknown> };
+      artifactPropsToUpdate = { [treeName]: treeArray as ExpressionTree[] };
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
@@ -105,7 +104,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     const tree = incomingTree || baseElements;
     tree.push(instance);
 
-    let artifactPropsToUpdate: Record<string, unknown> = { baseElements: tree as unknown as Record<string, unknown> };
+    let artifactPropsToUpdate: Partial<Artifact> = { baseElements: tree };
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
     const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
@@ -148,10 +147,10 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       });
     }
 
-    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };
+    let artifactPropsToUpdate: Partial<Artifact> = { [treeName]: tree as ExpressionTree };
     if (treeArray != null) {
       treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { [treeName]: treeArray };
+      artifactPropsToUpdate = { [treeName]: treeArray as ExpressionTree[] };
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
@@ -165,7 +164,9 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
 
   const editInstance = (
     treeName: string,
-    editedFields: Array<Record<string, unknown>> | Record<string, unknown>,
+    editedFields:
+      | Array<Record<string, string | number | boolean | null | undefined>>
+      | Record<string, string | number | boolean | null | undefined>,
     path: string,
     editingConjunctionType = false,
     uid: string | null = null
@@ -192,7 +193,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       target.name = fieldsObj.name as string;
     } else {
       // If only one field is being updated, it comes in as a single object. Put it into an array of objects.
-      let fieldsArray: Array<Record<string, unknown>>;
+      let fieldsArray: Array<Record<string, string | number | boolean | null | undefined>>;
       if (!Array.isArray(editedFields)) {
         fieldsArray = [editedFields];
       } else {
@@ -210,8 +211,9 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
 
         // If an attribute was specified, update that one. Otherwise update the value attribute.
         if (editedField.attributeToEdit) {
-          (target.fields[fieldIndex] as Record<string, unknown>)[editedField.attributeToEdit as string] =
-            editedField[(target.fields[fieldIndex].id || '') as keyof typeof editedField];
+          (target.fields[fieldIndex] as Record<string, string | number | boolean | null | undefined>)[
+            editedField.attributeToEdit as string
+          ] = editedField[(target.fields[fieldIndex].id || '') as keyof typeof editedField];
         } else {
           target.fields[fieldIndex].value =
             editedField[(target.fields[fieldIndex].id || '') as keyof typeof editedField];
@@ -219,10 +221,10 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       });
     }
 
-    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };
+    let artifactPropsToUpdate: Partial<Artifact> = { [treeName]: tree as ExpressionTree };
     if (treeArray != null) {
       treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { [treeName]: treeArray };
+      artifactPropsToUpdate = { [treeName]: treeArray as ExpressionTree[] };
     }
 
     handleUpdateArtifact(artifact, artifactPropsToUpdate);
@@ -240,17 +242,17 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     if (treeName !== 'expTreeInclude' && treeName !== 'expTreeExclude') return;
     const { tree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
     if (!tree) return;
-    const target = findValueAtPath(tree as unknown as Record<string, unknown>, path) as { modifiers?: Modifier[] };
+    const target = findValueAtPath(tree as ExpressionTree, path) as { modifiers?: Modifier[] };
     target.modifiers = modifiers;
 
     if (updatedReturnType) {
       (tree as { returnType?: string }).returnType = updatedReturnType;
     }
 
-    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };
+    let artifactPropsToUpdate: Partial<Artifact> = { [treeName]: tree as ExpressionTree };
     if (treeArray != null) {
       treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { [treeName]: treeArray };
+      artifactPropsToUpdate = { [treeName]: treeArray as ExpressionTree[] };
     }
 
     if (fhirVersion) {
@@ -267,12 +269,12 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
   };
 
   const updateSubpopulations = (
-    subpopulations: unknown[],
+    subpopulations: Subpopulation[],
     target = 'subpopulations',
     updateFHIRVersion = false
   ): void => {
     if (!artifact) return;
-    const artifactPropsToUpdate: Record<string, unknown> = { [target]: subpopulations };
+    const artifactPropsToUpdate: Partial<Artifact> = { [target]: subpopulations };
     if (updateFHIRVersion) {
       const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
       const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
@@ -284,10 +286,10 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     handleUpdateArtifact(artifact, artifactPropsToUpdate);
   };
 
-  const updateRecommendations = (recommendations: unknown[]): void => {
+  const updateRecommendations = (recommendations: Recommendation[]): void => {
     if (!artifact) return;
-    const artifactPropsToUpdate: Record<string, unknown> = { recommendations };
-    const recommendationsArray = recommendations as Array<{ suggestions?: unknown[] }>;
+    const artifactPropsToUpdate: Partial<Artifact> = { recommendations };
+    const recommendationsArray = recommendations;
     if (artifact.fhirVersion === '' && recommendationsArray.some(rec => (rec.suggestions?.length || 0) > 0)) {
       // Once a suggestion is added, only FHIR R4 versions are allowed
       artifactPropsToUpdate.fhirVersion = '4.0.x';

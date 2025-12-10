@@ -9,8 +9,14 @@ import useStyles from './styles';
 
 interface FieldConfig {
   name: string;
-  component: React.ComponentType<any>;
-  [key: string]: any;
+  component: React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | React.ComponentType<Record<string, string | number | boolean | null | undefined>>;
 }
 
 interface FastNestedProps {
@@ -47,9 +53,18 @@ interface FastNestedFieldProps {
   name: string;
   label: string;
   fields: FieldConfig[];
-  values: Record<string, any>;
+  values: Record<
+    string,
+    string | number | boolean | null | undefined | Record<string, string | number | boolean | null | undefined>[]
+  >;
   isCpgField: boolean;
-  isCpgComplete?: (name: string, values: Record<string, any>) => boolean;
+  isCpgComplete?: (
+    name: string,
+    values: Record<
+      string,
+      string | number | boolean | null | undefined | Record<string, string | number | boolean | null | undefined>[]
+    >
+  ) => boolean;
 }
 
 const FastNestedField: React.FC<FastNestedFieldProps> = memo(
@@ -78,7 +93,13 @@ interface NestedFieldProps {
   label: string;
   fields?: FieldConfig[];
   isCpgField?: boolean;
-  isCpgComplete?: (name: string, values: Record<string, any>) => boolean;
+  isCpgComplete?: (
+    name: string,
+    values: Record<
+      string,
+      string | number | boolean | null | undefined | Record<string, string | number | boolean | null | undefined>[]
+    >
+  ) => boolean;
 }
 
 const NestedField: React.FC<NestedFieldProps> = memo(

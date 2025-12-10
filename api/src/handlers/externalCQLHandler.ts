@@ -6,6 +6,7 @@ import CQLLibrary from '../models/cqlLibrary.js';
 import Artifact from '../models/artifact.js';
 import * as cqlHandler from '../handlers/cqlHandler.js';
 import { AuthenticatedRequest, sendUnauthorized } from './common.js';
+import type { ArtifactElement, ArtifactStructure } from '../types/artifact.js';
 
 const supportedFHIRVersions: string[] = ['1.0.2', '3.0.0', '4.0.0', '4.0.1'];
 
@@ -939,68 +940,60 @@ function singlePost(req: AuthenticatedRequest, res: Response): void {
   }
 }
 
-const artifactHasCustomModifiers = (artifact: Record<string, unknown>): boolean => {
-  const parseElementTree = (instance: Record<string, unknown>): boolean => {
-    const childInstances = instance.childInstances as Array<Record<string, unknown>> | undefined;
-    if (!childInstances) {
-      const modifiers = (instance.modifiers as Array<Record<string, unknown>>) || [];
-      return modifiers.some((mod: Record<string, unknown>) => Boolean(mod.where));
+const artifactHasCustomModifiers = (artifact: ArtifactStructure): boolean => {
+  const parseElementTree = (instance: ArtifactElement | undefined): boolean => {
+    if (!instance) return false;
+    const childInstances = instance.childInstances;
+    if (!childInstances || childInstances.length === 0) {
+      const modifiers = instance.modifiers || [];
+      return modifiers.some(mod => Boolean(mod.where));
     }
 
     return Boolean(
-      childInstances.some((child: Record<string, unknown>) =>
-        child.conjunction
-          ? parseElementTree(child)
-          : ((child.modifiers as Array<Record<string, unknown>>) || []).some((mod: Record<string, unknown>) =>
-              Boolean(mod.where)
-            )
+      childInstances.some((child: ArtifactElement) =>
+        child.conjunction ? parseElementTree(child) : (child.modifiers || []).some(mod => Boolean(mod.where))
       )
     );
   };
 
   return (
-    parseElementTree(artifact.expTreeInclude as Record<string, unknown>) ||
-    parseElementTree(artifact.expTreeExclude as Record<string, unknown>) ||
-    ((artifact.subpopulations as Array<Record<string, unknown>>) || []).some((subpopulation: Record<string, unknown>) =>
-      parseElementTree(subpopulation)
-    ) ||
-    ((artifact.baseElements as Array<Record<string, unknown>>) || []).some((baseElement: Record<string, unknown>) =>
-      parseElementTree(baseElement)
-    )
+    parseElementTree(artifact.expTreeInclude) ||
+    parseElementTree(artifact.expTreeExclude) ||
+    (artifact.subpopulations || []).some(subpopulation => parseElementTree(subpopulation)) ||
+    (artifact.baseElements || []).some(baseElement => parseElementTree(baseElement))
   );
 };
 
-const artifactHasServiceRequest = (artifact: Record<string, unknown>): boolean => {
-  const parseElementTree = (instance: Record<string, unknown>): boolean => {
-    const childInstances = instance.childInstances as Array<Record<string, unknown>> | undefined;
+const artifactHasServiceRequest = (artifact: ArtifactStructure): boolean => {
+  const parseElementTree = (instance: ArtifactElement | undefined): boolean => {
+    if (!instance) return false;
+    const childInstances = instance.childInstances;
     return Boolean(
       childInstances &&
-        childInstances.some((child: Record<string, unknown>) =>
-          child.conjunction ? parseElementTree(child) : (child.name as string) === 'Service Request'
+        childInstances.some((child: ArtifactElement) =>
+          child.conjunction ? parseElementTree(child) : child.name === 'Service Request'
         )
     );
   };
 
   let serviceRequestFound = false;
 
-  serviceRequestFound =
-    parseElementTree(artifact.expTreeInclude as Record<string, unknown>) ||
-    parseElementTree(artifact.expTreeExclude as Record<string, unknown>);
+  serviceRequestFound = parseElementTree(artifact.expTreeInclude) || parseElementTree(artifact.expTreeExclude);
 
-  ((artifact.subpopulations as Array<Record<string, unknown>>) || [])
-    .filter((elem: Record<string, unknown>) => !(elem.special as boolean | undefined))
-    .forEach((subpopulation: Record<string, unknown>) => {
+  (artifact.subpopulations || [])
+    .filter(elem => !elem.special)
+    .forEach(subpopulation => {
       serviceRequestFound = serviceRequestFound || parseElementTree(subpopulation);
     });
 
-  ((artifact.baseElements as Array<Record<string, unknown>>) || []).forEach((instance: Record<string, unknown>) => {
-    if ((instance.name as string) === 'Service Request') serviceRequestFound = true;
+  (artifact.baseElements || []).forEach(instance => {
+    if (instance.name === 'Service Request') serviceRequestFound = true;
   });
 
-  ((artifact.baseElements as Array<Record<string, unknown>>) || []).forEach((instance: Record<string, unknown>) => {
+  (artifact.baseElements || []).forEach(instance => {
     const conjunctions = ['Union', 'And', 'Or', 'Intersect'];
-    if ((instance.name as string) === 'Service Request') serviceRequestFound = true;
-    else if (conjunctions.includes(instance.name as string))
+    if (instance.name === 'Service Request') serviceRequestFound = true;
+    else if (instance.name && conjunctions.includes(instance.name))
       serviceRequestFound = serviceRequestFound || parseElementTree(instance);
   });
 

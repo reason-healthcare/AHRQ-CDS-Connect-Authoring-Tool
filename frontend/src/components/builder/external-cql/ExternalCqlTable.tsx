@@ -62,7 +62,7 @@ const ExternalCqlTable: React.FC<ExternalCqlTableProps> = ({ externalCqlList }) 
       { artifact },
       {
         onSuccess: data => {
-          dispatch(loadArtifact(data) as unknown as { type: string });
+          dispatch(loadArtifact(data));
         }
       }
     );

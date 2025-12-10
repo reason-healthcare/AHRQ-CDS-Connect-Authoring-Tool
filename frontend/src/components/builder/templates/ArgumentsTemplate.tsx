@@ -155,8 +155,11 @@ const ArgumentsTemplate: React.FC<ArgumentsTemplateProps> = ({
         {argumentValue?.argSource === 'editor' && (
           <EditorsTemplate
             errors={undefined}
-            handleUpdateEditor={(newSelection: unknown) =>
-              handleUpdateArgument({ ...argumentValue, selected: newSelection as string })
+            handleUpdateEditor={(newSelection: string | number | boolean | null | undefined) =>
+              handleUpdateArgument({
+                ...argumentValue,
+                selected: typeof newSelection === 'string' ? newSelection : String(newSelection ?? '')
+              })
             }
             label=""
             type={argumentType}

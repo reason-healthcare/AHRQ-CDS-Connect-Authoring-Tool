@@ -39,11 +39,18 @@ const ModifierTemplate: React.FC<ModifierTemplateProps> = ({
     queryFn: () => fetchModifiers(query),
     enabled: query.artifactId != null
   });
-  const modifierMap = (modifiersQuery.data?.modifierMap as Record<string, { values?: unknown }>) || {};
+  const modifierMap =
+    (modifiersQuery.data?.modifierMap as Record<
+      string,
+      { values?: Record<string, string | number | boolean | null | undefined> }
+    >) || {};
 
   // Reset values on modifiers that were not previously set or saved in the database
   if (!modifier.values && modifierMap[modifier.id || ''] && modifierMap[modifier.id || ''].values) {
-    modifier.values = modifierMap[modifier.id || ''].values as Record<string, unknown>;
+    modifier.values = modifierMap[modifier.id || ''].values as Record<
+      string,
+      string | number | boolean | null | undefined
+    >;
   }
 
   const { modifiers, returnType } = elementInstance;

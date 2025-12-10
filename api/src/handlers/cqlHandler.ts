@@ -20,6 +20,16 @@ import importCQL from '../cql-merge/import/importCQL.js';
 import RawCQL from '../cql-merge/utils/RawCQL.js';
 import { AuthenticatedRequest, sendUnauthorized } from './common.js';
 import { getDataPath } from '../utils/paths.js';
+import type {
+  ArtifactElement,
+  ArtifactParameter,
+  ArtifactSubpopulation,
+  ArtifactRecommendation,
+  ArtifactErrorStatement,
+  ArtifactModifier,
+  ArtifactField,
+  ArtifactStructure
+} from '../types/artifact.js';
 
 // Import JSON files using fs.readFileSync - read from src/data (not dist/data)
 const dstu2_resources = JSON.parse(
@@ -192,11 +202,11 @@ const queryAliasMap = {
 // in functions external to the artifact.
 let fhirTarget: { version?: string } | undefined;
 
-function getFieldWithType(fields: Array<{ type: string }>, type: string): { type: string } | undefined {
-  return fields.find(f => f.type.endsWith(type));
+function getFieldWithType(fields: ArtifactField[], type: string): ArtifactField | undefined {
+  return fields.find(f => f.type?.endsWith(type));
 }
 
-function getFieldWithId(fields: Array<{ id: string }>, id: string): { id: string } | undefined {
+function getFieldWithId(fields: ArtifactField[], id: string): ArtifactField | undefined {
   return fields.find(f => f.id === id);
 }
 
@@ -216,7 +226,11 @@ function loadTemplates(pathToTemplates: string): Record<string, string> {
 }
 
 // This creates the context EJS uses to create a union of queries using different valuesets
-function createMultipleValueSetExpression(id: string, valuesets: Array<unknown>, type: string) {
+function createMultipleValueSetExpression(
+  id: string,
+  valuesets: Array<{ name?: string; oid?: string; [key: string]: string | undefined }>,
+  type: string
+) {
   const groupedContext = {
     template: 'MultipleValuesetsExpression',
     name: id,
@@ -227,7 +241,11 @@ function createMultipleValueSetExpression(id: string, valuesets: Array<unknown>,
 }
 
 // This creates the context EJS uses to create a union of C3F function calls for comparing for a specific concept
-function createMultipleConceptExpression(id: string, concepts: Array<unknown>, type: string) {
+function createMultipleConceptExpression(
+  id: string,
+  concepts: Array<{ code?: string; system?: string; display?: string; [key: string]: string | undefined }>,
+  type: string
+) {
   const groupedContext = {
     name: id,
     concepts,
@@ -335,10 +353,7 @@ function addGroupedConceptExpression(
   referencedConceptElements.push(multipleConceptExpression);
 }
 
-function isBaseElementUseChanged(
-  element: Record<string, unknown>,
-  baseElements: Array<Record<string, unknown>>
-): boolean {
+function isBaseElementUseChanged(element: ArtifactElement, baseElements: ArtifactElement[]): boolean {
   const referenceField = getFieldWithType(
     (element.fields as Array<{ type: string; value?: { id: string } }>) || [],
     'reference'
@@ -348,38 +363,28 @@ function isBaseElementUseChanged(
     return true;
   }
 
-  const nameField = getFieldWithId((element.fields as Array<{ id: string; value?: unknown }>) || [], 'element_name') as
-    | { value: unknown }
-    | undefined;
-  const commentField = getFieldWithId((element.fields as Array<{ id: string; value?: unknown }>) || [], 'comment') as
-    | { value: unknown }
-    | undefined;
+  const nameField = getFieldWithId(element.fields || [], 'element_name');
+  const commentField = getFieldWithId(element.fields || [], 'comment');
 
   const originalBaseElement = baseElements.find(
-    (baseEl: Record<string, unknown>) => referenceField.value.id === baseEl.uniqueId
+    (baseEl: ArtifactElement) => referenceField.value.id === baseEl.uniqueId
   );
   if (!originalBaseElement) {
     // This case should never happen because you can't delete base elements while in use.
     return true;
   }
 
-  const originalBaseElementNameField = getFieldWithId(
-    (originalBaseElement.fields as Array<{ id: string; value?: unknown }>) || [],
-    'element_name'
-  ) as { value: unknown } | undefined;
+  const originalBaseElementNameField = getFieldWithId(originalBaseElement.fields || [], 'element_name');
   if (nameField && originalBaseElementNameField && nameField.value !== originalBaseElementNameField.value) {
     // If the name of the use of the base element and the original base element are different, it's been changed.
     return true;
   }
-  if (((element.modifiers as Array<unknown>) || []).length > 0) {
+  if ((element.modifiers || []).length > 0) {
     // If there are modifiers applied to the use of the base element, it's been changed.
     return true;
   }
 
-  const originalCommentField = getFieldWithId(
-    (originalBaseElement.fields as Array<{ id: string; value?: unknown }>) || [],
-    'comment'
-  ) as { value: unknown } | undefined;
+  const originalCommentField = getFieldWithId(originalBaseElement.fields || [], 'comment');
   if (commentField && originalCommentField && commentField.value !== originalCommentField.value) {
     // If the comment on the use of the base element and the original element are different, it's been changed.
     return true;
@@ -388,7 +393,7 @@ function isBaseElementUseChanged(
   return false;
 }
 
-function isParameterUseChanged(element: Record<string, unknown>, parameters: Array<Record<string, unknown>>): boolean {
+function isParameterUseChanged(element: ArtifactElement, parameters: ArtifactParameter[]): boolean {
   const referenceField = getFieldWithType(
     (element.fields as Array<{ type: string; value?: { id: string } }>) || [],
     'reference'
@@ -398,16 +403,10 @@ function isParameterUseChanged(element: Record<string, unknown>, parameters: Arr
     return true;
   }
 
-  const nameField = getFieldWithId((element.fields as Array<{ id: string; value?: unknown }>) || [], 'element_name') as
-    | { value: unknown }
-    | undefined;
-  const commentField = getFieldWithId((element.fields as Array<{ id: string; value?: unknown }>) || [], 'comment') as
-    | { value: unknown }
-    | undefined;
+  const nameField = getFieldWithId(element.fields || [], 'element_name');
+  const commentField = getFieldWithId(element.fields || [], 'comment');
 
-  const originalParameter = parameters.find(
-    (param: Record<string, unknown>) => referenceField.value.id === param.uniqueId
-  );
+  const originalParameter = parameters.find((param: ArtifactParameter) => referenceField.value.id === param.uniqueId);
   if (!originalParameter) {
     // This case should never happen because you can't delete parameters while in use.
     return true;
@@ -417,14 +416,21 @@ function isParameterUseChanged(element: Record<string, unknown>, parameters: Arr
     // If the name of the use of the parameter and the original parameter are different, it's been changed.
     return true;
   }
-  if (((element.modifiers as Array<unknown>) || []).length > 0) {
+  if ((element.modifiers || []).length > 0) {
     // If there are modifiers applied to the use of the parameter, it's been changed.
     return true;
   }
 
   if (
     commentField &&
-    !_.isEqual(createCommentArray(commentField.value) || [], (originalParameter.comment as Array<unknown>) || [])
+    !_.isEqual(
+      createCommentArray(commentField.value) || [],
+      (Array.isArray(originalParameter.comment)
+        ? originalParameter.comment
+        : originalParameter.comment
+          ? [originalParameter.comment]
+          : []) || []
+    )
   ) {
     // If the comment on the use of the parameter and the original parameter are different, it's been changed.
     return true;
@@ -433,7 +439,7 @@ function isParameterUseChanged(element: Record<string, unknown>, parameters: Arr
   return false;
 }
 
-function createCommentArray(comment: unknown): Array<unknown> | undefined {
+function createCommentArray(comment: string | string[] | undefined): string[] | undefined {
   if (!comment) {
     return;
   }
@@ -468,58 +474,63 @@ function createCommentArray(comment: unknown): Array<unknown> | undefined {
 class CqlArtifact {
   name: string;
   version: number;
-  dataModel: Record<string, unknown>;
-  includeLibraries: Array<Record<string, unknown>>;
+  dataModel: { version?: string; name?: string; url?: string; [key: string]: string | undefined };
+  includeLibraries: Array<{ name?: string; version?: string; path?: string; [key: string]: string | undefined }>;
   context: string;
-  inclusions: unknown;
-  parameters: Array<Record<string, unknown>>;
-  exclusions: unknown;
-  subpopulations: Array<unknown>;
-  baseElements: Array<Record<string, unknown>>;
-  recommendations: Array<unknown>;
-  errorStatement: unknown;
+  inclusions: ArtifactElement | undefined;
+  parameters: ArtifactParameter[];
+  exclusions: ArtifactElement | undefined;
+  subpopulations: ArtifactSubpopulation[];
+  baseElements: ArtifactElement[];
+  recommendations: ArtifactRecommendation[];
+  errorStatement: ArtifactErrorStatement | undefined;
   _id?: string;
-  resourceMap!: Map<string, unknown>;
+  resourceMap!: Map<
+    string,
+    { name?: string; supportedVersions?: string[]; [key: string]: string | string[] | undefined }
+  >;
   codeSystemMap!: Map<string, { name: string; id: string }>;
-  codeMap!: Map<string, unknown>;
-  conceptMap!: Map<string, unknown>;
-  referencedElements!: Array<unknown>;
-  referencedConceptElements!: Array<unknown>;
-  unionedElements!: Array<unknown>;
-  contexts!: Array<unknown>;
-  conjunctions!: Array<unknown>;
-  conjunction_main!: Array<unknown>;
-  names!: Map<string, unknown>;
+  codeMap!: Map<string, { code?: string; system?: string; display?: string; [key: string]: string | undefined }>;
+  conceptMap!: Map<string, { code?: string; system?: string; display?: string; [key: string]: string | undefined }>;
+  referencedElements!: ArtifactElement[];
+  referencedConceptElements!: ArtifactElement[];
+  unionedElements!: ArtifactElement[];
+  contexts!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
+  conjunctions!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
+  conjunction_main!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
+  names!: Map<string, number>;
 
-  constructor(artifact: Record<string, unknown>) {
-    this.name = slug((artifact.name as string) || 'untitled', {
+  constructor(artifact: ArtifactStructure) {
+    this.name = slug(artifact.name || 'untitled', {
       lower: false
     });
-    this.version = (artifact.version as number) || 1;
-    this.dataModel = artifact.dataModel as Record<string, unknown>;
-    if ((this.dataModel.version as string) === '4.0.x') {
+    this.version =
+      (typeof artifact.version === 'number' ? artifact.version : parseInt(artifact.version || '1', 10)) || 1;
+    this.dataModel = artifact.dataModel || { version: '4.0.1' };
+    if (this.dataModel.version === '4.0.x') {
       // default 4.0.x to to 4.0.1
-      this.dataModel = _.cloneDeep(this.dataModel) as Record<string, unknown>;
+      this.dataModel = _.cloneDeep(this.dataModel);
       this.dataModel.version = '4.0.1';
     }
-    const dataModelVersion = this.dataModel.version as string;
+    const dataModelVersion = this.dataModel.version;
     this.includeLibraries =
       dataModelVersion && dataModelVersion in includeLibrariesMap
-        ? (includeLibrariesMap[dataModelVersion as keyof typeof includeLibrariesMap] as Array<
-            Record<string, unknown>
-          >) || includeLibrariesR401
+        ? (includeLibrariesMap[dataModelVersion as keyof typeof includeLibrariesMap] as Array<{
+            name?: string;
+            version?: string;
+            path?: string;
+            [key: string]: string | undefined;
+          }>) || includeLibrariesR401
         : includeLibrariesR401;
-    this.includeLibraries = this.includeLibraries.concat(
-      (artifact.externalLibs as Array<Record<string, unknown>>) || []
-    );
-    const artifactContext = artifact.context as string | undefined;
-    this.context = artifactContext && artifactContext.length ? artifactContext : 'Patient';
+    this.includeLibraries = this.includeLibraries.concat(artifact.externalLibs || []);
+    const artifactContext = Array.isArray(artifact.context) ? undefined : artifact.context;
+    this.context = typeof artifactContext === 'string' && artifactContext.length > 0 ? artifactContext : 'Patient';
     this.inclusions = artifact.expTreeInclude;
-    this.parameters = (artifact.parameters as Array<Record<string, unknown>>) || [];
+    this.parameters = artifact.parameters || [];
     this.exclusions = artifact.expTreeExclude;
-    this.subpopulations = (artifact.subpopulations as Array<unknown>) || [];
-    this.baseElements = (artifact.baseElements as Array<Record<string, unknown>>) || [];
-    this.recommendations = (artifact.recommendations as Array<unknown>) || [];
+    this.subpopulations = artifact.subpopulations || [];
+    this.baseElements = artifact.baseElements || [];
+    this.recommendations = artifact.recommendations || [];
     this.errorStatement = artifact.errorStatement;
 
     fhirTarget = this.dataModel;
@@ -540,7 +551,7 @@ class CqlArtifact {
     this.conjunction_main = [];
     this.names = new Map();
 
-    this.parameters.forEach((parameter: Record<string, unknown>) => {
+    this.parameters.forEach((parameter: ArtifactParameter) => {
       const count = getCountForUniqueExpressionName(parameter, this.names, 'name', '', false);
       if (count > 0) {
         parameter.name = `${parameter.name as string}_${count}`;
@@ -2307,7 +2318,7 @@ function formatCQL(cqlText: string, callback: (error: Error | null, formatted?: 
     });
 }
 
-function buildCQL(artifactBody: Record<string, unknown>): CqlArtifact {
+function buildCQL(artifactBody: ArtifactStructure): CqlArtifact {
   return new CqlArtifact(artifactBody);
 }
 

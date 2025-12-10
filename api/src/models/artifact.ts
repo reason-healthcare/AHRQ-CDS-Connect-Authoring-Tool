@@ -5,6 +5,16 @@ import fhir4 from 'fhir/r4';
 
 import codeSystems from '../data/codeSystems.js';
 import contextMappings from '../data/contextMappings.js';
+import type {
+  ArtifactElement,
+  ArtifactParameter,
+  ArtifactSubpopulation,
+  ArtifactRecommendation,
+  ArtifactErrorStatement,
+  ArtifactContact,
+  ArtifactContext,
+  ArtifactRelatedArtifact
+} from '../types/artifact.js';
 
 // Import JSON files from frontend using fs.readFileSync
 const nuccProviderTaxonomy = JSON.parse(
@@ -25,7 +35,7 @@ export interface IArtifact extends Document {
   status?: string;
   experimental?: boolean;
   publisher?: string;
-  context?: Array<Record<string, unknown>>;
+  context?: ArtifactContext[];
   purpose?: string;
   usage?: string;
   copyright?: string;
@@ -36,10 +46,10 @@ export interface IArtifact extends Document {
     end?: Date;
   };
   topic?: Array<{ system: string; code: string; other?: string }>;
-  author?: Array<Record<string, unknown>>;
-  reviewer?: Array<Record<string, unknown>>;
-  endorser?: Array<Record<string, unknown>>;
-  relatedArtifact?: Array<Record<string, unknown>>;
+  author?: ArtifactContact[];
+  reviewer?: ArtifactContact[];
+  endorser?: ArtifactContact[];
+  relatedArtifact?: ArtifactRelatedArtifact[];
   strengthOfRecommendation?: {
     strengthOfRecommendation?: string;
     system?: string;
@@ -53,19 +63,19 @@ export interface IArtifact extends Document {
     other?: string;
   };
   fhirVersion?: string;
-  expTreeInclude?: Record<string, unknown>;
-  expTreeExclude?: Record<string, unknown>;
-  recommendations?: Array<unknown>;
-  subpopulations?: Array<unknown>;
-  baseElements?: Array<unknown>;
-  parameters?: Array<unknown>;
-  errorStatement?: Record<string, unknown>;
+  expTreeInclude?: ArtifactElement;
+  expTreeExclude?: ArtifactElement;
+  recommendations?: ArtifactRecommendation[];
+  subpopulations?: ArtifactSubpopulation[];
+  baseElements?: ArtifactElement[];
+  parameters?: ArtifactParameter[];
+  errorStatement?: ArtifactErrorStatement;
   user?: string;
   createdAt?: Date;
   updatedAt?: Date;
   toPublishableLibrary(): fhir4.Library;
   mapContact(contactType: string): Array<{ name: string }> | undefined;
-  convertContext(): Array<fhir4.UsageContext | Record<string, unknown>> | undefined;
+  convertContext(): Array<fhir4.UsageContext | ArtifactContext> | undefined;
 }
 
 const ArtifactSchema = new Schema<IArtifact>(
@@ -242,15 +252,21 @@ ArtifactSchema.methods.toPublishableLibrary = function (): fhir4.Library {
   if (this.relatedArtifact && this.relatedArtifact.length > 0) {
     //remove any null fields
     retVal['relatedArtifact'] = this.relatedArtifact
-      .filter(function (artifact: Record<string, unknown>) {
-        return !(artifact['relatedArtifactType'] === null);
+      .filter(function (artifact: ArtifactRelatedArtifact) {
+        return !((artifact as { relatedArtifactType?: string }).relatedArtifactType === null);
       })
-      .map(function (artifact: Record<string, unknown>) {
+      .map(function (artifact: ArtifactRelatedArtifact) {
+        const artifactWithFields = artifact as {
+          relatedArtifactType?: string;
+          description?: string;
+          url?: string;
+          citation?: string;
+        };
         return {
-          type: artifact['relatedArtifactType'],
-          display: artifact['description'],
-          url: artifact['url'],
-          citation: artifact['citation']
+          type: artifactWithFields.relatedArtifactType,
+          display: artifactWithFields.description,
+          url: artifactWithFields.url,
+          citation: artifactWithFields.citation
         };
       });
     _.isEmpty(retVal['relatedArtifact']) && delete retVal['relatedArtifact'];
@@ -278,12 +294,13 @@ ArtifactSchema.methods.mapContact = function (contactType: string): Array<{ name
   if (this[contactType] && this[contactType].length > 0) {
     //remove any empty string contacts, then map the contacts
     return this[contactType]
-      .filter(function (ct: Record<string, unknown>) {
-        return ct[contactType] !== '';
+      .filter(function (ct: ArtifactContact) {
+        return (ct as { [key: string]: string })[contactType] !== '';
       })
-      .map(function (contact: Record<string, unknown>): { name: string } | undefined {
-        if (contact[contactType] !== '') {
-          return { name: contact[contactType] as string };
+      .map(function (contact: ArtifactContact): { name: string } | undefined {
+        const contactWithField = contact as { [key: string]: string };
+        if (contactWithField[contactType] !== '') {
+          return { name: contactWithField[contactType] };
         }
         return undefined;
       })
