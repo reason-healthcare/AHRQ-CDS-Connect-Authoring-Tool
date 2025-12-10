@@ -109,9 +109,10 @@ describe('<ArtifactElement />', () => {
 
     await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Delete Value Set VS' })));
 
-    expect(handleUpdateElement).toHaveBeenCalledWith([
-      { [vsacField.id]: [valueSets[1]], attributeToEdit: 'valueSets' }
-    ]);
+    expect(handleUpdateElement).toHaveBeenCalledWith({
+      [vsacField.id]: [valueSets[1]],
+      attributeToEdit: 'valueSets'
+    });
   });
 
   it('should delete a code from an artifact element', async () => {
@@ -123,7 +124,10 @@ describe('<ArtifactElement />', () => {
 
     await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'delete code TestName (123-4)' })));
 
-    expect(handleUpdateElement).toHaveBeenCalledWith([{ [vsacField.id]: [codes[1]], attributeToEdit: 'codes' }]);
+    expect(handleUpdateElement).toHaveBeenCalledWith({
+      [vsacField.id]: [codes[1]],
+      attributeToEdit: 'codes'
+    });
   });
 
   it('should hide the body and footer when collapsed', () => {

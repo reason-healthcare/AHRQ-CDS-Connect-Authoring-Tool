@@ -30,12 +30,13 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
   // Wrapper function to convert partial updates to full modifier updates
   const createUpdateWrapper = <T extends Record<string, unknown>>(): ((updates: Partial<T>) => void) => {
     return (updates: Partial<T>) => {
+      const updatedValues = {
+        ...(modifier.values || {}),
+        ...updates
+      };
       const updatedModifier: Modifier = {
         ...modifier,
-        values: {
-          ...(modifier.values || {}),
-          ...updates
-        }
+        values: updatedValues
       };
       handleUpdateModifier(updatedModifier);
     };
@@ -104,7 +105,7 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
       return (
         <CheckExistenceModifier
           handleUpdateModifier={createUpdateWrapper<{ value?: string }>()}
-          value={(modifier.values as { value?: boolean })?.value ? 'true' : 'false'}
+          value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'ConvertObservation':

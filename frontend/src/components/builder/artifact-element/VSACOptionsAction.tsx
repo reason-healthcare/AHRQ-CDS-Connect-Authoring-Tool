@@ -16,7 +16,9 @@ import type { Instance } from '../../../utils/instances';
 interface VSACOptionsActionProps {
   allowsVSAC: boolean;
   elementInstance: Instance;
-  handleUpdateElement: (newElementField: Record<string, unknown>) => void;
+  handleUpdateElement: (
+    newElementField: Record<string, unknown> | Array<Record<string, unknown>>
+  ) => void;
 }
 
 interface ValueSet {
@@ -59,8 +61,8 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
     if (!nameFieldValue.value && nameFieldValue.id) {
       arrayToUpdate.push({ [nameFieldValue.id]: valueSet.name });
     }
-    // Update each field separately
-    arrayToUpdate.forEach(update => handleUpdateElement(update));
+    // Batch all updates into a single call
+    handleUpdateElement(arrayToUpdate);
   };
 
   const handleSelectCode = (codeData: CodeData): void => {
@@ -88,8 +90,8 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
       arrayToUpdate.push({ [nameFieldValue.id]: newName });
     }
 
-    // Update each field separately
-    arrayToUpdate.forEach(update => handleUpdateElement(update));
+    // Batch all updates into a single call
+    handleUpdateElement(arrayToUpdate);
   };
 
   if (!allowsVSAC) return <></>;

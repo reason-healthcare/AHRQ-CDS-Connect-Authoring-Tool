@@ -10,7 +10,7 @@ class CQLLibraryGroup {
   }
 
   getDependencyNames(): string[] {
-    return this.dependencies.map(d => d.libraryName || '');
+    return this.dependencies.map(d => d.libraryName).filter((name) => name !== undefined);
   }
 }
 

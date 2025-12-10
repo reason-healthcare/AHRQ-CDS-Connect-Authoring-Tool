@@ -301,7 +301,14 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
       handleDeleteElement={() => deleteInstance(treeName, getPath())}
       handleIndent={() => indentClickHandler(instance)}
       handleOutdent={() => outdentClickHandler(instance)}
-      handleUpdateElement={newElementField => editInstance(treeName, newElementField, getPath(), false)}
+      handleUpdateElement={newElementField =>
+        editInstance(
+          treeName,
+          Array.isArray(newElementField) ? newElementField : newElementField,
+          getPath(),
+          false
+        )
+      }
       hasErrors={hasDuplicateNameWarning || hasNestedWarning}
       indentParity={getIndentParity(getPath())}
       root={root}

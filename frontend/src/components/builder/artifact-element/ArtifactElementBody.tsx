@@ -56,7 +56,9 @@ interface CodeData {
 interface ArtifactElementBodyProps {
   baseElementIsUsed: boolean;
   elementInstance: Instance;
-  handleUpdateElement: (newElementField: Record<string, unknown>) => void;
+  handleUpdateElement: (
+    newElementField: Record<string, unknown> | Array<Record<string, unknown>>
+  ) => void;
   updateModifiers: (modifiers: Modifier[], fhirVersion?: string | null) => void;
   validateReturnType?: boolean;
 }
