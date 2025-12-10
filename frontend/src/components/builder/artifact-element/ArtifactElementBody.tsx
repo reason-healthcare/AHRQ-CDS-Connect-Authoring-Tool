@@ -28,6 +28,19 @@ import type { Instance, Modifier } from '../../../utils/instances';
 import type { Artifact } from '../../../types/artifact';
 import type { Field } from '../../../types/artifact';
 
+interface ExternalCqlArgument {
+  name: string;
+  value?: {
+    argSource?: string;
+    selected?: string;
+    elementName?: string;
+    elementType?: string;
+    type?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 interface ValueSet {
   name: string;
   oid: string;
@@ -84,10 +97,10 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
         vs => vs.name === valueSetToDelete.name && vs.oid === valueSetToDelete.oid
       );
       updatedValueSets.splice(indexOfVSToRemove, 1);
-      const arrayToUpdate: Array<Record<string, unknown>> = [
-        { [cloneVsacField.id]: updatedValueSets, attributeToEdit: 'valueSets' }
-      ];
-      handleUpdateElement(arrayToUpdate);
+      handleUpdateElement({
+        [cloneVsacField.id]: updatedValueSets,
+        attributeToEdit: 'valueSets'
+      });
     }
   };
 
@@ -100,10 +113,10 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
         code => code.code === codeToDelete.code && _.isEqual(code.codeSystem, codeToDelete.codeSystem)
       );
       updatedCodes.splice(indexOfCodeToRemove, 1);
-      const arrayToUpdate: Array<Record<string, unknown>> = [
-        { [cloneVsacField.id]: updatedCodes, attributeToEdit: 'codes' }
-      ];
-      handleUpdateElement(arrayToUpdate);
+      handleUpdateElement({
+        [cloneVsacField.id]: updatedCodes,
+        attributeToEdit: 'codes'
+      });
     }
   };
 
@@ -132,10 +145,18 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
 
       {elementInstance.fields && elementInstance.fields.length > 2 && elementInstance.type !== 'externalCqlElement' && (
         <FieldsTemplate
-          fields={elementInstance.fields.filter(
-            field => fieldsToRender.includes(field.type || '') && field.id !== 'comment' && field.id !== 'element_name'
-          )}
-          handleUpdateField={handleUpdateElement}
+          fields={elementInstance.fields
+            .filter(
+              field =>
+                fieldsToRender.includes(field.type || '') &&
+                field.id !== 'comment' &&
+                field.id !== 'element_name' &&
+                typeof field.id === 'string'
+            )
+            .map(field => field as Field)}
+          handleUpdateField={(field: Field) => {
+            handleUpdateElement({ [field.id]: field.value });
+          }}
         />
       )}
 
@@ -147,10 +168,21 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
         typeof externalCqlField.value === 'object' &&
         'arguments' in externalCqlField.value && (
           <ExternalCqlTemplate
-            externalCqlArguments={(externalCqlField.value.arguments as unknown[]) || []}
+            externalCqlArguments={(externalCqlField.value.arguments as ExternalCqlArgument[]) || []}
             handleUpdateExternalCqlArguments={args => {
+              const valueObj = externalCqlField.value as {
+                arguments?: ExternalCqlArgument[];
+                [key: string]:
+                  | string
+                  | number
+                  | boolean
+                  | ExternalCqlArgument[]
+                  | { id?: string; name?: string; value?: string; type?: string }
+                  | null
+                  | undefined;
+              };
               handleUpdateElement({
-                externalCqlReference: { ...externalCqlField.value, arguments: args }
+                externalCqlReference: { ...valueObj, arguments: args }
               });
             }}
           />
@@ -171,25 +203,35 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
         referenceField.value &&
         typeof referenceField.value === 'object' &&
         'arguments' in referenceField.value &&
-        [...getReferenceArguments(referenceField.value.arguments as unknown[])].map((arg, index) => (
-          <ReferenceTemplate
-            key={index}
-            elementNames={instanceNames}
-            referenceInstanceTab={getInstanceByReference(allElements, referenceField).tab}
-            referenceField={{
-              id: arg.value.argSource === 'baseElement' ? 'baseElementArgumentReference' : 'parameterArgumentReference',
-              value: { id: arg.value?.selected, elementName: arg.value?.elementName }
-            }}
-          />
-        ))}
+        [...getReferenceArguments(referenceField.value.arguments as unknown[])].map((arg, index) => {
+          const instance = getInstanceByReference(allElements, referenceField);
+          return (
+            <ReferenceTemplate
+              key={index}
+              elementNames={instanceNames}
+              referenceInstanceTab={instance?.tab || ''}
+              referenceField={{
+                id:
+                  arg.value?.argSource === 'baseElement'
+                    ? 'baseElementArgumentReference'
+                    : 'parameterArgumentReference',
+                value: { id: arg.value?.selected, elementName: arg.value?.elementName }
+              }}
+            />
+          );
+        })}
 
-      {referenceField && (
-        <ReferenceTemplate
-          elementNames={instanceNames}
-          referenceInstanceTab={getInstanceByReference(allElements, referenceField).tab}
-          referenceField={referenceField}
-        />
-      )}
+      {referenceField &&
+        (() => {
+          const instance = getInstanceByReference(allElements, referenceField);
+          return instance ? (
+            <ReferenceTemplate
+              elementNames={instanceNames}
+              referenceInstanceTab={instance.tab || ''}
+              referenceField={referenceField as Field & { value?: { id?: string; elementName?: string } }}
+            />
+          ) : null;
+        })()}
 
       {hasBaseElementLinks(elementInstance, baseElements || []) &&
         baseElements &&
@@ -199,7 +241,7 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
           <ReferenceTemplate
             key={`standalone-${link}-${index}`}
             elementNames={instanceNames}
-            referenceInstanceTab={getInstanceById(allElements, link).tab}
+            referenceInstanceTab={getInstanceById(allElements, link)?.tab || ''}
             referenceField={{ id: 'baseElementUse', value: { id: link } }}
           />
         ))}

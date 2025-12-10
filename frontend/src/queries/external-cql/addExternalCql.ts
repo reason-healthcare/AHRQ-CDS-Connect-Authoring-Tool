@@ -14,12 +14,9 @@ interface AddExternalCqlLibrary {
 const addExternalCql = async (library: AddExternalCqlLibrary): Promise<ExternalCqlLibrary> => {
   try {
     // First try with default response handling (may be JSON or string)
-    const response = await axios.post<unknown>(
-      `${process.env.REACT_APP_API_URL}/externalCQL`,
-      {
-        library
-      }
-    );
+    const response = await axios.post<unknown>(`${process.env.REACT_APP_API_URL}/externalCQL`, {
+      library
+    });
     const data = response.data;
     // Handle string error responses (even with 200 status)
     // Check if data is a string or if it's been parsed as an object but contains error text

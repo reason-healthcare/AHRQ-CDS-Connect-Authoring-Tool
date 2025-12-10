@@ -106,8 +106,8 @@ const ArgumentsTemplate: React.FC<ArgumentsTemplateProps> = ({
     if (argSource === 'baseElement' && matchingBaseElements.length === 1)
       handleUpdateArgument({
         argSource,
-        selected: matchingBaseElements[0].value,
-        elementName: matchingBaseElements[0].label
+        selected: String(matchingBaseElements[0].value),
+        elementName: String(matchingBaseElements[0].label)
       });
     // else if externalCql source is selected and there is exactly one library, select it
     else if (argSource === 'externalCql' && getLibraryOptions(matchingExternalCQL).length === 1)
@@ -169,14 +169,23 @@ const ArgumentsTemplate: React.FC<ArgumentsTemplateProps> = ({
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               handleUpdateArgument({
                 ...argumentValue,
-                selected: event.target.value,
-                elementName:
-                  argumentValue.argSource === 'baseElement'
-                    ? getBaseElementName(getBaseElementById(baseElements || [], event.target.value))
-                    : getParameterById(parameters || [], event.target.value)?.name || ''
+                selected: String(event.target.value),
+                elementName: (() => {
+                  if (argumentValue.argSource === 'baseElement') {
+                    const baseElement = getBaseElementById(baseElements || [], String(event.target.value));
+                    const name = baseElement ? getBaseElementName(baseElement) : null;
+                    return typeof name === 'string' ? name : String(name || '');
+                  } else {
+                    return getParameterById(parameters || [], String(event.target.value))?.name || '';
+                  }
+                })()
               });
             }}
-            options={argumentValue.argSource === 'baseElement' ? matchingBaseElements : matchingParameters}
+            options={
+              argumentValue.argSource === 'baseElement'
+                ? matchingBaseElements.map(opt => ({ label: String(opt.label), value: String(opt.value) }))
+                : matchingParameters.map(opt => ({ label: String(opt.label), value: String(opt.value) }))
+            }
             sx={{ width: { xs: '400px', xxl: '600px' } }}
             value={argumentValue?.selected || ''}
           />

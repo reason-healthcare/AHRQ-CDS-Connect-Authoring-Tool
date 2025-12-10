@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch } from '../../../store/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
 
@@ -29,7 +31,7 @@ interface ExternalCqlTableProps {
 const ExternalCqlTable: React.FC<ExternalCqlTableProps> = ({ externalCqlList }) => {
   const [selectedColumnIndex, setSelectedColumnIndex] = useState(3);
   const [sortAsc, setSortAsc] = useState(true);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
   const textStyles = useTextStyles();
   const artifact = useSelector((state: { artifacts: { artifact: Artifact } }) => state.artifacts.artifact) as Artifact;

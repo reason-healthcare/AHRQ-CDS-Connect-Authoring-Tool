@@ -33,7 +33,11 @@ const ConjunctionTypeSelect: React.FC<ConjunctionTypeSelectProps> = ({ editInsta
       labelKey="name"
       onChange={event => handleTypeChange(event, options)}
       options={
-        options as Array<
+        options.map(opt => ({
+          label: opt.name,
+          value: opt.name,
+          ...opt
+        })) as Array<
           | string
           | number
           | {

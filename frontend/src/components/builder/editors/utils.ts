@@ -8,7 +8,7 @@ interface EditorErrorResult {
   hasErrors: boolean;
 }
 
-interface CqlArgument {
+export interface CqlArgument {
   operandTypeSpecifier?: {
     pointType?: { resultTypeName?: string };
     resultTypeName?: string;

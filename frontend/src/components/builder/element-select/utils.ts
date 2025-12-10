@@ -131,7 +131,10 @@ const getZeroArgFunctions = (
   }
 ): Array<{ calculatedReturnType?: string; [key: string]: unknown }> => {
   return (
-    externalCqlLibrary.details?.functions?.filter(func => !func.argumentTypes || func.argumentTypes.length === 0) || []
+    externalCqlLibrary.details?.functions?.filter(func => {
+      const argumentTypes = func.argumentTypes;
+      return !argumentTypes || (Array.isArray(argumentTypes) && argumentTypes.length === 0);
+    }) || []
   );
 };
 
@@ -259,7 +262,7 @@ export const generateElement = ({
               id: `${selectedCqlEntry.name || ''}${selectedCqlEntryType === 'GenericFunction' ? ' (Function)' : ''} from ${cqlLibrary.name || ''}`,
               element: selectedCqlEntry.name,
               library: cqlLibrary.name,
-              arguments: selectedCqlEntry.operand
+              arguments: Array.isArray(selectedCqlEntry.operand)
                 ? selectedCqlEntry.operand.map(operand => ({
                     ...operand,
                     value: { argSource: 'editor', type: getTypeByCqlArgument(operand) }
@@ -368,7 +371,7 @@ export const getElementEntries = ({
           .filter(cqlFunction => isSupportedCqlFunction(cqlFunction, baseElements, externalCqlList))
           .map(cqlFunction => ({
             value: cqlFunction.name || '',
-            label: `${cqlFunction.name || ''} | Function(${cqlFunction.operand?.length || 0}) | ${cqlFunction.calculatedReturnType || ''}`
+            label: `${cqlFunction.name || ''} | Function(${Array.isArray(cqlFunction.operand) ? cqlFunction.operand.length : 0}) | ${cqlFunction.calculatedReturnType || ''}`
           }));
         const cqlDefinitions = (externalCql.details?.definitions || [])
           .concat(externalCql.details?.parameters || [])

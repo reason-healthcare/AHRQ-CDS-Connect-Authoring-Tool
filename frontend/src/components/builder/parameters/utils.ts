@@ -26,7 +26,10 @@ export const parameterHasChangedUse = (parameter: Parameter, allElements: Instan
     usedBy?.some(usageId => {
       const use = allElements.find(({ uniqueId }) => uniqueId === usageId);
       if (!use) return false;
-      const useComment = (getFieldWithId(use.fields, 'comment')?.value as string) || '';
+      const commentField = getFieldWithId(use.fields, 'comment');
+      const commentValue =
+        commentField && 'value' in commentField ? (commentField as { id?: string; value?: unknown }).value : undefined;
+      const useComment = (typeof commentValue === 'string' ? commentValue : '') || '';
       return (use.modifiers?.length || 0) > 0 || useComment !== comment;
     })
   );
@@ -34,7 +37,12 @@ export const parameterHasChangedUse = (parameter: Parameter, allElements: Instan
 
 export const parametersHaveWarnings = (parameters: Parameter[], elementNames: ElementName[]): boolean => {
   for (const parameter of parameters) {
-    const editorErrors = getEditorErrors(parameter.type || '', parameter.value);
+    const parameterValue = parameter.value;
+    const editorValue: string | number | null | undefined =
+      typeof parameterValue === 'object' && parameterValue !== null && 'value' in parameterValue
+        ? (parameterValue.value as string | number | undefined)
+        : (parameterValue as string | number | null | undefined);
+    const editorErrors = getEditorErrors(parameter.type || '', editorValue);
     if (parameterHasDuplicateName(parameter, elementNames) || editorErrors.hasErrors) return true;
   }
   return false;

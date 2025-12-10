@@ -42,7 +42,10 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
     const selectedTemplate = _.cloneDeep(elementInstance);
     const vsacField = getFieldWithType(selectedTemplate.fields, '_vsac');
     const nameField = getFieldWithId(selectedTemplate.fields, 'element_name');
-    const valueSetsToAdd = (vsacField?.valueSets as ValueSet[]) || [];
+    if (!vsacField?.id) return;
+
+    const vsacFieldValue = vsacField as { type?: string; id?: string; valueSets?: ValueSet[]; [key: string]: unknown };
+    const valueSetsToAdd = (vsacFieldValue.valueSets as ValueSet[]) || [];
     valueSetsToAdd.push(valueSet);
 
     // Create array of which field to update, the new value to set, and the attribute to update (value is default)
@@ -52,15 +55,22 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
     ];
 
     // Only set name of element if there isn't one already
-    if (!nameField.value) arrayToUpdate.push({ [nameField.id]: valueSet.name });
-    handleUpdateElement(arrayToUpdate);
+    const nameFieldValue = nameField as { id?: string; value?: unknown };
+    if (!nameFieldValue.value && nameFieldValue.id) {
+      arrayToUpdate.push({ [nameFieldValue.id]: valueSet.name });
+    }
+    // Update each field separately
+    arrayToUpdate.forEach(update => handleUpdateElement(update));
   };
 
   const handleSelectCode = (codeData: CodeData): void => {
     const selectedTemplate = _.cloneDeep(elementInstance);
     const vsacField = getFieldWithType(selectedTemplate.fields, '_vsac');
     const nameField = getFieldWithId(selectedTemplate.fields, 'element_name');
-    const codesToAdd = (vsacField?.codes as CodeData[]) || [];
+    if (!vsacField?.id) return;
+
+    const vsacFieldValue = vsacField as { type?: string; id?: string; codes?: CodeData[]; [key: string]: unknown };
+    const codesToAdd = (vsacFieldValue.codes as CodeData[]) || [];
     codesToAdd.push(codeData);
 
     // Create array of which field to update, the new value to set, and the attribute to update (value is default)
@@ -69,15 +79,17 @@ const VSACOptionsAction: React.FC<VSACOptionsActionProps> = ({ allowsVSAC, eleme
       { [vsacField.id]: true, attributeToEdit: 'static' }
     ];
 
-    if (!nameField.value || nameField.value === '') {
+    const nameFieldValue = nameField as { id?: string; value?: unknown };
+    if ((!nameFieldValue.value || nameFieldValue.value === '') && nameFieldValue.id) {
       const newName =
         codeData.display && codeData.display.length < 60
           ? codeData.display
           : `${codeData.codeSystem.name} ${codeData.code}`;
-      arrayToUpdate.push({ [nameField.id]: newName });
+      arrayToUpdate.push({ [nameFieldValue.id]: newName });
     }
 
-    handleUpdateElement(arrayToUpdate);
+    // Update each field separately
+    arrayToUpdate.forEach(update => handleUpdateElement(update));
   };
 
   if (!allowsVSAC) return <></>;

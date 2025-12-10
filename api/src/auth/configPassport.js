@@ -6,7 +6,7 @@ import LdapStrategy from 'passport-ldapauth';
 import LocalStrategy from 'passport-local';
 import MongoStore from 'connect-mongo';
 import _ from 'lodash';
-import config from '../config.ts';
+import config from '../config.js';
 import { findByUsername as findLocalUserById } from './localAuthUsers.js';
 
 function getLdapConfiguration(req, callback) {

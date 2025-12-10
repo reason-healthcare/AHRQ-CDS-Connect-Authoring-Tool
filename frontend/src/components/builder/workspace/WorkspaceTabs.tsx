@@ -21,7 +21,7 @@ import { getTabMetadata } from './tabUtils';
 import { getFHIRVersion, getTree } from 'components/builder/utils';
 import { findValueAtPath } from 'utils/find';
 import { checkForNeedToPromote, isElementUnionIntersect } from 'utils/lists';
-import type { Artifact } from '../../../types/artifact';
+import type { Artifact, ExpressionTree } from '../../../types/artifact';
 import type { ExternalCqlLibrary } from '../../../types/query';
 import type { Instance, Modifier } from '../../../utils/instances';
 import { useSpacingStyles } from 'styles/hooks';
@@ -65,9 +65,13 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     updatedReturnType: string | null = null
   ): void => {
     if (!artifact) return;
+    if (treeName !== 'expTreeInclude' && treeName !== 'expTreeExclude') return;
     const { tree: foundTree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
     const tree = incomingTree || foundTree;
-    const target = findValueAtPath(tree, parentPath) as { childInstances?: Instance[] };
+    if (!tree) return;
+    const target = findValueAtPath(tree as unknown as Record<string, unknown>, parentPath) as {
+      childInstances?: Instance[];
+    };
     if (!target.childInstances) return;
     const index = currentIndex != null ? currentIndex : target.childInstances.length;
     target.childInstances.splice(index, 0, instance); // Insert instance at specific instance - only used for indenting now
@@ -76,14 +80,10 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       (tree as { returnType?: string }).returnType = updatedReturnType;
     }
 
-    if (treeName === 'baseElements' && isElementUnionIntersect((tree as { id?: string }).id || '')) {
-      checkForNeedToPromote(tree as never);
-    }
-
-    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };
-    if (treeArray != null) {
+    let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree as unknown as Record<string, unknown> };
+    if (treeArray != null && treeIndex != null) {
       treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { [treeName]: treeArray };
+      artifactPropsToUpdate = { [treeName]: treeArray as unknown as Record<string, unknown> };
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
@@ -101,15 +101,11 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     incomingTree: Instance[] | null = null
   ): void => {
     if (!artifact) return;
-    const { tree: foundTree, array: treeArray, index: treeIndex } = getTree(artifact, 'baseElements', uid);
-    const tree = (incomingTree || foundTree) as Instance[];
+    const baseElements = artifact.baseElements || [];
+    const tree = incomingTree || baseElements;
     tree.push(instance);
 
-    let artifactPropsToUpdate: Record<string, unknown> = { baseElements: tree };
-    if (treeArray != null) {
-      treeArray[treeIndex] = tree;
-      artifactPropsToUpdate = { baseElements: treeArray };
-    }
+    let artifactPropsToUpdate: Record<string, unknown> = { baseElements: tree as unknown as Record<string, unknown> };
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
     const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
@@ -128,9 +124,14 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     updatedReturnType: string | null = null
   ): void => {
     if (!artifact) return;
+    if (treeName !== 'expTreeInclude' && treeName !== 'expTreeExclude') return;
     const { tree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
+    if (!tree) return;
     const index = parseInt(path.slice(-1), 10);
-    const target = findValueAtPath(tree, path.slice(0, path.length - 2)) as {
+    const target = findValueAtPath(
+      tree as Record<string, string | number | boolean | ExpressionTree | ExpressionTree[] | null | undefined>,
+      path.slice(0, path.length - 2)
+    ) as {
       splice: (index: number, count: number) => void;
     };
     target.splice(index, 1); // remove item at index position
@@ -145,10 +146,6 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
       elementsToAdd.forEach(element => {
         addInstance(treeName, element.instance, element.path, uid, element.index || null, tree, null);
       });
-    }
-
-    if (treeName === 'baseElements' && isElementUnionIntersect((tree as { id?: string }).id || '')) {
-      checkForNeedToPromote(tree as never);
     }
 
     let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };
@@ -174,8 +171,16 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     uid: string | null = null
   ): void => {
     if (!artifact) return;
+    if (treeName !== 'expTreeInclude' && treeName !== 'expTreeExclude') return;
     const { tree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
-    const target = findValueAtPath(tree, path) as {
+    if (!tree) return;
+    const target = findValueAtPath(
+      tree as Record<
+        string,
+        string | number | boolean | ExpressionTree | ExpressionTree[] | Instance | Instance[] | null | undefined
+      >,
+      path
+    ) as {
       id?: string;
       name?: string;
       fields?: Array<{ id?: string; [key: string]: unknown }>;
@@ -232,16 +237,14 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     fhirVersion: string | null = null
   ): void => {
     if (!artifact) return;
+    if (treeName !== 'expTreeInclude' && treeName !== 'expTreeExclude') return;
     const { tree, array: treeArray, index: treeIndex } = getTree(artifact, treeName, uid);
-    const target = findValueAtPath(tree, path) as { modifiers?: Modifier[] };
+    if (!tree) return;
+    const target = findValueAtPath(tree as unknown as Record<string, unknown>, path) as { modifiers?: Modifier[] };
     target.modifiers = modifiers;
 
     if (updatedReturnType) {
       (tree as { returnType?: string }).returnType = updatedReturnType;
-    }
-
-    if (treeName === 'baseElements' && isElementUnionIntersect((tree as { id?: string }).id || '')) {
-      checkForNeedToPromote(tree as never);
     }
 
     let artifactPropsToUpdate: Record<string, unknown> = { [treeName]: tree };

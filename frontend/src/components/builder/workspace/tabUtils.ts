@@ -34,7 +34,8 @@ export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number
     names,
     baseElements || [],
     namedParameters,
-    allElements
+    allElements,
+    null
   );
   metadata.expTreeInclude = {
     hasContent: (expTreeInclude?.childInstances || []).length > 0,
@@ -46,7 +47,8 @@ export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number
     names,
     baseElements || [],
     namedParameters,
-    allElements
+    allElements,
+    null
   );
   metadata.expTreeExclude = {
     hasContent: (expTreeExclude?.childInstances || []).length > 0,
@@ -63,7 +65,8 @@ export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number
     names,
     baseElements || [],
     namedParameters,
-    allElements
+    allElements,
+    null
   );
   metadata.subpopulations = {
     hasContent:

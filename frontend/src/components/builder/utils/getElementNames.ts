@@ -10,7 +10,9 @@ const getElementName = (element: Instance): string => {
   if (element.subpopulationName) return element.subpopulationName;
   if (element.fields) {
     const nameField = getFieldWithId(element.fields, 'element_name');
-    return (nameField?.value as string) || '';
+    const value = nameField && 'value' in nameField ? nameField.value : undefined;
+    if (typeof value === 'string') return value;
+    return '';
   }
   return element.name || '';
 };

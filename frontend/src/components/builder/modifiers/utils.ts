@@ -1,5 +1,6 @@
 import { getReturnType } from 'utils/instances';
 import type { Modifier } from '../../../utils/instances';
+import type { ModifierTree } from '../../modals/ModifierModal/types';
 
 interface ModifierRemovalResult {
   canBeRemoved: boolean;
@@ -13,11 +14,13 @@ export const modifierCanBeRemoved = (
   modifiers: Modifier[]
 ): ModifierRemovalResult => {
   const hasMultipleModifiers = modifiers.length > 1;
-  const nextModifierAllowsReturnType = Boolean(modifiers[index + 1]?.inputTypes?.includes(returnType || ''));
+  const nextModifier = modifiers[index + 1] as unknown as ModifierTree | undefined;
+  const nextModifierAllowsReturnType = Boolean(nextModifier?.inputTypes?.includes(returnType || ''));
   const isFirstModifier = index === 0;
   const isLastModifier = index === modifiers.length - 1;
+  const previousModifier = modifiers[index - 1] as unknown as ModifierTree | undefined;
   const nextModifierAllowsPreviousReturnType = Boolean(
-    modifiers[index + 1]?.inputTypes?.includes(modifiers[index - 1]?.returnType || '')
+    nextModifier?.inputTypes?.includes(previousModifier?.returnType || '')
   );
   const nextToLastModifierReturnTypeMatchesElement = Boolean(
     modifiers[modifiers.length - 2]?.returnType === getReturnType(returnType, modifiers)

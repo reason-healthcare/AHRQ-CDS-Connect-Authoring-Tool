@@ -90,9 +90,12 @@ describe('userSettingsHandler', () => {
       replace(
         UserSettings,
         'find',
-        sandbox.stub().withArgs({ user: 'bob' }).returns({
-          exec: fake.rejects(new Error('Connection Error'))
-        })
+        sandbox
+          .stub()
+          .withArgs({ user: 'bob' })
+          .returns({
+            exec: fake.rejects(new Error('Connection Error'))
+          })
       );
       const req = { user: { uid: 'bob' } };
       const res = new FakeResponse();
@@ -105,9 +108,12 @@ describe('userSettingsHandler', () => {
       replace(
         UserSettings,
         'find',
-        sandbox.stub().withArgs({ user: 'bob' }).returns({
-          exec: fake.resolves([])
-        })
+        sandbox
+          .stub()
+          .withArgs({ user: 'bob' })
+          .returns({
+            exec: fake.resolves([])
+          })
       );
       const req = { user: { uid: 'bob' } };
       const res = new FakeResponse();
@@ -119,12 +125,15 @@ describe('userSettingsHandler', () => {
       replace(
         UserSettings,
         'find',
-        sandbox.stub().withArgs({ user: 'bob' }).returns({
-          exec: fake.resolves([
-            { user: 'bob', termsAcceptedDate: '2023-04-05' },
-            { user: 'bob', termsAcceptedDate: '2023-06-01' }
-          ])
-        })
+        sandbox
+          .stub()
+          .withArgs({ user: 'bob' })
+          .returns({
+            exec: fake.resolves([
+              { user: 'bob', termsAcceptedDate: '2023-04-05' },
+              { user: 'bob', termsAcceptedDate: '2023-06-01' }
+            ])
+          })
       );
       const req = { user: { uid: 'bob' } };
       const res = new FakeResponse();
@@ -187,4 +196,3 @@ describe('userSettingsHandler', () => {
     });
   });
 });
-

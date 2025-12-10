@@ -25,12 +25,7 @@ const getAllElements = (artifact: Artifact): Instance[] => {
 
   return getElements('expTreeInclude', expTreeInclude?.childInstances || []).concat(
     getElements('expTreeExclude', expTreeExclude?.childInstances || [])
-      .concat(
-        getElements(
-          'subpopulations',
-          (subpopulations || []).filter(({ special }) => !special)
-        )
-      )
+      .concat(getElements('subpopulations', (subpopulations || []).filter(({ special }) => !special) as Instance[]))
       .concat(getElements('baseElements', baseElements || []))
       .concat(getElements('parameters', parameters || []))
   );

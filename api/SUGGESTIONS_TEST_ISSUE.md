@@ -157,12 +157,14 @@ The test is failing because the nock mock is not intercepting the HTTP request m
 ## Current Implementation
 
 The function now uses:
+
 ```typescript
 url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oid}/$expand`,
 params: { count: 1 }, // Use params instead of query string in URL
 ```
 
 The test uses:
+
 ```typescript
 nock('https://cts.nlm.nih.gov')
   .get('/fhir/ValueSet/1234/$expand')

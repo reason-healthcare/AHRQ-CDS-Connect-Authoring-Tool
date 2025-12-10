@@ -5,9 +5,14 @@ export const getBaseElementReturnType = (baseElement: BaseElement): string | und
     ? baseElement.modifiers[baseElement.modifiers.length - 1]?.returnType
     : baseElement.returnType;
 
-export const getBaseElementName = (baseElement: BaseElement): string | number | null | undefined => {
+export const getBaseElementName = (baseElement: BaseElement | undefined): string | number | null | undefined => {
+  if (!baseElement) return undefined;
   const nameField = baseElement.fields?.find(({ id }) => id === 'element_name');
-  return nameField?.value;
+  const value = nameField?.value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    return value;
+  }
+  return undefined;
 };
 
 export const getBaseElementsByType = (baseElements: BaseElement[], type: string): BaseElement[] =>

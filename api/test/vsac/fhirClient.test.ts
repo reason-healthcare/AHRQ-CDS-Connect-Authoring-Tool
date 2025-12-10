@@ -112,10 +112,7 @@ describe('FHIRClient', () => {
 
       // The function now uses params instead of query string in URL for better nock compatibility
       // Standalone test confirms this works with query(true)
-      nock('https://cts.nlm.nih.gov')
-        .get('/fhir/ValueSet/1234/$expand')
-        .query(true)
-        .reply(200, FHIRMocks.ValueSet);
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/1234/$expand').query(true).reply(200, FHIRMocks.ValueSet);
 
       return client.getValueSetCodeCount('1234', username, password).then(count => {
         expect(count).to.equal(1);
@@ -129,7 +126,7 @@ describe('FHIRClient', () => {
 
       nock('https://cts.nlm.nih.gov')
         .get('/fhir/ValueSet')
-        .query({ 'title:contains': 'test', '_sort': '-date' })
+        .query({ 'title:contains': 'test', _sort: '-date' })
         .reply(200, FHIRMocks.Search);
 
       const result = client.searchForValueSets('test', username, password);

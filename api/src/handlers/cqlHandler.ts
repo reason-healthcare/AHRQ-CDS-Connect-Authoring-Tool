@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import _ from 'lodash';
 import slug from 'slug';
@@ -20,23 +19,24 @@ import exportCQL from '../cql-merge/export/exportCQL.js';
 import importCQL from '../cql-merge/import/importCQL.js';
 import RawCQL from '../cql-merge/utils/RawCQL.js';
 import { AuthenticatedRequest, sendUnauthorized } from './common.js';
+import { getDataPath } from '../utils/paths.js';
 
-const currentFilePath = fileURLToPath(import.meta.url);
-const currentDirPath = path.dirname(currentFilePath);
-
-// Import JSON files using fs.readFileSync
+// Import JSON files using fs.readFileSync - read from src/data (not dist/data)
 const dstu2_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/dstu2_resources.json', import.meta.url), 'utf-8')
+  fs.readFileSync(getDataPath('query_builder/dstu2_resources.json'), 'utf-8')
 ) as Record<string, unknown>;
-const stu3_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/stu3_resources.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
-const r4_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/r4_resources.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
-const operators = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/operators.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
+const stu3_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/stu3_resources.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
+const r4_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/r4_resources.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
+const operators = JSON.parse(fs.readFileSync(getDataPath('query_builder/operators.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
 
 const queryResources: Record<string, Record<string, unknown>> = {
   dstu2_resources,
@@ -45,11 +45,11 @@ const queryResources: Record<string, Record<string, unknown>> = {
   operators
 };
 
-const templatePath = path.join(currentDirPath, '..', 'data', 'cql', 'templates');
-const specificPath = path.join(currentDirPath, '..', 'data', 'cql', 'specificTemplates');
-const modifierPath = path.join(currentDirPath, '..', 'data', 'cql', 'modifiers');
-const rulePath = path.join(currentDirPath, '..', 'data', 'cql', 'rules');
-const artifactPath = path.join(currentDirPath, '..', 'data', 'cql', 'artifact.ejs');
+const templatePath = getDataPath('cql/templates');
+const specificPath = getDataPath('cql/specificTemplates');
+const modifierPath = getDataPath('cql/modifiers');
+const rulePath = getDataPath('cql/rules');
+const artifactPath = getDataPath('cql/artifact.ejs');
 const specificMap = loadTemplates(specificPath);
 const templateMap = loadTemplates(templatePath);
 const modifierMap = loadTemplates(modifierPath);
@@ -1990,7 +1990,7 @@ function objConvert(
 
       // Merge the artifact with the commons and conversions libraries
       const fhirVersion = fhirTarget?.version || '4.0.1';
-      const helperPath = path.join(currentDirPath, '..', 'data', 'library_helpers', 'CQLFiles', fhirVersion);
+      const helperPath = getDataPath(`library_helpers/CQLFiles/${fhirVersion}`);
       const commonsPath = path.join(
         helperPath,
         `AT_Internal_CDS_Connect_Commons_for_FHIRv${fhirVersion.replace(/\./g, '')}.cql`
@@ -2153,7 +2153,7 @@ function writeZip(
       }
 
       const fhirVersion = fhirTarget?.version || '4.0.1';
-      const helperPathForArchive = path.join(currentDirPath, '..', 'data', 'library_helpers', 'CQLFiles', fhirVersion);
+      const helperPathForArchive = getDataPath(`library_helpers/CQLFiles/${fhirVersion}`);
       archive.glob('FHIRHelpers.cql', { cwd: helperPathForArchive });
       archive.finalize();
     });
@@ -2190,14 +2190,7 @@ function convertToElm(
   }
 
   // Load all the supplementary CQL files, open file streams to them, and convert to ELM
-  const helperPath = path.join(
-    currentDirPath,
-    '..',
-    'data',
-    'library_helpers',
-    'CQLFiles',
-    fhirTarget?.version || '4.0.1'
-  );
+  const helperPath = getDataPath(`library_helpers/CQLFiles/${fhirTarget?.version || '4.0.1'}`);
   const fileStream = fs.createReadStream(`${helperPath}/FHIRHelpers.cql`);
   // NOTE: using makeCQLtoELMRequest function directly
   makeCQLtoELMRequest(

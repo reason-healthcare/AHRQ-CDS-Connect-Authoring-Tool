@@ -43,7 +43,7 @@ const ModifierTemplate: React.FC<ModifierTemplateProps> = ({
 
   // Reset values on modifiers that were not previously set or saved in the database
   if (!modifier.values && modifierMap[modifier.id || ''] && modifierMap[modifier.id || ''].values) {
-    modifier.values = modifierMap[modifier.id || ''].values;
+    modifier.values = modifierMap[modifier.id || ''].values as Record<string, unknown>;
   }
 
   const { modifiers, returnType } = elementInstance;
@@ -97,7 +97,7 @@ const ModifierTemplate: React.FC<ModifierTemplateProps> = ({
           handleDelete={handleDeleteModifier}
         >
           <>
-            <div>Modifier Name: {modifier.name || 'Custom Modifier'}</div>
+            <div>Modifier Name: {(modifier as { name?: string }).name || 'Custom Modifier'}</div>
             <div>Return Type: {changeToCase(modifier.returnType || '', 'capitalCase')}</div>
           </>
         </DeleteConfirmationModal>

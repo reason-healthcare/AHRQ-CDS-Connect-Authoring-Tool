@@ -18,6 +18,7 @@ import {
 } from 'components/builder/modifiers';
 import getModifierExpression from 'components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression';
 import type { Instance, Modifier } from '../../../utils/instances';
+import type { ModifierTree } from 'components/modals/ModifierModal/types';
 
 interface ModifierFormProps {
   elementInstance: Instance;
@@ -26,11 +27,30 @@ interface ModifierFormProps {
 }
 
 const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpdateModifier, modifier }) => {
+  // Wrapper function to convert partial updates to full modifier updates
+  const createUpdateWrapper = <T extends Record<string, unknown>>(): ((updates: Partial<T>) => void) => {
+    return (updates: Partial<T>) => {
+      const updatedModifier: Modifier = {
+        ...modifier,
+        values: {
+          ...(modifier.values || {}),
+          ...updates
+        }
+      };
+      handleUpdateModifier(updatedModifier);
+    };
+  };
+
   switch (modifier.type || modifier.id) {
     case 'ValueComparisonNumber':
       return (
         <ValueComparisonModifier
-          handleUpdateModifier={handleUpdateModifier}
+          handleUpdateModifier={createUpdateWrapper<{
+            maxOperator?: string | null;
+            maxValue?: number | string;
+            minOperator?: string | null;
+            minValue?: number | string;
+          }>()}
           values={{
             maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
             maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
@@ -42,7 +62,13 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'ValueComparisonObservation':
       return (
         <ValueComparisonModifier
-          handleUpdateModifier={handleUpdateModifier}
+          handleUpdateModifier={createUpdateWrapper<{
+            maxOperator?: string | null;
+            maxValue?: number | string;
+            minOperator?: string | null;
+            minValue?: number | string;
+            unit?: string | null;
+          }>()}
           values={{
             maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
             maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
@@ -55,55 +81,71 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'LookBack':
       return (
         <LookBackModifier
-          handleUpdateModifier={handleUpdateModifier}
+          handleUpdateModifier={createUpdateWrapper<{ unit?: string | null; value?: number | null }>()}
           unit={(modifier.values as { unit?: string })?.unit}
-          value={(modifier.values as { value?: string | number })?.value}
+          value={(modifier.values as { value?: string | number })?.value as number | null | undefined}
         />
       );
     case 'WithUnit':
       return (
         <WithUnitModifier
-          handleUpdateModifier={handleUpdateModifier}
+          handleUpdateModifier={createUpdateWrapper<{ unit?: string }>()}
           unit={(modifier.values as { unit?: string })?.unit}
         />
       );
     case 'BooleanComparison':
       return (
         <BooleanComparisonModifier
-          handleUpdateModifier={handleUpdateModifier}
-          value={(modifier.values as { value?: boolean })?.value}
+          handleUpdateModifier={createUpdateWrapper<{ value?: string }>()}
+          value={(modifier.values as { value?: boolean })?.value ? 'true' : 'false'}
         />
       );
     case 'CheckExistence':
       return (
         <CheckExistenceModifier
-          handleUpdateModifier={handleUpdateModifier}
-          value={(modifier.values as { value?: boolean })?.value}
+          handleUpdateModifier={createUpdateWrapper<{ value?: string }>()}
+          value={(modifier.values as { value?: boolean })?.value ? 'true' : 'false'}
         />
       );
     case 'ConvertObservation':
       return (
         <SelectModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{ value?: string }>()}
+          name={(modifier as { name?: string }).name}
           value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'Qualifier':
       return (
         <QualifierModifier
-          code={(modifier.values as { code?: string })?.code}
-          handleUpdateModifier={handleUpdateModifier}
+          code={
+            (modifier.values as { code?: unknown })?.code as
+              | { id: string; system: string; uri: string; code: string; display?: string; str: string }
+              | undefined
+          }
+          handleUpdateModifier={createUpdateWrapper<{
+            qualifier?: string | null;
+            valueSet?: { name: string; oid: string; [key: string]: unknown } | null;
+            code?: { id: string; system: string; uri: string; code: string; display?: string; str: string } | null;
+          }>()}
           qualifier={(modifier.values as { qualifier?: string })?.qualifier}
-          valueSet={(modifier.values as { valueSet?: string })?.valueSet}
+          valueSet={
+            (modifier.values as { valueSet?: unknown })?.valueSet as
+              | { name: string; oid: string; [key: string]: unknown }
+              | undefined
+          }
         />
       );
     case 'BeforeDateTimePrecise':
     case 'AfterDateTimePrecise':
       return (
         <DateTimeModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{
+            date?: string | null;
+            time?: string | null;
+            precision?: string | null;
+          }>()}
+          name={(modifier as { name?: string }).name || ''}
           values={{
             date: (modifier.values as { date?: string })?.date || '',
             time: (modifier.values as { time?: string })?.time || '',
@@ -115,8 +157,12 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'AfterTimePrecise':
       return (
         <DateTimeModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{
+            date?: string | null;
+            time?: string | null;
+            precision?: string | null;
+          }>()}
+          name={(modifier as { name?: string }).name || ''}
           values={{
             time: (modifier.values as { time?: string })?.time || '',
             precision: (modifier.values as { precision?: string })?.precision || ''
@@ -128,10 +174,10 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'AfterQuantity':
       return (
         <QuantityModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{ value: number | string; unit: string }>()}
+          name={(modifier as { name?: string }).name || ''}
           unit={(modifier.values as { unit?: string })?.unit}
-          value={(modifier.values as { value?: string | number })?.value}
+          value={(modifier.values as { value?: string | number })?.value as number | undefined}
         />
       );
     case 'ContainsInteger':
@@ -142,9 +188,9 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'AfterDecimal':
       return (
         <NumberModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
-          value={(modifier.values as { value?: string | number })?.value}
+          handleUpdateModifier={createUpdateWrapper<{ value: string }>()}
+          name={(modifier as { name?: string }).name || ''}
+          value={String((modifier.values as { value?: string | number })?.value || '')}
         />
       );
     case 'ContainsDateTime':
@@ -152,8 +198,12 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'AfterDateTime':
       return (
         <DateTimeModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{
+            date?: string | null;
+            time?: string | null;
+            precision?: string | null;
+          }>()}
+          name={(modifier as { name?: string }).name || ''}
           values={{
             date: (modifier.values as { date?: string })?.date || '',
             time: (modifier.values as { time?: string })?.time || ''
@@ -165,19 +215,23 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
     case 'StartsWithString':
       return (
         <StringModifier
-          handleUpdateModifier={handleUpdateModifier}
-          name={modifier.name}
+          handleUpdateModifier={createUpdateWrapper<{ value: string }>()}
+          name={(modifier as { name?: string }).name || ''}
           value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'ExternalModifier':
       return (
         <ExternalModifier
-          argumentTypes={modifier.argumentTypes}
-          handleUpdateModifier={handleUpdateModifier}
-          modifierArguments={modifier.arguments}
-          name={modifier.name}
-          values={(modifier.values as { value?: unknown })?.value}
+          argumentTypes={
+            (modifier as { argumentTypes?: Array<{ calculated: string; [key: string]: unknown }> }).argumentTypes || []
+          }
+          handleUpdateModifier={createUpdateWrapper<{ value: unknown[] }>()}
+          modifierArguments={
+            ((modifier as { arguments?: unknown[] }).arguments || []) as Array<{ name: string; [key: string]: unknown }>
+          }
+          name={(modifier as { name?: string }).name || ''}
+          values={(modifier.values as { value?: unknown })?.value as unknown[] | undefined}
         />
       );
 
@@ -186,12 +240,12 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
         <UserDefinedModifier
           elementInstance={elementInstance}
           handleUpdateModifier={handleUpdateModifier}
-          label={`Custom: ${getModifierExpression(modifier)}`}
+          label={`Custom: ${getModifierExpression(modifier as unknown as ModifierTree)}`}
           modifier={modifier}
         />
       );
     default:
-      return <LabelModifier name={modifier.name} />;
+      return <LabelModifier name={(modifier as { name?: string }).name || ''} />;
   }
 };
 

@@ -5,7 +5,7 @@
  * - The migration also supports updating necessary modifiers on those elements.
  */
 import _ from 'lodash';
-import ValueSets from '../data/valueSets.ts';
+import ValueSets from '../data/valueSets.js';
 import pregnancyObjects from './utils/pregnancy-objects.js';
 import breastfeedingObjects from './utils/breastfeeding-objects.js';
 

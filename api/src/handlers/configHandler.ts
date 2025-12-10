@@ -3,12 +3,11 @@ import Templates from '../data/formTemplates.js';
 import ValueSets from '../data/valueSets.js';
 import fs from 'fs';
 
-// Import JSON files using fs.readFileSync
+import { getDataPath } from '../utils/paths.js';
+
+// Import JSON files using fs.readFileSync - read from src/data (not dist/data)
 const conversionsELMFile = JSON.parse(
-  fs.readFileSync(
-    new URL('../data/library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json', import.meta.url),
-    'utf-8'
-  )
+  fs.readFileSync(getDataPath('library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json'), 'utf-8')
 ) as {
   library: {
     statements: {
@@ -17,17 +16,20 @@ const conversionsELMFile = JSON.parse(
   };
 };
 const dstu2_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/dstu2_resources.json', import.meta.url), 'utf-8')
+  fs.readFileSync(getDataPath('query_builder/dstu2_resources.json'), 'utf-8')
 ) as Record<string, unknown>;
-const stu3_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/stu3_resources.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
-const r4_resources = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/r4_resources.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
-const operators = JSON.parse(
-  fs.readFileSync(new URL('../data/query_builder/operators.json', import.meta.url), 'utf-8')
-) as Record<string, unknown>;
+const stu3_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/stu3_resources.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
+const r4_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/r4_resources.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
+const operators = JSON.parse(fs.readFileSync(getDataPath('query_builder/operators.json'), 'utf-8')) as Record<
+  string,
+  unknown
+>;
 
 const queryResources = {
   dstu2_resources,

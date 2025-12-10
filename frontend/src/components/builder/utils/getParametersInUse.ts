@@ -25,20 +25,27 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
     .forEach(element => {
       // Handle parameters that are currently used
       const referenceField = getFieldWithType(element.fields, 'reference');
+      const referenceFieldWithValue = referenceField as { type?: string; id?: string; value?: unknown } | undefined;
       if (
-        referenceField?.id === 'parameterReference' &&
-        referenceField.value &&
-        typeof referenceField.value === 'object' &&
-        'id' in referenceField.value
+        referenceFieldWithValue?.id === 'parameterReference' &&
+        referenceFieldWithValue.value &&
+        typeof referenceFieldWithValue.value === 'object' &&
+        'id' in referenceFieldWithValue.value
       ) {
-        addParameterUsage(parametersInUse, referenceField.value.id as string, element.uniqueId || '');
+        addParameterUsage(
+          parametersInUse,
+          (referenceFieldWithValue.value as { id: string }).id,
+          element.uniqueId || ''
+        );
       } else if (
-        referenceField?.id === 'externalCqlReference' &&
-        referenceField.value &&
-        typeof referenceField.value === 'object' &&
-        'arguments' in referenceField.value
+        referenceFieldWithValue?.id === 'externalCqlReference' &&
+        referenceFieldWithValue.value &&
+        typeof referenceFieldWithValue.value === 'object' &&
+        'arguments' in referenceFieldWithValue.value
       ) {
-        const args = referenceField.value.arguments as Array<{ value?: { argSource?: string; selected?: string } }>;
+        const args = (
+          referenceFieldWithValue.value as { arguments?: Array<{ value?: { argSource?: string; selected?: string } }> }
+        ).arguments;
         args
           ?.map(arg => arg.value)
           .forEach(arg => {

@@ -3,7 +3,7 @@ import { Alert, Stack } from '@mui/material';
 import _ from 'lodash';
 
 import { ArgumentsTemplate } from 'components/builder/templates';
-import { getTypeByCqlArgument } from 'components/builder/editors/utils';
+import { getTypeByCqlArgument, type CqlArgument } from 'components/builder/editors/utils';
 
 interface ExternalCqlArgument {
   name: string;
@@ -60,11 +60,22 @@ const ExternalCqlTemplate: React.FC<ExternalCqlTemplateProps> = ({
         <ArgumentsTemplate
           key={index}
           argumentLabel={cqlArgument.name}
-          argumentType={getTypeByCqlArgument(cqlArgument)}
-          argumentValue={externalCqlArguments[index]?.value}
-          handleUpdateArgument={(newValue: ExternalCqlArgument['value']) =>
-            handleSelectExternalCqlArgument(newValue, index)
+          argumentType={getTypeByCqlArgument(cqlArgument as CqlArgument)}
+          argumentValue={
+            externalCqlArguments[index]?.value as
+              | {
+                  argSource?: string;
+                  selected?: string;
+                  elementName?: string;
+                  elementType?: string;
+                  type?: string;
+                  [key: string]: unknown;
+                }
+              | undefined
           }
+          handleUpdateArgument={newValue => {
+            handleSelectExternalCqlArgument(newValue as ExternalCqlArgument['value'], index);
+          }}
         />
       ))}
     </Stack>

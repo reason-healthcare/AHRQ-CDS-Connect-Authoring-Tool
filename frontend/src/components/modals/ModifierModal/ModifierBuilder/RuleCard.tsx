@@ -47,9 +47,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
   if (operatorOptions && ruleOption?.predefinedCodes && !ruleOption.allowsCustomCodes) {
     // Only predefined codes allowed, so filter out any operators that have concept operands not using predefined codes
     operatorOptions = operatorOptions.filter(op => {
-      const operands = op.userSelectedOperands as Operand[] | undefined;
-      const hasPredefinedCodesEditor = operands?.some(operand => operand.selectionRequiresPredefinedCodes);
-      const hasConceptOrValueSetEditor = operands?.some(operand =>
+      const userSelectedOperands = op.userSelectedOperands;
+      if (!Array.isArray(userSelectedOperands)) return false;
+      const operands = userSelectedOperands as Operand[];
+      const hasPredefinedCodesEditor = operands.some(operand => operand.selectionRequiresPredefinedCodes);
+      const hasConceptOrValueSetEditor = operands.some(operand =>
         ['System.Concept', 'valueset'].includes(operand.typeSpecifier?.editorType as string)
       );
       return hasPredefinedCodesEditor || !hasConceptOrValueSetEditor;
@@ -57,8 +59,10 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
   } else if (operatorOptions && !ruleOption?.predefinedCodes) {
     // No predefined codes, so filter out any operators that have operands requiring predefined codes
     operatorOptions = operatorOptions.filter(op => {
-      const operands = op.userSelectedOperands as Operand[] | undefined;
-      return !operands || !operands.some(operand => operand.selectionRequiresPredefinedCodes);
+      const userSelectedOperands = op.userSelectedOperands;
+      if (!Array.isArray(userSelectedOperands)) return true;
+      const operands = userSelectedOperands as Operand[];
+      return !operands.some(operand => operand.selectionRequiresPredefinedCodes);
     });
   }
 

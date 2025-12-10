@@ -38,6 +38,7 @@ export interface Instance {
   path?: string;
   template?: string;
   subpopulationName?: string;
+  tab?: string;
 }
 
 interface ElementTemplateGroup {
@@ -181,8 +182,10 @@ export function getLabelForInstance(
 }
 
 export function getReferenceArguments(
-  referenceFieldArgs: Array<{ value?: { argSource?: string; selected?: string } }>
-): Array<{ value?: { argSource?: string; selected?: string } }> {
+  referenceFieldArgs: Array<{
+    value?: { argSource?: string; selected?: string; elementName?: string; [key: string]: unknown };
+  }>
+): Array<{ value?: { argSource?: string; selected?: string; elementName?: string; [key: string]: unknown } }> {
   const referenceSetIds = new Set<string>();
   referenceFieldArgs.forEach(arg => {
     if (
@@ -199,5 +202,10 @@ export function getReferenceArguments(
 
   return [...referenceSetIds]
     .map(referenceSetId => referenceFieldArgs.find(arg => arg.value?.selected === referenceSetId))
-    .filter((arg): arg is { value?: { argSource?: string; selected?: string } } => arg !== undefined);
+    .filter(
+      (
+        arg
+      ): arg is { value?: { argSource?: string; selected?: string; elementName?: string; [key: string]: unknown } } =>
+        arg !== undefined
+    );
 }

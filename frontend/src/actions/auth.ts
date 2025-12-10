@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios';
-import type { Dispatch, AnyAction } from 'redux';
+import type { AnyAction, Dispatch } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { RootState } from '../reducers';
 
 import * as types from './types';
 
@@ -29,16 +31,15 @@ function sendUserRequest(): Promise<{ uid: string }> {
   });
 }
 
-export function getCurrentUser() {
-  return (dispatch: Dispatch) => {
+export function getCurrentUser(): ThunkAction<Promise<AnyAction>, RootState, never, AnyAction> {
+  return (dispatch: ThunkDispatch<RootState, never, AnyAction>) => {
     dispatch(requestUser());
 
     return sendUserRequest()
       .then(async data => {
-        const settingsThunk = getSettings();
-        const settingsResult = dispatch(settingsThunk as unknown as AnyAction);
-        if (settingsResult && typeof (settingsResult as unknown as Promise<unknown>).then === 'function') {
-          await (settingsResult as unknown as Promise<unknown>);
+        const settingsResult = dispatch(getSettings());
+        if (settingsResult && typeof settingsResult.then === 'function') {
+          await settingsResult;
         }
         return dispatch(userReceived(data.uid));
       })
@@ -78,15 +79,18 @@ function sendLoginRequest(username: string, password: string): Promise<{ uid: st
   });
 }
 
-export function loginUser(username: string, password: string) {
-  return (dispatch: Dispatch) => {
+export function loginUser(
+  username: string,
+  password: string
+): ThunkAction<Promise<AnyAction>, RootState, never, AnyAction> {
+  return (dispatch: ThunkDispatch<RootState, never, AnyAction>) => {
     dispatch(requestLogin());
 
     return sendLoginRequest(username, password)
       .then(async data => {
-        const settingsResult = dispatch(getSettings() as unknown as AnyAction);
-        if (settingsResult && typeof (settingsResult as unknown as Promise<unknown>).then === 'function') {
-          await (settingsResult as unknown as Promise<unknown>);
+        const settingsResult = dispatch(getSettings());
+        if (settingsResult && typeof settingsResult.then === 'function') {
+          await settingsResult;
         }
         return dispatch(loginSuccess(data.uid));
       })

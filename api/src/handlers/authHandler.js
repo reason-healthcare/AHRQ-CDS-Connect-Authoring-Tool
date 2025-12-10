@@ -1,6 +1,6 @@
 import passport from 'passport';
-import config from '../config.ts';
-import { sendUnauthorized } from './common.ts';
+import config from '../config.js';
+import { sendUnauthorized } from './common.js';
 
 function login(req, res, next) {
   // If the user is already logged in, log out first

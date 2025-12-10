@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+// eslint-disable-next-line import/no-unresolved
+import { useAppDispatch } from '../../../store/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDropzone } from 'react-dropzone';
 import { Alert, CircularProgress } from '@mui/material';
@@ -24,7 +26,7 @@ const ExternalCqlDropZone: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(null);
   const [uploadCqlErrors, setUploadCqlErrors] = useState<string[] | null>(null);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const dropZoneStyles = useDropZoneStyles();
   const spacingStyles = useSpacingStyles();
   const queryClient = useQueryClient();
