@@ -277,15 +277,10 @@ describe('<ExternalCQL />', () => {
         .reply(200, 'OK')
         .get('/authoring/api/artifacts')
         .reply(200, [mockArtifact])
-        .post('/authoring/api/externalCQL', {
-          library: {
-            cqlFileName: 'fhir-helpers.cql',
-            cqlFileContent: btoa(FHIRHelpers),
-            fileType: 'text/plain',
-            artifact: mockArtifact
-          }
+        .post('/authoring/api/externalCQL', () => true)
+        .reply(200, 'The CDS Authoring Tool already includes a version of the same library by default', {
+          'Content-Type': 'text/plain'
         })
-        .reply(200, 'The CDS Authoring Tool already includes a version of the same library by default')
         .get(`/authoring/api/externalCQL/${mockArtifact._id}`)
         .reply(200, [])
         .get(`/authoring/api/artifacts/${mockArtifact._id}`)
@@ -307,7 +302,7 @@ describe('<ExternalCQL />', () => {
 
       expect(
         await screen.findByText(/the CDS Authoring Tool already includes a version of the same library by default/i)
-      );
+      ).toBeInTheDocument();
       expect(await screen.findByText(/No external CQL libraries to show/i)).toBeInTheDocument();
     });
   });

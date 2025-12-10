@@ -14,7 +14,7 @@ const ExternalCql: React.FC = () => {
   const artifact = useAppSelector(state => state.artifacts.artifact);
   const query = { artifactId: artifact?._id || '' };
   const { data: externalCqlList, isLoading } = useQuery<ExternalCqlLibrary[]>({
-    queryKey: ['externalCql', artifact?._id],
+    queryKey: ['externalCql', query],
     queryFn: () => fetchExternalCqlList(query),
     enabled: artifact?._id != null
   });

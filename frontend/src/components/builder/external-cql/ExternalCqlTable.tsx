@@ -69,7 +69,7 @@ const ExternalCqlTable: React.FC<ExternalCqlTableProps> = ({ externalCqlList }) 
     mutationFn: deleteExternalCql,
     onSuccess: async () => {
       if (artifact._id) {
-        await queryClient.refetchQueries({ queryKey: ['externalCql', artifact._id] });
+        await queryClient.refetchQueries({ queryKey: ['externalCql', { artifactId: artifact._id }] });
         queryClient.invalidateQueries({ queryKey: ['modifiers'] });
         handleLoadArtifact(artifact._id);
       }

@@ -70,15 +70,22 @@ const ExternalCqlDropZone: React.FC = () => {
     onSuccess: (library: ExternalCqlLibrary) => {
       setMessage('Library successfully added');
       if (artifact._id) {
-        queryClient.refetchQueries({ queryKey: ['externalCql', artifact._id] }).then(() => {
+        queryClient.refetchQueries({ queryKey: ['externalCql', { artifactId: artifact._id }] }).then(() => {
           queryClient.invalidateQueries({ queryKey: ['modifiers'] });
           handleLoadArtifact(artifact._id);
         });
       }
     },
     onError: (error: AddExternalCqlError) => {
-      setMessage(null); // Clear success message if any
-      setUploadErrorMessage(error.statusText || 'An error occurred.');
+      setUploadErrorMessage(null); // Clear error message if any
+      const errorText = error.statusText || 'An error occurred.';
+      // Display "already includes" messages as info instead of error
+      if (/already includes/i.test(errorText)) {
+        setMessage(errorText);
+      } else {
+        setMessage(null);
+        setUploadErrorMessage(errorText);
+      }
       setUploadCqlErrors(
         error.cqlErrors ? [...new Set(error.cqlErrors.map(err => err.message || '').filter(Boolean))] : null
       );
