@@ -1,6 +1,7 @@
 interface EditorErrors {
   incompleteInput?: boolean;
   invalidInput?: boolean;
+  [key: string]: unknown;
 }
 
 interface EditorErrorResult {

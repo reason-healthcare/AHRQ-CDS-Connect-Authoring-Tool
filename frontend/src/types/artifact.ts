@@ -24,6 +24,7 @@ export interface ExpressionTree extends Instance {
   path?: string;
   conjunction?: boolean;
   childInstances?: ExpressionTree[];
+  [key: string]: unknown;
 }
 
 export interface Subpopulation {
@@ -95,6 +96,7 @@ export interface Parameter {
   comment?: string;
   usedBy?: string[];
   value?: ParameterValue;
+  [key: string]: unknown;
 }
 
 export interface BaseElement extends Instance {

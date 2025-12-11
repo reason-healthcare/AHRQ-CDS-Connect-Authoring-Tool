@@ -36,8 +36,16 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 }) => {
   const artifact = useSelector((state: RootState) => state.artifacts.artifact);
   const [displayMode, setDisplayMode] = useState<DisplayMode>(modifierToEdit ? 'editModifier' : null);
-  const [modifiersToAdd, setModifiersToAdd] = useState<Array<Modifier & { uniqueId?: string; name?: string }>>(
-    modifierToEdit ? [{ ...modifierToEdit, uniqueId: modifierToEdit.uniqueId, name: modifierToEdit.name }] : []
+  const [modifiersToAdd, setModifiersToAdd] = useState<Array<ModifierTree & { uniqueId?: string; name?: string }>>(
+    modifierToEdit
+      ? [
+          {
+            ...modifierToEdit,
+            uniqueId: (modifierToEdit.uniqueId as string | undefined) || undefined,
+            name: modifierToEdit.name
+          }
+        ]
+      : []
   );
   const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion || '');
   const dispatch = useDispatch();
@@ -54,10 +62,12 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 
   const handleSaveModal = async (): Promise<void> => {
     if (fhirVersion !== artifact.fhirVersion) {
-      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
+      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }) as unknown as { type: string });
     }
     handleUpdateModifiers(
-      modifierToEdit ? modifiersToAdd : (elementInstance.modifiers || []).concat(modifiersToAdd),
+      modifierToEdit
+        ? (modifiersToAdd as unknown as Modifier[])
+        : (elementInstance.modifiers || []).concat(modifiersToAdd as unknown as Modifier[]),
       fhirVersion
     );
     handleCloseModal();
@@ -89,7 +99,12 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
     <Modal
       handleCloseModal={handleCloseModal}
       handleSaveModal={handleSaveModal}
-      Header={<ModifierModalHeader elementInstance={elementInstance} modifiersToAdd={modifiersToAdd} />}
+      Header={
+        <ModifierModalHeader
+          elementInstance={elementInstance}
+          modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
+        />
+      }
       hasCancelButton
       hasEnterKeySubmit={false}
       isOpen
@@ -140,8 +155,10 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
             elementInstance={elementInstance}
             handleGoBack={handleReset}
             hasLimitedModifiers={hasLimitedModifiers}
-            modifiersToAdd={modifiersToAdd}
-            setModifiersToAdd={setModifiersToAdd}
+            modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
+            setModifiersToAdd={(modifiers: Array<Modifier & { uniqueId?: string; name?: string }>) =>
+              setModifiersToAdd(modifiers as unknown as Array<ModifierTree & { uniqueId?: string; name?: string }>)
+            }
           />
         )}
 
@@ -152,9 +169,11 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
             elementInstanceReturnType={elementInstance.returnType || ''}
             fhirVersion={fhirVersion}
             handleGoBack={handleReset}
-            modifiersToAdd={modifiersToAdd}
+            modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
             modifierToEdit={modifierToEdit}
-            setModifiersToAdd={setModifiersToAdd}
+            setModifiersToAdd={(modifiers: Array<Modifier & { uniqueId?: string; name?: string }>) =>
+              setModifiersToAdd(modifiers as unknown as Array<ModifierTree & { uniqueId?: string; name?: string }>)
+            }
           />
         )}
       </div>

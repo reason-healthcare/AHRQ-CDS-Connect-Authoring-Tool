@@ -13,6 +13,7 @@ import createTemplateInstance from 'utils/templates';
 import { getSubpopulationErrors, hasGroupNestedWarning, isSubpopulationUsed } from 'utils/warnings';
 import { getAllElements, getElementNames } from 'components/builder/utils';
 import type { Instance } from '../../utils/instances';
+import type { Subpopulation as SubpopulationType } from '../../types/artifact';
 
 const TREE_NAME = 'subpopulations';
 
@@ -89,7 +90,7 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
     (newSubpopulation as { subpopulationName?: string }).subpopulationName =
       `Subpopulation ${(subpopulations?.length || 0) - numOfSpecialSubpopulations + 1}`;
     (newSubpopulation as { expanded?: boolean }).expanded = true;
-    const newSubpopulations = (subpopulations || []).concat([newSubpopulation]);
+    const newSubpopulations = (subpopulations || []).concat([newSubpopulation as SubpopulationType]);
 
     updateSubpopulations(newSubpopulations, TREE_NAME);
   };

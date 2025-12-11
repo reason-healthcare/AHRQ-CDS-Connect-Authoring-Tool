@@ -11,6 +11,7 @@ interface Template {
 interface TemplateInstance extends Template {
   uniqueId: string;
   childInstances?: unknown[];
+  [key: string]: unknown;
 }
 
 /**

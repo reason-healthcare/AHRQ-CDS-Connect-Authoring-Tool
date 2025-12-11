@@ -19,6 +19,7 @@ interface TabMetadataMap {
   parameters: TabMetadata;
   handleErrors: TabMetadata;
   externalCQL: TabMetadata;
+  [key: string]: TabMetadata;
 }
 
 export const getTabMetadata = (artifact: Artifact, externalCqlListLength: number): TabMetadataMap => {

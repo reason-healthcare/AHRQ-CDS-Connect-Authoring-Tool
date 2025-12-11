@@ -32,6 +32,8 @@ const FastNested: React.FC<FastNestedProps> = memo(({ name, fields }) => {
     <Paper className={styles.fieldGroupContainer}>
       {fields.map(field => {
         const FormComponent = field.component;
+        // eslint-disable-next-line no-unused-vars
+        const { component, ...fieldProps } = field;
 
         return (
           <FormComponent
@@ -39,7 +41,7 @@ const FastNested: React.FC<FastNestedProps> = memo(({ name, fields }) => {
             key={field.name}
             name={field.name}
             namePrefix={name}
-            {...field}
+            {...(fieldProps as Record<string, string | number | boolean | null | undefined>)}
           />
         );
       })}

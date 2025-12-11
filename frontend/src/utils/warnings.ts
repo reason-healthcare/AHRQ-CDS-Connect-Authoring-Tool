@@ -420,7 +420,7 @@ export const getSubpopulationErrors = (
   recommendations: Recommendation[],
   instanceNames: InstanceName[]
 ): Alert[] => {
-  const doesHaveEmptySubpopulationWarning = isSubpopulationEmpty(subpopulation as { childInstances?: unknown[] });
+  const doesHaveEmptySubpopulationWarning = isSubpopulationEmpty(subpopulation as { childInstances?: Instance[] });
   const doesHaveDuplicateName =
     instanceNames.findIndex(
       name => name.id !== subpopulation.uniqueId && name.name === subpopulation.subpopulationName

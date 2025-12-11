@@ -16,9 +16,7 @@ import type { Instance } from '../../../utils/instances';
 interface VSACOptionsActionProps {
   allowsVSAC: boolean;
   elementInstance: Instance;
-  handleUpdateElement: (
-    newElementField: Record<string, unknown> | Array<Record<string, unknown>>
-  ) => void;
+  handleUpdateElement: (newElementField: Record<string, unknown> | Array<Record<string, unknown>>) => void;
 }
 
 interface ValueSet {

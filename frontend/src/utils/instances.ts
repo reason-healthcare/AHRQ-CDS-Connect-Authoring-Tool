@@ -28,6 +28,7 @@ export interface Instance {
   type?: string;
   usedBy?: string[];
   conjunction?: boolean;
+  [key: string]: unknown;
   validator?: {
     type: string;
     fields: string[];

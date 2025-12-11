@@ -81,7 +81,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
 
     let artifactPropsToUpdate: Partial<Artifact> = { [treeName]: tree as ExpressionTree };
     if (treeArray != null && treeIndex != null) {
-      treeArray[treeIndex] = tree;
+      treeArray[treeIndex] = tree as ExpressionTree;
       artifactPropsToUpdate = { [treeName]: treeArray as ExpressionTree[] };
     }
 
@@ -269,7 +269,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
   };
 
   const updateSubpopulations = (
-    subpopulations: Subpopulation[],
+    subpopulations: Subpopulation[] | Instance[],
     target = 'subpopulations',
     updateFHIRVersion = false
   ): void => {

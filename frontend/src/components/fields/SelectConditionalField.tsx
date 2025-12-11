@@ -44,7 +44,16 @@ const FastSelectConditionalField: React.FC<FastSelectConditionalFieldProps> = me
           conditions[currentValue] &&
           conditions[currentValue].map((field, index) => {
             const FormComponent = field.component;
-            return <FormComponent key={index} {...field} name={field.name} namePrefix={namePrefix} />;
+            // eslint-disable-next-line no-unused-vars
+            const { component, ...fieldProps } = field;
+            return (
+              <FormComponent
+                key={index}
+                {...(fieldProps as Record<string, string | number | boolean | null | undefined>)}
+                name={field.name}
+                namePrefix={namePrefix}
+              />
+            );
           })}
       </div>
     );

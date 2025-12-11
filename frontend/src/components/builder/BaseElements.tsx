@@ -82,7 +82,7 @@ const BaseElements: React.FC<BaseElementsProps> = ({
         (nameField as { value?: string }).value = `Base Element ${(baseElements?.length || 0) + 1}`;
       }
     }
-    addBaseElement(instance);
+    addBaseElement(instance as Instance);
   };
 
   const updateBaseElements = (newBaseElement: Instance, index: number): void => {

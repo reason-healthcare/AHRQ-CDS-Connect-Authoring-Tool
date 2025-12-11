@@ -72,6 +72,7 @@ The recent type improvements may have changed how `handleUpdateElement` is calle
 **Status:** ✅ **FIXED** - Batched updates into single array call
 
 **Resolution:**
+
 - Changed `VSACOptionsAction` to batch all updates into a single array and call `handleUpdateElement` once
 - Updated `handleUpdateElement` type signature to accept both single objects and arrays (matching `editInstance` signature)
 - Updated tests to expect 1 call with an array containing the batched updates
@@ -120,6 +121,7 @@ The type improvements changed `handleUpdateElement` signature from accepting `Ar
 **Status:** ✅ **FIXED** - Updated tests to expect single object instead of array
 
 **Resolution:**
+
 - Updated test expectations to match new `handleUpdateElement` signature: expects single object `{...}` instead of array `[{...}]`
 - This aligns with the type improvements that changed the function signature
 
@@ -178,11 +180,13 @@ The type improvements to `RuleCard.tsx` changed how options are passed to the `D
 **Status:** ✅ **FIXED** - Fixed operator filtering and CheckExistenceModifier value handling
 
 **Resolution:**
+
 1. **Fixed operator filtering in RuleCard.tsx**: Updated filtering logic to keep operators without operands (like "is null") instead of filtering them out
 2. **Fixed CheckExistenceModifier value type**: Changed from boolean to string in `ModifierForm.tsx` to match the expected 'is null'/'is not null' string values
 3. **Fixed ModifierSelectorRow value extraction**: Updated to extract values from the full modifier object that `ModifierForm` passes
 
 **Files Changed:**
+
 - `frontend/src/components/modals/ModifierModal/ModifierBuilder/RuleCard.tsx` - Fixed operator filtering
 - `frontend/src/components/builder/modifiers/ModifierForm.tsx` - Fixed CheckExistence value type
 - `frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelectorRow.tsx` - Fixed value extraction

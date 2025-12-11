@@ -43,6 +43,8 @@ const FastGroupedField: React.FC<FastGroupedFieldProps> = memo(({ name, index, r
 
       {fields.map(field => {
         const FormComponent = field.component;
+        // eslint-disable-next-line no-unused-vars
+        const { component, ...fieldProps } = field;
 
         return (
           <FormComponent
@@ -50,7 +52,7 @@ const FastGroupedField: React.FC<FastGroupedFieldProps> = memo(({ name, index, r
             key={field.name}
             name={field.name}
             namePrefix={namePrefix}
-            {...field}
+            {...(fieldProps as Record<string, string | number | boolean | null | undefined>)}
           />
         );
       })}

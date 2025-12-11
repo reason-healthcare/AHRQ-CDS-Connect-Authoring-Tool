@@ -23,9 +23,7 @@ interface ArtifactElementProps {
   handleDeleteElement: () => void;
   handleIndent?: () => void;
   handleOutdent?: () => void;
-  handleUpdateElement: (
-    newElementField: Record<string, unknown> | Array<Record<string, unknown>>
-  ) => void;
+  handleUpdateElement: (newElementField: Record<string, unknown> | Array<Record<string, unknown>>) => void;
   hasErrors: boolean;
   elementInstance: Instance;
   label: string;

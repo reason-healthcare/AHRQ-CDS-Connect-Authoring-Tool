@@ -107,7 +107,11 @@ const RuleCard: React.FC<RuleCardProps> = ({ handleRemoveRule, handleUpdateRule,
               })
             }
             options={
-              operatorOptions as Array<
+              operatorOptions.map(op => ({
+                ...op,
+                value: op.id,
+                label: op.name
+              })) as Array<
                 | string
                 | number
                 | {

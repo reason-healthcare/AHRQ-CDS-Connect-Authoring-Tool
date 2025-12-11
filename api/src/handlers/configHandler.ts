@@ -10,7 +10,10 @@ const __dirname = path.dirname(__filename);
 
 // Import JSON files using fs.readFileSync - read from data directory (works in both src and dist)
 const conversionsELMFile = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../data/library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json'), 'utf-8')
+  fs.readFileSync(
+    path.join(__dirname, '../data/library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json'),
+    'utf-8'
+  )
 ) as {
   library: {
     statements: {

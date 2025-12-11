@@ -4,7 +4,7 @@ import _ from 'lodash';
 import createTemplateInstance from 'utils/templates';
 import { getFieldWithId } from 'utils/instances';
 import { generateErrorStatement } from 'components/builder/error-statement/utils';
-import type { Artifact } from '../../types/artifact';
+import type { Artifact, ExpressionTree } from '../../types/artifact';
 
 interface Template {
   name?: string;
@@ -58,8 +58,8 @@ function initialArtifact(templates: Template[]): Artifact {
     name: 'Untitled Artifact',
     version: '1',
     fhirVersion: '',
-    expTreeInclude: newTrees.newExpTreeInclude,
-    expTreeExclude: newTrees.newExpTreeExclude,
+    expTreeInclude: newTrees.newExpTreeInclude as ExpressionTree,
+    expTreeExclude: newTrees.newExpTreeExclude as ExpressionTree,
     recommendations: [],
     subpopulations: [
       {

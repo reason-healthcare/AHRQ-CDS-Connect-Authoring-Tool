@@ -348,7 +348,12 @@ function addGroupedConceptExpression(
   // Create grouped expression
   const multipleConceptExpression = createMultipleConceptExpression(
     uniqueName,
-    (valuesets.concepts as Array<{ code?: string; system?: string; display?: string; [key: string]: string | undefined }>) || [],
+    (valuesets.concepts as Array<{
+      code?: string;
+      system?: string;
+      display?: string;
+      [key: string]: string | undefined;
+    }>) || [],
     type
   );
   referencedConceptElements.push(multipleConceptExpression);
@@ -407,9 +412,7 @@ function isParameterUseChanged(element: ArtifactElement, parameters: ArtifactPar
   const nameField = getFieldWithId(element.fields || [], 'element_name');
   const commentField = getFieldWithId(element.fields || [], 'comment');
 
-  const originalParameter = parameters.find(
-    (param: ArtifactParameter) => referenceField.value?.id === param.uniqueId
-  );
+  const originalParameter = parameters.find((param: ArtifactParameter) => referenceField.value?.id === param.uniqueId);
   if (!originalParameter) {
     // This case should never happen because you can't delete parameters while in use.
     return true;
@@ -531,8 +534,7 @@ class CqlArtifact {
         : includeLibrariesR401;
     this.includeLibraries = this.includeLibraries.concat(artifact.externalLibs || []);
     const artifactContext = Array.isArray(artifact.context) ? undefined : (artifact.context as string | undefined);
-    this.context =
-      typeof artifactContext === 'string' && artifactContext.length > 0 ? artifactContext : 'Patient';
+    this.context = typeof artifactContext === 'string' && artifactContext.length > 0 ? artifactContext : 'Patient';
     this.inclusions = artifact.expTreeInclude;
     this.parameters = artifact.parameters || [];
     this.exclusions = artifact.expTreeExclude;
@@ -609,10 +611,9 @@ class CqlArtifact {
       if (baseElement.type === 'parameter') {
         isParameterUseAndUnchanged = !isParameterUseChanged(baseElement, this.parameters);
       }
-      const baseElementNameField = getFieldWithId(
-        (baseElement.fields as ArtifactField[]) || [],
-        'element_name'
-      ) as ArtifactField | undefined;
+      const baseElementNameField = getFieldWithId((baseElement.fields as ArtifactField[]) || [], 'element_name') as
+        | ArtifactField
+        | undefined;
       if (baseElementNameField) {
         const count = getCountForUniqueExpressionName(
           baseElementNameField as Record<string, unknown>,
@@ -876,9 +877,7 @@ class CqlArtifact {
     fields.forEach((field: ArtifactField) => {
       if (field.id === 'comment') {
         context[field.id] = createCommentArray(
-          typeof field.value === 'string' || Array.isArray(field.value)
-            ? (field.value as string | string[])
-            : undefined
+          typeof field.value === 'string' || Array.isArray(field.value) ? (field.value as string | string[]) : undefined
         );
       } else {
         context[field.id] = field.value;
@@ -1087,9 +1086,7 @@ class CqlArtifact {
             const referencedElement = this.baseElements.find((e: ArtifactElement) => e.uniqueId === valueId);
             if (referencedElement) {
               const referencedElementFields = (referencedElement.fields as ArtifactField[]) || [];
-              const nameField = getFieldWithId(referencedElementFields, 'element_name') as
-                | ArtifactField
-                | undefined;
+              const nameField = getFieldWithId(referencedElementFields, 'element_name') as ArtifactField | undefined;
               const referencedElementName =
                 (nameField?.value as string | undefined) || (referencedElement.uniqueId as string);
               context.values = [`"${referencedElementName}"`];
@@ -2077,34 +2074,39 @@ function validateELM(
   const artifacts = [artifactJson, ...externalLibs];
   const artifactDataModel = (artifact as { dataModel?: { version?: string } })?.dataModel;
   const fhirVersionForElm = artifactDataModel?.version || '4.0.1';
-  convertToElm(artifacts, false, (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
-    if (err) {
-      callback(err);
-      return;
-    }
-    let elmErrors: Array<unknown> = [];
-    const typedElmFiles = (elmFiles || []) as Array<{ name: string; content: string }>;
-    typedElmFiles.forEach((e: { name: string; content: string }) => {
-      const annotations = JSON.parse(e.content).library.annotation;
-      if (Array.isArray(annotations)) {
-        // Only return true errors (not warnings)
-        const fileErrors = annotations.filter((a: { errorSeverity: string }) => a.errorSeverity === 'error');
-        if (fileErrors.length) {
-          elmErrors = elmErrors.concat(fileErrors);
-        }
+  convertToElm(
+    artifacts,
+    false,
+    (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
+      if (err) {
+        callback(err);
+        return;
       }
-    });
-    if (includeCQL) {
-      // Include CQL text along with the ELM
-      // TODO: Also include any libraries
-      let cqlFiles = artifacts.map((artifact: Record<string, unknown>) => {
-        return { name: (artifact.name || artifact.filename) as string, text: artifact.text as string };
+      let elmErrors: Array<unknown> = [];
+      const typedElmFiles = (elmFiles || []) as Array<{ name: string; content: string }>;
+      typedElmFiles.forEach((e: { name: string; content: string }) => {
+        const annotations = JSON.parse(e.content).library.annotation;
+        if (Array.isArray(annotations)) {
+          // Only return true errors (not warnings)
+          const fileErrors = annotations.filter((a: { errorSeverity: string }) => a.errorSeverity === 'error');
+          if (fileErrors.length) {
+            elmErrors = elmErrors.concat(fileErrors);
+          }
+        }
       });
-      typedWriteStream.json({ elmFiles, elmErrors, cqlFiles });
-    } else {
-      typedWriteStream.json({ elmFiles, elmErrors });
-    }
-  }, fhirVersionForElm);
+      if (includeCQL) {
+        // Include CQL text along with the ELM
+        // TODO: Also include any libraries
+        let cqlFiles = artifacts.map((artifact: Record<string, unknown>) => {
+          return { name: (artifact.name || artifact.filename) as string, text: artifact.text as string };
+        });
+        typedWriteStream.json({ elmFiles, elmErrors, cqlFiles });
+      } else {
+        typedWriteStream.json({ elmFiles, elmErrors });
+      }
+    },
+    fhirVersionForElm
+  );
 }
 
 //given a CQLArtifact, find the associated Artifact in the DB, convert it to a CPG Publishable Library
@@ -2151,46 +2153,51 @@ function writeZip(
     // We must first convert to ELM before packaging up
     const artifactDataModel = (artifact as { dataModel?: { version?: string } }).dataModel;
     const fhirVersionForElm = artifactDataModel?.version || '4.0.1';
-    convertToElm(artifacts, true, (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
-      if (err) {
-        callback(err);
-        return;
-      }
-      // Now build the zip, piping it to the writestream
-      typedWriteStream.attachment('archive-name.zip');
-      const archive = archiver('zip', { zlib: { level: 9 } }).on('error', callback);
-      typedWriteStream.on('close', callback);
-      archive.pipe(typedWriteStream);
+    convertToElm(
+      artifacts,
+      true,
+      (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        // Now build the zip, piping it to the writestream
+        typedWriteStream.attachment('archive-name.zip');
+        const archive = archiver('zip', { zlib: { level: 9 } }).on('error', callback);
+        typedWriteStream.on('close', callback);
+        archive.pipe(typedWriteStream);
 
-      externalLibs.forEach((externalLib: Record<string, unknown>) => {
-        archive.append((externalLib.text as string) || '', {
-          name: `${externalLib.filename as string}.cql`
-        });
-      });
-      if (typeof cpgString === 'string') {
-        archive.append(cpgString, {
-          name: `Library-${artifactJson.filename as string}.json`
-        });
-      } else {
-        console.log('Error with CPG Publishable library: ' + (cpgString as { error?: unknown }).error);
-      }
-      archive.append((artifactJson.text as string) || '', {
-        name: `${artifactJson.filename as string}.cql`
-      });
-      if (elmFiles) {
-        (elmFiles as Array<{ name: string; content: string }>).forEach((e: { name: string; content: string }) => {
-          archive.append(e.content.replace(/\r\n|\r|\n/g, '\r\n'), {
-            name: e.content.startsWith('<') ? `${e.name}.xml` : `${e.name}.json`
+        externalLibs.forEach((externalLib: Record<string, unknown>) => {
+          archive.append((externalLib.text as string) || '', {
+            name: `${externalLib.filename as string}.cql`
           });
         });
-      }
+        if (typeof cpgString === 'string') {
+          archive.append(cpgString, {
+            name: `Library-${artifactJson.filename as string}.json`
+          });
+        } else {
+          console.log('Error with CPG Publishable library: ' + (cpgString as { error?: unknown }).error);
+        }
+        archive.append((artifactJson.text as string) || '', {
+          name: `${artifactJson.filename as string}.cql`
+        });
+        if (elmFiles) {
+          (elmFiles as Array<{ name: string; content: string }>).forEach((e: { name: string; content: string }) => {
+            archive.append(e.content.replace(/\r\n|\r|\n/g, '\r\n'), {
+              name: e.content.startsWith('<') ? `${e.name}.xml` : `${e.name}.json`
+            });
+          });
+        }
 
-      const artifactDataModel = (artifact as { dataModel?: { version?: string } }).dataModel;
-      const fhirVersion = artifactDataModel?.version || '4.0.1';
-      const helperPathForArchive = path.join(__dirname, `../data/library_helpers/CQLFiles/${fhirVersion}`);
-      archive.glob('FHIRHelpers.cql', { cwd: helperPathForArchive });
-      archive.finalize();
-    }, fhirVersionForElm);
+        const artifactDataModel = (artifact as { dataModel?: { version?: string } }).dataModel;
+        const fhirVersion = artifactDataModel?.version || '4.0.1';
+        const helperPathForArchive = path.join(__dirname, `../data/library_helpers/CQLFiles/${fhirVersion}`);
+        archive.glob('FHIRHelpers.cql', { cwd: helperPathForArchive });
+        archive.finalize();
+      },
+      fhirVersionForElm
+    );
   });
 }
 
