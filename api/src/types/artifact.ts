@@ -140,8 +140,11 @@ export interface ArtifactContext {
   valueCodeableConcept?: { coding?: Array<{ system?: string; code?: string; display?: string }> };
   [key: string]:
     | string
+    | string[]
     | { system?: string; code?: string; display?: string }
     | Array<{ system?: string; code?: string; display?: string }>
+    | { coding?: Array<{ system?: string; code?: string; display?: string }> }
+    | unknown
     | undefined;
 }
 

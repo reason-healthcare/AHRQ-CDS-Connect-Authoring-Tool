@@ -2,12 +2,15 @@ import { Request, Response } from 'express';
 import Templates from '../data/formTemplates.js';
 import ValueSets from '../data/valueSets.js';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { getDataPath } from '../utils/paths.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Import JSON files using fs.readFileSync - read from src/data (not dist/data)
+// Import JSON files using fs.readFileSync - read from data directory (works in both src and dist)
 const conversionsELMFile = JSON.parse(
-  fs.readFileSync(getDataPath('library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json'), 'utf-8')
+  fs.readFileSync(path.join(__dirname, '../data/library_helpers/ELMFiles/AT_Internal_CDS_Connect_Conversions.json'), 'utf-8')
 ) as {
   library: {
     statements: {
@@ -16,20 +19,17 @@ const conversionsELMFile = JSON.parse(
   };
 };
 const dstu2_resources = JSON.parse(
-  fs.readFileSync(getDataPath('query_builder/dstu2_resources.json'), 'utf-8')
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/dstu2_resources.json'), 'utf-8')
 ) as Record<string, unknown>;
-const stu3_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/stu3_resources.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
-const r4_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/r4_resources.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
-const operators = JSON.parse(fs.readFileSync(getDataPath('query_builder/operators.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
+const stu3_resources = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/stu3_resources.json'), 'utf-8')
+) as Record<string, unknown>;
+const r4_resources = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/r4_resources.json'), 'utf-8')
+) as Record<string, unknown>;
+const operators = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/operators.json'), 'utf-8')
+) as Record<string, unknown>;
 
 const queryResources = {
   dstu2_resources,

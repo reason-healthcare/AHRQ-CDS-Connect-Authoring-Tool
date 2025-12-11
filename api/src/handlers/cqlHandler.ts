@@ -1,6 +1,10 @@
 import { Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import _ from 'lodash';
 import slug from 'slug';
@@ -19,34 +23,31 @@ import exportCQL from '../cql-merge/export/exportCQL.js';
 import importCQL from '../cql-merge/import/importCQL.js';
 import RawCQL from '../cql-merge/utils/RawCQL.js';
 import { AuthenticatedRequest, sendUnauthorized } from './common.js';
-import { getDataPath } from '../utils/paths.js';
 import type {
   ArtifactElement,
   ArtifactParameter,
   ArtifactSubpopulation,
   ArtifactRecommendation,
   ArtifactErrorStatement,
-  ArtifactModifier,
   ArtifactField,
-  ArtifactStructure
+  ArtifactStructure,
+  ArtifactContext,
+  ArtifactModifier
 } from '../types/artifact.js';
 
 // Import JSON files using fs.readFileSync - read from src/data (not dist/data)
 const dstu2_resources = JSON.parse(
-  fs.readFileSync(getDataPath('query_builder/dstu2_resources.json'), 'utf-8')
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/dstu2_resources.json'), 'utf-8')
 ) as Record<string, unknown>;
-const stu3_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/stu3_resources.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
-const r4_resources = JSON.parse(fs.readFileSync(getDataPath('query_builder/r4_resources.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
-const operators = JSON.parse(fs.readFileSync(getDataPath('query_builder/operators.json'), 'utf-8')) as Record<
-  string,
-  unknown
->;
+const stu3_resources = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/stu3_resources.json'), 'utf-8')
+) as Record<string, unknown>;
+const r4_resources = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/r4_resources.json'), 'utf-8')
+) as Record<string, unknown>;
+const operators = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/query_builder/operators.json'), 'utf-8')
+) as Record<string, unknown>;
 
 const queryResources: Record<string, Record<string, unknown>> = {
   dstu2_resources,
@@ -55,11 +56,11 @@ const queryResources: Record<string, Record<string, unknown>> = {
   operators
 };
 
-const templatePath = getDataPath('cql/templates');
-const specificPath = getDataPath('cql/specificTemplates');
-const modifierPath = getDataPath('cql/modifiers');
-const rulePath = getDataPath('cql/rules');
-const artifactPath = getDataPath('cql/artifact.ejs');
+const templatePath = path.join(__dirname, '../data/cql/templates');
+const specificPath = path.join(__dirname, '../data/cql/specificTemplates');
+const modifierPath = path.join(__dirname, '../data/cql/modifiers');
+const rulePath = path.join(__dirname, '../data/cql/rules');
+const artifactPath = path.join(__dirname, '../data/cql/artifact.ejs');
 const specificMap = loadTemplates(specificPath);
 const templateMap = loadTemplates(templatePath);
 const modifierMap = loadTemplates(modifierPath);
@@ -312,7 +313,7 @@ function addGroupedValueSetExpression(
   // Create grouped expression
   const multipleValueSetExpression = createMultipleValueSetExpression(
     uniqueName,
-    (valuesets.valuesets as Array<unknown>) || [],
+    (valuesets.valuesets as Array<{ name?: string; oid?: string; [key: string]: string | undefined }>) || [],
     type
   );
   referencedElements.push(multipleValueSetExpression);
@@ -347,7 +348,7 @@ function addGroupedConceptExpression(
   // Create grouped expression
   const multipleConceptExpression = createMultipleConceptExpression(
     uniqueName,
-    (valuesets.concepts as Array<unknown>) || [],
+    (valuesets.concepts as Array<{ code?: string; system?: string; display?: string; [key: string]: string | undefined }>) || [],
     type
   );
   referencedConceptElements.push(multipleConceptExpression);
@@ -355,9 +356,9 @@ function addGroupedConceptExpression(
 
 function isBaseElementUseChanged(element: ArtifactElement, baseElements: ArtifactElement[]): boolean {
   const referenceField = getFieldWithType(
-    (element.fields as Array<{ type: string; value?: { id: string } }>) || [],
+    (element.fields as Array<{ id: string; type: string; value?: { id: string } }>) || [],
     'reference'
-  ) as { value: { id: string } } | undefined;
+  ) as { id: string; value?: { id: string } } | undefined;
   if (!referenceField) {
     // This case should never happen because an element of type base element will never NOT have a reference field
     return true;
@@ -367,7 +368,7 @@ function isBaseElementUseChanged(element: ArtifactElement, baseElements: Artifac
   const commentField = getFieldWithId(element.fields || [], 'comment');
 
   const originalBaseElement = baseElements.find(
-    (baseEl: ArtifactElement) => referenceField.value.id === baseEl.uniqueId
+    (baseEl: ArtifactElement) => referenceField.value?.id === baseEl.uniqueId
   );
   if (!originalBaseElement) {
     // This case should never happen because you can't delete base elements while in use.
@@ -395,9 +396,9 @@ function isBaseElementUseChanged(element: ArtifactElement, baseElements: Artifac
 
 function isParameterUseChanged(element: ArtifactElement, parameters: ArtifactParameter[]): boolean {
   const referenceField = getFieldWithType(
-    (element.fields as Array<{ type: string; value?: { id: string } }>) || [],
+    (element.fields as Array<{ id: string; type: string; value?: { id: string } }>) || [],
     'reference'
-  ) as { value: { id: string } } | undefined;
+  ) as { id: string; value?: { id: string } } | undefined;
   if (!referenceField) {
     // This case should never happen because an element of type parameter will never NOT have a reference field
     return true;
@@ -406,7 +407,9 @@ function isParameterUseChanged(element: ArtifactElement, parameters: ArtifactPar
   const nameField = getFieldWithId(element.fields || [], 'element_name');
   const commentField = getFieldWithId(element.fields || [], 'comment');
 
-  const originalParameter = parameters.find((param: ArtifactParameter) => referenceField.value.id === param.uniqueId);
+  const originalParameter = parameters.find(
+    (param: ArtifactParameter) => referenceField.value?.id === param.uniqueId
+  );
   if (!originalParameter) {
     // This case should never happen because you can't delete parameters while in use.
     return true;
@@ -424,7 +427,11 @@ function isParameterUseChanged(element: ArtifactElement, parameters: ArtifactPar
   if (
     commentField &&
     !_.isEqual(
-      createCommentArray(commentField.value) || [],
+      createCommentArray(
+        typeof commentField.value === 'string' || Array.isArray(commentField.value)
+          ? (commentField.value as string | string[])
+          : undefined
+      ) || [],
       (Array.isArray(originalParameter.comment)
         ? originalParameter.comment
         : originalParameter.comment
@@ -495,7 +502,7 @@ class CqlArtifact {
   referencedElements!: ArtifactElement[];
   referencedConceptElements!: ArtifactElement[];
   unionedElements!: ArtifactElement[];
-  contexts!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
+  contexts!: ArtifactContext[];
   conjunctions!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
   conjunction_main!: Array<Record<string, string | number | boolean | ArtifactElement[] | undefined>>;
   names!: Map<string, number>;
@@ -523,8 +530,9 @@ class CqlArtifact {
           }>) || includeLibrariesR401
         : includeLibrariesR401;
     this.includeLibraries = this.includeLibraries.concat(artifact.externalLibs || []);
-    const artifactContext = Array.isArray(artifact.context) ? undefined : artifact.context;
-    this.context = typeof artifactContext === 'string' && artifactContext.length > 0 ? artifactContext : 'Patient';
+    const artifactContext = Array.isArray(artifact.context) ? undefined : (artifact.context as string | undefined);
+    this.context =
+      typeof artifactContext === 'string' && artifactContext.length > 0 ? artifactContext : 'Patient';
     this.inclusions = artifact.expTreeInclude;
     this.parameters = artifact.parameters || [];
     this.exclusions = artifact.expTreeExclude;
@@ -602,9 +610,9 @@ class CqlArtifact {
         isParameterUseAndUnchanged = !isParameterUseChanged(baseElement, this.parameters);
       }
       const baseElementNameField = getFieldWithId(
-        (baseElement.fields as Array<{ id: string; value?: unknown }>) || [],
+        (baseElement.fields as ArtifactField[]) || [],
         'element_name'
-      ) as { value: unknown } | undefined;
+      ) as ArtifactField | undefined;
       if (baseElementNameField) {
         const count = getCountForUniqueExpressionName(
           baseElementNameField as Record<string, unknown>,
@@ -796,8 +804,8 @@ class CqlArtifact {
 
   parseTree(element: Record<string, unknown>): void {
     let updatedElement = this.parseConjunction(element);
-    const children = (updatedElement.childInstances as Array<Record<string, unknown>>) || [];
-    children.forEach((child: Record<string, unknown>) => {
+    const children = (updatedElement.childInstances as ArtifactElement[]) || [];
+    children.forEach((child: ArtifactElement) => {
       if ('childInstances' in child) {
         this.parseTree(child);
       } else if (child.type === 'parameter') {
@@ -817,17 +825,20 @@ class CqlArtifact {
           (subpopref: Record<string, unknown>) => subpopref.subpopulationName === element.subpopulationName
         )
     );
-    const fields = (element.fields as Array<{ id: string; value?: unknown }>) || [];
-    const nameField = getFieldWithId(fields, 'element_name') as { value?: unknown } | undefined;
+    const fields = (element.fields as ArtifactField[]) || [];
+    const nameField = getFieldWithId(fields, 'element_name') as ArtifactField | undefined;
     const name = nameField?.value as string | undefined;
-    const commentField = getFieldWithId(fields, 'comment') as { value?: unknown } | undefined;
+    const commentField = getFieldWithId(fields, 'comment') as ArtifactField | undefined;
     // Older artifacts might not have a comment field -- so account for that.
-    const comment = commentField?.value;
+    const comment =
+      typeof commentField?.value === 'string' || Array.isArray(commentField?.value)
+        ? (commentField.value as string | string[])
+        : undefined;
     conjunction.element_name = name || (element.subpopulationName as string) || (element.uniqueId as string);
     conjunction.comment = createCommentArray(comment) || '';
-    ((element.childInstances as Array<Record<string, unknown>>) || []).forEach((child: Record<string, unknown>) => {
-      const childFields = (child.fields as Array<{ id: string; value?: unknown }>) || [];
-      const childNameField = getFieldWithId(childFields, 'element_name') as { value?: unknown } | undefined;
+    ((element.childInstances as ArtifactElement[]) || []).forEach((child: ArtifactElement) => {
+      const childFields = (child.fields as ArtifactField[]) || [];
+      const childNameField = getFieldWithId(childFields, 'element_name') as ArtifactField | undefined;
       let childName = (childNameField?.value as string | undefined) || (child.uniqueId as string);
       let isBaseElementUseAndUnchanged = false;
       let isParameterUseAndUnchanged = false;
@@ -859,12 +870,16 @@ class CqlArtifact {
     return element;
   }
 
-  parseParameter(element: Record<string, unknown>): void {
+  parseParameter(element: ArtifactElement): void {
     const context: Record<string, unknown> = {};
-    const fields = (element.fields as Array<{ id: string; value?: unknown }>) || [];
-    fields.forEach((field: { id: string; value?: unknown }) => {
+    const fields = (element.fields as ArtifactField[]) || [];
+    fields.forEach((field: ArtifactField) => {
       if (field.id === 'comment') {
-        context[field.id] = createCommentArray(field.value);
+        context[field.id] = createCommentArray(
+          typeof field.value === 'string' || Array.isArray(field.value)
+            ? (field.value as string | string[])
+            : undefined
+        );
       } else {
         context[field.id] = field.value;
       }
@@ -873,19 +888,19 @@ class CqlArtifact {
     context.values = [`"${element.name as string}"`];
     context.modifiers = element.modifiers;
     if (isParameterUseChanged(element, this.parameters)) {
-      (this.contexts as Array<Record<string, unknown>>).push(context);
+      this.contexts.push(context);
     }
   }
 
   // Generate context and resources for a single element
-  parseElement(element: Record<string, unknown>): void {
+  parseElement(element: ArtifactElement): void {
     const context: Record<string, unknown> = {};
     if (element.extends) {
       context.template = (element.template as string) || (element.extends as string);
     } else {
       context.template = (element.template as string) || (element.id as string);
     }
-    element.modifiers = (element.modifiers as Array<Record<string, unknown>>) || [];
+    element.modifiers = (element.modifiers as ArtifactModifier[]) || [];
     context.withoutModifiers = _.has(specificMap, context.template as string);
     if (context.template === 'AgeRange') {
       const modifiers = element.modifiers as Array<Record<string, unknown>>;
@@ -1069,12 +1084,11 @@ class CqlArtifact {
             }
           } else if (field.id === 'baseElementReference' && fieldValue) {
             const valueId = fieldValue.id as string;
-            const referencedElement = this.baseElements.find((e: Record<string, unknown>) => e.uniqueId === valueId);
+            const referencedElement = this.baseElements.find((e: ArtifactElement) => e.uniqueId === valueId);
             if (referencedElement) {
-              const referencedElementFields =
-                (referencedElement.fields as Array<{ id: string; value?: unknown }>) || [];
+              const referencedElementFields = (referencedElement.fields as ArtifactField[]) || [];
               const nameField = getFieldWithId(referencedElementFields, 'element_name') as
-                | { value?: unknown }
+                | ArtifactField
                 | undefined;
               const referencedElementName =
                 (nameField?.value as string | undefined) || (referencedElement.uniqueId as string);
@@ -1120,7 +1134,11 @@ class CqlArtifact {
         case 'textarea': {
           const fieldId = field.id as string;
           if (field.id === 'comment') {
-            context[fieldId] = createCommentArray(field.value);
+            context[fieldId] = createCommentArray(
+              typeof field.value === 'string' || Array.isArray(field.value)
+                ? (field.value as string | string[])
+                : undefined
+            );
           } else {
             context.values = (context.values as Array<unknown>) || [];
             context[fieldId] = field.value;
@@ -1214,9 +1232,9 @@ class CqlArtifact {
     return ejs.render(fs.readFileSync(artifactPath, 'utf-8'), this);
   }
   population(): string {
-    const getTreeName = (tree: Record<string, unknown>) => {
-      const treeFields = (tree.fields as Array<{ id: string; value?: unknown }>) || [];
-      const nameField = getFieldWithId(treeFields, 'element_name') as { value?: unknown } | undefined;
+    const getTreeName = (tree: ArtifactElement) => {
+      const treeFields = (tree.fields as ArtifactField[]) || [];
+      const nameField = getFieldWithId(treeFields, 'element_name') as ArtifactField | undefined;
       return (nameField?.value as string | undefined) || (tree.uniqueId as string);
     };
 
@@ -1224,12 +1242,12 @@ class CqlArtifact {
     const exclusions = this.exclusions as { childInstances?: Array<unknown> };
     const treeNames = {
       inclusions:
-        inclusions.childInstances && inclusions.childInstances.length
-          ? getTreeName(this.inclusions as Record<string, unknown>)
+        inclusions.childInstances && inclusions.childInstances.length && this.inclusions
+          ? getTreeName(this.inclusions)
           : '',
       exclusions:
-        exclusions.childInstances && exclusions.childInstances.length
-          ? getTreeName(this.exclusions as Record<string, unknown>)
+        exclusions.childInstances && exclusions.childInstances.length && this.exclusions
+          ? getTreeName(this.exclusions)
           : ''
     };
 
@@ -2000,8 +2018,8 @@ function objConvert(
       const artifactJson = artifact.toJson();
 
       // Merge the artifact with the commons and conversions libraries
-      const fhirVersion = fhirTarget?.version || '4.0.1';
-      const helperPath = getDataPath(`library_helpers/CQLFiles/${fhirVersion}`);
+      const fhirVersion = artifact.dataModel?.version || '4.0.1';
+      const helperPath = path.join(__dirname, `../data/library_helpers/CQLFiles/${fhirVersion}`);
       const commonsPath = path.join(
         helperPath,
         `AT_Internal_CDS_Connect_Commons_for_FHIRv${fhirVersion.replace(/\./g, '')}.cql`
@@ -2048,7 +2066,7 @@ function objConvert(
 // While the artifact argument is not used, it's required because the callback
 // that calls this function requires that argument to be present
 function validateELM(
-  _artifact: unknown,
+  artifact: unknown,
   artifactJson: Record<string, unknown>,
   externalLibs: Array<Record<string, unknown>>,
   includeCQL: boolean,
@@ -2057,7 +2075,9 @@ function validateELM(
 ): void {
   const typedWriteStream = writeStream as { json: (data: Record<string, unknown>) => void };
   const artifacts = [artifactJson, ...externalLibs];
-  convertToElm(artifacts, false, (err, elmFiles) => {
+  const artifactDataModel = (artifact as { dataModel?: { version?: string } })?.dataModel;
+  const fhirVersionForElm = artifactDataModel?.version || '4.0.1';
+  convertToElm(artifacts, false, (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
     if (err) {
       callback(err);
       return;
@@ -2084,7 +2104,7 @@ function validateELM(
     } else {
       typedWriteStream.json({ elmFiles, elmErrors });
     }
-  });
+  }, fhirVersionForElm);
 }
 
 //given a CQLArtifact, find the associated Artifact in the DB, convert it to a CPG Publishable Library
@@ -2129,7 +2149,9 @@ function writeZip(
   // convert the artifact to a CPG Publishable Library, passing in the text directly (since it was likely modified)
   convertToCPGPL(artifact as Record<string, unknown>, artifactJson.text as string).then(function (cpgString) {
     // We must first convert to ELM before packaging up
-    convertToElm(artifacts, true, (err, elmFiles) => {
+    const artifactDataModel = (artifact as { dataModel?: { version?: string } }).dataModel;
+    const fhirVersionForElm = artifactDataModel?.version || '4.0.1';
+    convertToElm(artifacts, true, (err: Error | null, elmFiles?: Array<Record<string, unknown>>) => {
       if (err) {
         callback(err);
         return;
@@ -2163,11 +2185,12 @@ function writeZip(
         });
       }
 
-      const fhirVersion = fhirTarget?.version || '4.0.1';
-      const helperPathForArchive = getDataPath(`library_helpers/CQLFiles/${fhirVersion}`);
+      const artifactDataModel = (artifact as { dataModel?: { version?: string } }).dataModel;
+      const fhirVersion = artifactDataModel?.version || '4.0.1';
+      const helperPathForArchive = path.join(__dirname, `../data/library_helpers/CQLFiles/${fhirVersion}`);
       archive.glob('FHIRHelpers.cql', { cwd: helperPathForArchive });
       archive.finalize();
-    });
+    }, fhirVersionForElm);
   });
 }
 
@@ -2192,7 +2215,8 @@ function writeCql(
 function convertToElm(
   artifacts: Array<Record<string, unknown>>,
   getXML: boolean,
-  callback: (error: Error | null, elmFiles?: Array<Record<string, unknown>>) => void
+  callback: (error: Error | null, elmFiles?: Array<Record<string, unknown>>) => void,
+  fhirVersion?: string
 ): void {
   // If CQL-to-ELM is disabled, this function should basically be a no-op
   if (!config.get('cqlToElm.active')) {
@@ -2201,7 +2225,8 @@ function convertToElm(
   }
 
   // Load all the supplementary CQL files, open file streams to them, and convert to ELM
-  const helperPath = getDataPath(`library_helpers/CQLFiles/${fhirTarget?.version || '4.0.1'}`);
+  const version = fhirVersion || fhirTarget?.version || '4.0.1';
+  const helperPath = path.join(__dirname, `../data/library_helpers/CQLFiles/${version}`);
   const fileStream = fs.createReadStream(`${helperPath}/FHIRHelpers.cql`);
   // NOTE: using makeCQLtoELMRequest function directly
   makeCQLtoELMRequest(
