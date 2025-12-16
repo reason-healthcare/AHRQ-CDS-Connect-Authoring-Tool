@@ -5,7 +5,8 @@ const config = [
   plugins.configs.recommended,
   {
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
+      sourceType: 'module',
       globals: {
         ...globals.es2015,
         ...globals.node,
@@ -14,14 +15,16 @@ const config = [
     },
     rules: {
       'no-param-reassign': ['error', { props: false }],
-      'no-underscore-dangle': ['error', { allow: ['_id'] }], // because mongo
+      'no-underscore-dangle': ['error', { allow: ['_id', '__filename', '__dirname'] }], // because mongo and common Node.js conventions
       'no-unused-vars': ['error', { args: 'none' }], // don't check function arguments
       'no-use-before-define': ['error', 'nofunc'],
       'no-plusplus': ['error', { allowForLoopAfterthoughts: true }] // allow ++ in for loop expression
     }
   },
   {
-    ignores: ['src/cql-merge/import/grammar/']
+    ignores: [
+      'src/cql-merge/import/grammar*/**'
+    ]
   }
 ];
 

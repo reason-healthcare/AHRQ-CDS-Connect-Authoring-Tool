@@ -13,7 +13,8 @@ class CQLLibrary {
 
     this.libraryName = context.libraryDefinition()?.qualifiedIdentifier()?.identifier()?.start.text.replace(/"/g, '');
 
-    context.definition()
+    context
+      .definition()
       .map(d => d.includeDefinition())
       .filter(i => i) // Filter out null/undefined results
       .forEach(i => {
@@ -40,17 +41,20 @@ class CQLLibrary {
         }
       });
 
-    context.definition()
+    context
+      .definition()
       .map(d => d.codesystemDefinition())
       .filter(c => c)
       .forEach(c => this.rawCodesystems.set(c.identifier().start.text, getRawFromContext(c)));
 
-    context.definition()
+    context
+      .definition()
       .map(d => d.codeDefinition())
       .filter(c => c)
       .forEach(c => this.rawCodes.set(c.identifier().start.text, getRawFromContext(c)));
 
-    context.definition()
+    context
+      .definition()
       .map(d => d.conceptDefinition())
       .filter(c => c)
       .forEach(c => this.rawConcepts.set(c.identifier().start.text, getRawFromContext(c)));

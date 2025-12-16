@@ -1,8 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
-import dataElements from '../data/stu3_dataelements.json' assert { type: 'json' };
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { supportedResourceProperties as resources } from './resources.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const dataElements = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../data/stu3_dataelements.json'), 'utf8')
+);
 
 let generatedResources = [];
 // For each resource in the datafile

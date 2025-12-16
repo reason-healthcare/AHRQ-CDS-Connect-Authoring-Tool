@@ -29,9 +29,7 @@ function login(req, res, next) {
     handledAuthResponse = true;
     const remoteIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     if (err) {
-      console.log(
-        `${new Date().toISOString()}: Login FAILURE: ${req?.body?.username || 'unknown'} (${remoteIP})`, err
-      );
+      console.log(`${new Date().toISOString()}: Login FAILURE: ${req?.body?.username || 'unknown'} (${remoteIP})`, err);
       return sendUnauthorized(res);
     } else {
       console.log(`${new Date().toISOString()}: Login SUCCESS: ${req?.user?.uid || 'unknown'} (${remoteIP})`);
