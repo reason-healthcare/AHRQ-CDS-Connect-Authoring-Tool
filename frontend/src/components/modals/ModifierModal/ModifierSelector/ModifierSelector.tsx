@@ -1,0 +1,202 @@
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Alert, IconButton } from '@mui/material';
+import { ArrowBackIos as ArrowBackIosIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
+import { v4 as uuidv4 } from 'uuid';
+import clsx from 'clsx';
+import _ from 'lodash';
+
+import { useSelector } from 'react-redux';
+
+import ModifierSelectorRow from './ModifierSelectorRow';
+import ModifierDropdownItem from './ModifierDropdownItem';
+import ModifierDropdownFooter from './ModifierDropdownFooter';
+import { Dropdown } from 'components/elements';
+import { fetchModifiers } from 'queries/modifiers';
+import { sortAlphabeticallyByKey } from 'utils/sort';
+import { allModifiersValid } from 'utils/instances';
+import type { Instance, Modifier } from 'utils/instances';
+import type { RootState } from '../../../../reducers';
+import { useFieldStyles, useSpacingStyles } from 'styles/hooks';
+import useStyles from '../styles';
+
+interface SelectableModifier extends Modifier {
+  name: string;
+  returnType?: string;
+  type?: string;
+}
+
+interface ModifierWithUniqueId extends Modifier {
+  uniqueId?: string;
+  name?: string;
+}
+
+interface ModifierSelectorProps {
+  elementInstance: Instance;
+  handleGoBack: () => void;
+  hasLimitedModifiers: boolean;
+  modifiersToAdd: ModifierWithUniqueId[];
+  setModifiersToAdd: (modifiers: ModifierWithUniqueId[]) => void;
+}
+
+const ModifierSelector: React.FC<ModifierSelectorProps> = ({
+  elementInstance,
+  handleGoBack,
+  hasLimitedModifiers,
+  modifiersToAdd,
+  setModifiersToAdd
+}) => {
+  const artifact = useSelector((state: RootState) => state.artifacts.artifact);
+  const query = { artifactId: artifact?._id || '' };
+  const modifiersQuery = useQuery({
+    queryKey: ['modifiers', query],
+    queryFn: () => fetchModifiers(query),
+    enabled: query.artifactId != null && query.artifactId !== ''
+  });
+  const modifierMap = modifiersQuery.data?.modifierMap ?? {};
+  const modifiersByInputType = modifiersQuery.data?.modifiersByInputType ?? {};
+  const fieldStyles = useFieldStyles();
+  const spacingStyles = useSpacingStyles();
+  const styles = useStyles();
+
+  const newModifiers = elementInstance.modifiers?.concat(modifiersToAdd) || modifiersToAdd;
+  const returnTypeWithNewModifiers =
+    newModifiers.length === 0 ? elementInstance.returnType : newModifiers[newModifiers.length - 1].returnType;
+  const modifiersForType = modifiersByInputType[returnTypeWithNewModifiers ?? ''] ?? [];
+  // Type guard to check if an object is a SelectableModifier
+  const isSelectableModifier = (mod: unknown): mod is SelectableModifier => {
+    if (!mod || typeof mod !== 'object') return false;
+    const modObj = mod as Record<string, unknown>;
+    // Check for required properties
+    const hasName = 'name' in modObj && typeof modObj.name === 'string';
+    const hasId = 'id' in modObj && typeof modObj.id === 'string';
+    return hasName && hasId;
+  };
+
+  let selectableModifiers: SelectableModifier[] = modifiersForType
+    .map((mod): SelectableModifier | null => {
+      // Get full modifier data from modifierMap if available
+      if (typeof mod === 'object' && mod != null && 'id' in mod) {
+        const modId = mod.id;
+        if (typeof modId === 'string' && modifierMap[modId]) {
+          const fullModifier = modifierMap[modId];
+          if (isSelectableModifier(fullModifier)) {
+            return fullModifier;
+          }
+        }
+      }
+      // Fallback to mod if it's already a SelectableModifier
+      if (isSelectableModifier(mod)) {
+        return mod;
+      }
+      return null;
+    })
+    .filter((mod): mod is SelectableModifier => mod !== null);
+  if (hasLimitedModifiers) {
+    selectableModifiers = selectableModifiers.filter(({ returnType }) => returnType === elementInstance.returnType);
+  }
+  const modifierOptions = selectableModifiers.map(selectableModifier => {
+    return {
+      value: selectableModifier.id,
+      label: selectableModifier.name,
+      isExternal: selectableModifier.type && selectableModifier.type === 'ExternalModifier'
+    };
+  });
+
+  const handleSelectModifier = (modifierId: string): void => {
+    setTimeout(() => {
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement) activeElement.blur();
+    }, 0); // removes focus from dropdown after selection
+    const modifierToAdd = _.cloneDeep(selectableModifiers.find(modifier => modifier.id === modifierId));
+    if (modifierToAdd) {
+      (modifierToAdd as ModifierWithUniqueId).uniqueId = `${modifierId}-${uuidv4()}`;
+      setModifiersToAdd(modifiersToAdd.concat([modifierToAdd as ModifierWithUniqueId]));
+    }
+  };
+
+  const handleUpdateModifier = (index: number, values: Record<string, unknown>): void => {
+    const newModifiersToAdd = _.cloneDeep(modifiersToAdd);
+    newModifiersToAdd[index].values = { ...newModifiersToAdd[index].values, ...values };
+    setModifiersToAdd(newModifiersToAdd);
+  };
+
+  return (
+    <>
+      {hasLimitedModifiers && (
+        <Alert className={styles.warningBanner} severity="warning">
+          Limited modifiers displayed because return type cannot change while in use.
+        </Alert>
+      )}
+
+      <div className={styles.navHeader}>
+        <div className={styles.navHeaderGroup}>
+          <div className={styles.navHeaderButtons}>
+            <IconButton aria-label="go back" onClick={handleGoBack} size="large">
+              <ArrowBackIosIcon fontSize="small" />
+            </IconButton>
+
+            <div className={styles.tag}>with modifiers</div>
+          </div>
+
+          {modifiersToAdd.length > 0 && (
+            <div className={styles.modifierExpression}>
+              {modifiersToAdd.map((modifierToAdd, index) => (
+                <span key={index}>
+                  {modifierToAdd.name}
+                  {index !== modifiersToAdd.length - 1 && (
+                    <ArrowForwardIcon className={spacingStyles.horizontalPadding} fontSize="small" />
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        {modifiersToAdd.map((modifierToAdd, index) => (
+          <ModifierSelectorRow
+            key={modifierToAdd.uniqueId}
+            elementInstance={elementInstance}
+            handleRemoveModifier={() =>
+              setModifiersToAdd(modifiersToAdd.filter(modifier => modifier.name !== modifierToAdd.name))
+            }
+            handleUpdateModifier={values => handleUpdateModifier(index, values)}
+            isFirst={index === 0}
+            modifier={modifierToAdd}
+            modifiersToAdd={modifiersToAdd}
+          />
+        ))}
+
+        <div className={styles.rulesCardGroup}>
+          {modifiersToAdd.length > 0 && (
+            <>
+              <div className={clsx(styles.line, styles.lineHorizontal)}></div>
+              <div className={clsx(styles.line, styles.lineVertical, styles.lineVerticalBottom)}></div>
+            </>
+          )}
+
+          <div className={styles.indent}>
+            <Dropdown
+              className={fieldStyles.fieldInputXl}
+              disabled={!allModifiersValid(modifiersToAdd)}
+              id="modifier-select"
+              Footer={modifierOptions.some(option => option.isExternal) && <ModifierDropdownFooter />}
+              label="Select modifier..."
+              onChange={event => handleSelectModifier(event.target.value)}
+              options={modifierOptions.sort(sortAlphabeticallyByKey('label'))}
+              renderItem={option => (
+                <ModifierDropdownItem
+                  option={option as { isExternal?: boolean; label: string; value: string; [key: string]: unknown }}
+                />
+              )}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ModifierSelector;

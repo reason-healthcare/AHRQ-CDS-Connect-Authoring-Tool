@@ -7,6 +7,9 @@ const config = [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaVersion: 2022
+      },
       globals: {
         ...globals.es2015,
         ...globals.node,
@@ -23,7 +26,12 @@ const config = [
   },
   {
     ignores: [
-      'src/cql-merge/import/grammar*/**'
+      'src/cql-merge/import/grammar/**',
+      '**/grammar-1.3/**',
+      '**/grammar-1.5/**',
+      'scripts/**',
+      'dist/**',
+      'node_modules/**'
     ]
   }
 ];

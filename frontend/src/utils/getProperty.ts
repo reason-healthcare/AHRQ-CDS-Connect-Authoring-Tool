@@ -1,0 +1,75 @@
+import isEmpty from 'lodash/isEmpty';
+import lowerFirst from 'lodash/lowerFirst';
+import * as parsers from './propertyParsers';
+
+function parseObject(object: object, propertyPath: string): unknown {
+  if (isEmpty(propertyPath)) {
+    return object;
+  }
+
+  const parts = propertyPath.split('.');
+
+  let property: unknown = object;
+  for (let i = 0; property && i < parts.length; ++i) {
+    if (Array.isArray(property)) {
+      // Handle firstObject on arrays
+      if (parts[i] === 'firstObject') {
+        property = property[0];
+      } else {
+        return '';
+      }
+    } else if (typeof property === 'object' && property !== null) {
+      property =
+        parts[i] === 'firstObject' ? (property as unknown[])[0] : (property as Record<string, unknown>)[parts[i]];
+    } else {
+      return '';
+    }
+  }
+
+  return property;
+}
+
+export default function getProperty(object: object, path: string): string {
+  const m = /^(([^:]+):)?([^:]+)$/.exec(path);
+  if (!m) {
+    return '';
+  }
+  let parser = m[2] || '';
+  let property = m[3];
+
+  if (property.endsWith('[x]')) {
+    // It's a choice, so we need to find which one is used and then modify the
+    // parser and property appropriately.
+    // Running example w/ foo.bar[x] and instance having barDateTime
+
+    // First find the parent (e.g., parent of foo.bar[x] is foo)
+    const parentPath = property.substring(0, property.lastIndexOf('.'));
+    const parent = parseObject(object, parentPath) as Record<string, unknown> | null;
+    if (!parent || typeof parent !== 'object') {
+      return '';
+    }
+    // Then find the root of the property name (e.g., root of foo.bar[x] is bar)
+    const root = property.slice(property.lastIndexOf('.') + 1, property.length - 3);
+    // Then find the property in the parent object that starts w/ the root (e.g., barDateTime)
+    const foundKey = Object.keys(parent).find(k => new RegExp(`^${root}[A-Z][a-zA-Z]*$`).test(k));
+    if (foundKey == null) {
+      return '';
+    }
+    property = foundKey;
+    // The parser type is the part after the root (e.g., DateTime)
+    parser = property.slice(root.length);
+  }
+
+  const target = parseObject(object, property);
+  if (target == null) {
+    return '';
+  }
+
+  // If there is an identified parser use it, otherwise just stringify the target
+  const parserFn = (parsers as Record<string, (value: unknown) => string>)[lowerFirst(parser)];
+  if (typeof parserFn === 'function') {
+    return parserFn(target);
+  }
+
+  return `${target}`;
+}

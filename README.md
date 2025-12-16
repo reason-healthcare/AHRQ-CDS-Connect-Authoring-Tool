@@ -1,4 +1,4 @@
-# CDS Connect Authoring Tool :: Community Edition 
+# CDS Connect Authoring Tool :: Community Edition
 
 [![Build Status](https://ci.hl7.org/api/badges/HL7-Quality/cds-connect-authoring-tool/status.svg)](https://ci.hl7.org/HL7-Quality/cds-connect-authoring-tool)
 
@@ -21,6 +21,35 @@ This project uses the MERN stack: Mongo, Express, React, and NodeJS. The project
 
 For specific development details of each component, including configuration, see their respective README files.
 
+### TypeScript
+
+This project has been migrated to TypeScript. Both the backend API and frontend React application use TypeScript for improved type safety and developer experience.
+
+**TypeScript Configuration:**
+- **Backend**: Strict mode enabled (`api/tsconfig.json`)
+- **Frontend**: Gradual migration mode (`frontend/tsconfig.json`) - strict mode disabled for compatibility
+
+**Key TypeScript Features:**
+- FHIR R4 types via `@types/fhir` package
+- Shared type definitions in `api/src/types/` and `frontend/src/types/`
+- Type-safe API request/response handling
+- Full type coverage for React components and Redux store
+
+**Type Checking:**
+```bash
+# Backend
+cd api && npm run type-check
+
+# Frontend
+cd frontend && npm run type-check
+```
+
+**Type Mapping Documentation:**
+See [TYPESCRIPT_TYPE_MAPPING.md](TYPESCRIPT_TYPE_MAPPING.md) for detailed information about type mappings between backend and frontend, API request/response types, and FHIR type usage.
+
+**Migration Strategy:**
+See [TYPESCRIPT_MIGRATION_STRATEGY.md](TYPESCRIPT_MIGRATION_STRATEGY.md) for the complete migration plan and progress.
+
 ## Run From Source (Development Quick Start)
 
 ### First, Run MongoDB
@@ -29,7 +58,7 @@ To run from source you must you have [Node.js](https://nodejs.org/) and [MongoDB
 
 ```bash
 mkdir -p db
-docker run --name=mongodb --volume=$PWD/db:/data/db -p 27017:27017 --restart=unless-stopped --detach=true mongo:8 
+docker run --name=mongodb --volume=$PWD/db:/data/db -p 27017:27017 --restart=unless-stopped --detach=true mongo:8
 ```
 
 This creates a local db directory and then runs a MongoDB docker container that will store files in that directory.

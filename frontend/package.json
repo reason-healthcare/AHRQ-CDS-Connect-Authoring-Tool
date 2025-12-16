@@ -68,6 +68,11 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^15.0.6",
     "@testing-library/user-event": "^14.6.1",
+    "@types/fhir": "^0.0.41",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^10.1.8",
@@ -83,23 +88,26 @@
     "sass": "^1.90.0",
     "stylelint": "^16.20.0",
     "stylelint-config-standard": "^38.0.0",
-    "stylelint-config-standard-scss": "^14.0.0"
+    "stylelint-config-standard-scss": "^14.0.0",
+    "typescript": "^5.5.4"
   },
   "overrides": {
     "nth-check": "2.1.1",
-    "postcss": "8.4.31"
+    "postcss": "8.4.31",
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "build": "craco build",
     "start": "craco start",
     "_start-prod": "node server.js",
     "start-prod": "run-s build _start-prod",
-    "test": "craco test",
+    "test": "craco test --maxWorkers=2",
     "test-ci": "CI=1 craco --no-compilation-cache --expose-gc test --coverage=false --runInBand --logHeapUsage",
     "test-debug": "CI=1 craco --inspect-brk test --runInBand --no-cache",
     "eject": "react-scripts eject",
-    "prettier": "prettier --check \"**/*.+(js|jsx|json|css|md)\"",
-    "prettier:fix": "prettier --write \"**/*.+(js|jsx|json|css|md)\"",
+    "prettier": "prettier --check \"**/*.+(js|jsx|json|css|md|ts|tsx)\"",
+    "prettier:fix": "prettier --write \"**/*.+(js|jsx|json|css|md|ts|tsx)\"",
+    "type-check": "tsc --noEmit",
     "lint": "run-p --aggregate-output -c lint:css lint:js",
     "lint:fix": "eslint --fix .",
     "lint:css": "stylelint 'src/styles/**/*.scss'",
