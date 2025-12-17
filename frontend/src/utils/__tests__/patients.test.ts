@@ -9,9 +9,9 @@ import {
   dstu2MedicationOrderPatient,
   r4ServiceRequestPatient
 } from 'mocks/patients/simple-bundles';
-import { FHIRBundleEntry, PatientBundle } from '../../types/patient';
+import { FHIRBundleEntry, FHIRBundle } from '../../types/patient';
 
-// interface PatientBundle {
+// interface FHIRBundle {
 //   [key: string]: unknown;
 // }
 
@@ -36,7 +36,7 @@ describe('patient utils', () => {
     });
 
     it('should detect R4 or STU3 or DSTU2 if no identifying feature present and no name present', () => {
-      const patient = _.cloneDeep(basePatient) as PatientBundle;
+      const patient = _.cloneDeep(basePatient) as FHIRBundle;
       const resource = (patient.entry as FHIRBundleEntry[])[0].resource as
         | fhir4.Patient
         | fhir3.Patient
@@ -65,7 +65,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 if Condition.assertedDate is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const condition: fhir3.Condition = {
           ...baseCondition,
           assertedDate: '2024-04-01'
@@ -77,7 +77,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Condition.assertedDate is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -93,7 +93,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Condition.context is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const condition: fhir3.Condition = {
           ...baseCondition,
           context: { reference: 'Encounter/example-encounter' }
@@ -104,7 +104,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Condition.context is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -120,7 +120,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Condition.recordedDate is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const condition: fhir4.Condition = {
           ...baseCondition,
           recordedDate: '2024-04-01'
@@ -132,7 +132,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Condition.recordedDate is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -149,7 +149,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Condition.encounter is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const condition: fhir4.Condition = {
           ...baseCondition,
           encounter: { reference: 'Encounter/example-encounter' }
@@ -160,7 +160,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or DSTU2 if Condition.encounter is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir4.Patient | fhir2.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -176,7 +176,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Condition.recorder is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const condition: fhir4.Condition = {
           ...baseCondition,
           recorder: { reference: 'Practitioner/example-practitioner' }
@@ -187,7 +187,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Condition.recorder is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -203,7 +203,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if Condition does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         (patient.entry as FHIRBundleEntry[]).push({ resource: { ...baseCondition } });
         const version = autoDetectFHIRVersion({ patient });
         expect(version).toEqual(['R4', 'STU3']);
@@ -226,7 +226,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 if Encounter.incomingReferral is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           incomingReferral: { reference: 'ReferralRequest/example-referral-request' }
@@ -238,7 +238,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 or DSTU2 if Encounter.incomingReferral is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -254,7 +254,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Encounter.reason is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           reason: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -265,7 +265,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 or DSTU2 if Encounter.reason is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -281,7 +281,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.basedOn is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           basedOn: { reference: 'ServiceRequest/example-service-request' }
@@ -293,7 +293,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.basedOn is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -310,7 +310,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.serviceType is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           serviceType: { coding: [{ code: 'example-service', system: 'http://example.com' }] }
@@ -321,7 +321,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.serviceType is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -337,7 +337,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.reasonCode is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           reasonCode: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -348,7 +348,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.reasonCode is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -364,7 +364,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.reasonReference is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter,
           reasonReference: { reference: 'Observation/example-observation' }
@@ -375,7 +375,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Encounter.reasonReference is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -391,7 +391,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if Encounter does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const encounter = {
           ...baseEncounter
         };
@@ -416,7 +416,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 when MedicationRequest.definition is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           definition: { reference: 'PlanDefinition/example-plan-definition' }
@@ -428,7 +428,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 when MedicationRequest.definition is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -445,7 +445,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 when MedicationRequest.context is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           context: { reference: 'Encounter/example-encounter' }
@@ -456,7 +456,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 when MedicationRequest.context is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -472,7 +472,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.statusReason is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           statusReason: { coding: [{ code: 'example-status-reason', system: 'http://example.com' }] }
@@ -484,7 +484,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.statusReason is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -501,7 +501,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.encounter is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           encounter: { reference: 'Encounter/example-encounter' }
@@ -512,7 +512,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.encounter is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -528,7 +528,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.performer is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           performer: { reference: 'Practitioner/example-practitioner' }
@@ -539,7 +539,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.performer is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -555,7 +555,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.performerType is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest,
           performerType: { coding: [{ code: 'example-performer-type', system: 'http://example.com' }] }
@@ -566,7 +566,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationRequest.performerType is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -582,7 +582,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if MedicationRequest does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationRequest = {
           ...baseMedicationRequest
         };
@@ -592,7 +592,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 when any MedicationRequest is present even if no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -618,7 +618,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 if MedicationStatement.taken is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationStatement = {
           ...baseMedicationStatement,
           taken: 'y'
@@ -629,7 +629,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if MedicationStatement.taken is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -645,7 +645,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if MedicationStatement.reasonNotTaken is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationStatement = {
           ...baseMedicationStatement,
           reasonNotTaken: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -656,7 +656,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 or DSTU2 if MedicationStatement.reasonNotTaken is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -672,7 +672,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationStatement.statusReason is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationStatement: fhir4.MedicationStatement = {
           ...baseMedicationStatement,
           statusReason: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -683,7 +683,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if MedicationStatement.statusReason is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -699,7 +699,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if MedicationStatement does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const medicationStatement = {
           ...baseMedicationStatement
         };
@@ -729,7 +729,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 if Observation.context is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           context: { reference: 'Encounter/example-encounter' }
@@ -740,7 +740,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Observation.context is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -756,7 +756,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Observation.comment is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           comment: 'example comment'
@@ -767,7 +767,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Observation.comment is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -783,7 +783,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Observation.related is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           related: { target: { reference: 'Observation/example-observation' } }
@@ -794,7 +794,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 or DSTU2 if Observation.related is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -810,7 +810,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.encounter is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           encounter: { reference: 'Encounter/example-encounter' }
@@ -821,7 +821,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or DSTU2 if Observation.encounter is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -837,7 +837,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.note is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           note: 'example note'
@@ -848,7 +848,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.note is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -864,7 +864,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.partOf is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           partOf: { reference: 'Procedure/example-procedure' }
@@ -875,7 +875,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.partOf is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -891,7 +891,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.focus is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           focus: { reference: 'Patient/example-patient' }
@@ -902,7 +902,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.focus is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -918,7 +918,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.hasMember is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           hasMember: { reference: 'Observation/example-observation' }
@@ -929,7 +929,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.hasMember is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -945,7 +945,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.derivedFrom is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation,
           derivedFrom: { reference: 'Observation/example-observation' }
@@ -956,7 +956,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Observation.derivedFrom is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -972,7 +972,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if Observation does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const observation = {
           ...baseObservation
         };
@@ -1002,7 +1002,7 @@ describe('patient utils', () => {
       };
 
       it('should detect STU3 if Procedure.definition is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           definition: { reference: 'PlanDefinition/example-plan-definition' }
@@ -1013,7 +1013,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.definition is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1029,7 +1029,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.notDone is present (false)', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           notDone: false // note: this is a boolean so be sure the logic works with both values
@@ -1040,7 +1040,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.notDone is present (true)', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           notDone: true // note: this is a boolean so be sure the logic works with both values
@@ -1051,7 +1051,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.notDone is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1067,7 +1067,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.notDoneReason is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           notDoneReason: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -1078,7 +1078,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.notDoneReason is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1094,7 +1094,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.context is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           context: { reference: 'Encounter/example-encounter' }
@@ -1105,7 +1105,7 @@ describe('patient utils', () => {
       });
 
       it('should detect STU3 if Procedure.context is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1121,7 +1121,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.statusReason is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           statusReason: { coding: [{ code: 'example-reason', system: 'http://example.com' }] }
@@ -1132,7 +1132,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.statusReason is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1148,7 +1148,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.encounter is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           encounter: { reference: 'Encounter/example-encounter' }
@@ -1159,7 +1159,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or DSTU2 if Procedure.encounter is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1175,7 +1175,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.recorder is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           recorder: { reference: 'Patient/example-patient' }
@@ -1186,7 +1186,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.recorder is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1202,7 +1202,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.asserter is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure,
           asserter: { reference: 'Patient/example-patient' }
@@ -1213,7 +1213,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 if Procedure.asserter is present and no last name is present', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const resource = (patient.entry as FHIRBundleEntry[])[0].resource as fhir3.Patient | fhir4.Patient;
         const name = resource.name;
         if (name && name[0]) {
@@ -1229,7 +1229,7 @@ describe('patient utils', () => {
       });
 
       it('should detect R4 or STU3 if Procedure does not have an identifying element', () => {
-        const patient = _.cloneDeep(basePatient) as PatientBundle;
+        const patient = _.cloneDeep(basePatient) as FHIRBundle;
         const procedure = {
           ...baseProcedure
         };

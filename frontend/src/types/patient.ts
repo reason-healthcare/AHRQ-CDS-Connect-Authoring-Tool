@@ -14,9 +14,6 @@ export type FHIRBundle = fhir4.Bundle | fhir3.Bundle | fhir2.Bundle;
 export type FHIRBundleEntry = fhir4.BundleEntry | fhir3.BundleEntry | fhir2.BundleEntry;
 export type FHIRResource = fhir4.Resource | fhir3.Resource | fhir2.Resource;
 
-// Alias for FHIRBundle - used for patient bundle data
-export type PatientBundle = FHIRBundle;
-
 export interface PatientData {
   fhirVersion?: string;
   patient?: FHIRBundle;

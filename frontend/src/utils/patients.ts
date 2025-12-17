@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import patientResourceKeys from 'data/patientResourceKeys';
 import getProperty from 'utils/getProperty';
-import type { PatientData, PatientBundle, FHIRBundleEntry } from '../types/patient';
+import type { PatientData, FHIRBundle, FHIRBundleEntry } from '../types/patient';
 
 export interface OtherResourceType {
   resource: string;
@@ -59,8 +59,8 @@ export function extractPatientResourceData(
   return data;
 }
 
-// These functions work with both PatientData and PatientBundle
-export function getPatientAge(patientData: PatientData | PatientBundle): string[] {
+// These functions work with both PatientData and FHIRBundle
+export function getPatientAge(patientData: PatientData | FHIRBundle): string[] {
   const result: string[] = [];
   const now = new Date();
   let age = parseISO(getPatientBirthDate(patientData));
@@ -82,8 +82,8 @@ export function getPatientAge(patientData: PatientData | PatientBundle): string[
   return result;
 }
 
-export function getPatientBirthDate(patientData: PatientData | PatientBundle): string {
-  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as PatientBundle).entry;
+export function getPatientBirthDate(patientData: PatientData | FHIRBundle): string {
+  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as FHIRBundle).entry;
   return (
     _.chain(entry)
       .find({ resource: { resourceType: 'Patient' } })
@@ -92,8 +92,8 @@ export function getPatientBirthDate(patientData: PatientData | PatientBundle): s
   );
 }
 
-export function getPatientGender(patientData: PatientData | PatientBundle): string {
-  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as PatientBundle).entry;
+export function getPatientGender(patientData: PatientData | FHIRBundle): string {
+  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as FHIRBundle).entry;
   return (
     _.chain(entry)
       .find({ resource: { resourceType: 'Patient' } })
@@ -102,20 +102,20 @@ export function getPatientGender(patientData: PatientData | PatientBundle): stri
   );
 }
 
-// These functions work with both PatientData and PatientBundle
+// These functions work with both PatientData and FHIRBundle
 // For PatientData: uses 'patient.entry'
-// For PatientBundle: uses 'entry' directly
-export function getPatientId(patientData: PatientData | PatientBundle): string | undefined {
+// For FHIRBundle: uses 'entry' directly
+export function getPatientId(patientData: PatientData | FHIRBundle): string | undefined {
   // Check if it's a bundle (has 'entry' directly) or PatientData (has 'patient' property)
-  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as PatientBundle).entry;
+  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as FHIRBundle).entry;
   return _.chain(entry)
     .find({ resource: { resourceType: 'Patient' } })
     .get('resource.id')
     .value();
 }
 
-export function getPatientFirstName(patientData: PatientData | PatientBundle): string {
-  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as PatientBundle).entry;
+export function getPatientFirstName(patientData: PatientData | FHIRBundle): string {
+  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as FHIRBundle).entry;
   return (
     _.chain(entry)
       .find({ resource: { resourceType: 'Patient' } })
@@ -124,8 +124,8 @@ export function getPatientFirstName(patientData: PatientData | PatientBundle): s
   );
 }
 
-export function getPatientLastName(patientData: PatientData | PatientBundle): string {
-  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as PatientBundle).entry;
+export function getPatientLastName(patientData: PatientData | FHIRBundle): string {
+  const entry = 'patient' in patientData ? patientData.patient?.entry : (patientData as FHIRBundle).entry;
   return (
     _.chain(entry)
       .find({ resource: { resourceType: 'Patient' } })
@@ -134,13 +134,13 @@ export function getPatientLastName(patientData: PatientData | PatientBundle): st
   );
 }
 
-export function getPatientFullName(patientData: PatientData | PatientBundle): string {
+export function getPatientFullName(patientData: PatientData | FHIRBundle): string {
   return `${getPatientFirstName(patientData)} ${getPatientLastName(patientData)}`;
 }
 
 // These functions access 'entry' and 'resourceType' directly, so they work with bundles
 // They can also work with PatientData if it has these properties directly (for backwards compatibility)
-export function getPatientResource(patientData: PatientBundle | PatientData): unknown {
+export function getPatientResource(patientData: FHIRBundle | PatientData): unknown {
   return _.chain(patientData)
     .get('entry')
     .find({ resource: { resourceType: 'Patient' } })
@@ -148,7 +148,7 @@ export function getPatientResource(patientData: PatientBundle | PatientData): un
     .value();
 }
 
-export function getPatientResourceType(patientData: PatientBundle | PatientData): string | undefined {
+export function getPatientResourceType(patientData: FHIRBundle | PatientData): string | undefined {
   return _.get(patientData, 'resourceType');
 }
 

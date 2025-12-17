@@ -6,7 +6,7 @@ import TestingParameters from '../TestingParameters';
 import { Dropdown, Modal } from 'components/elements';
 import { fetchArtifacts } from 'queries/artifacts';
 import type { Artifact, Parameter } from '../../../types/artifact';
-import type { PatientData, PatientBundle } from '../../../types/patient';
+import type { PatientData, FHIRBundle } from '../../../types/patient';
 import fhirVersionMap from 'data/fhirVersionMap';
 
 interface ExecuteCQLModalProps {
@@ -16,7 +16,7 @@ interface ExecuteCQLModalProps {
     artifact: Artifact;
     params: Parameter[];
     dataModel: { name: string; version: string };
-    selectedPatients: PatientBundle[];
+    selectedPatients: FHIRBundle[];
   }) => void;
 }
 

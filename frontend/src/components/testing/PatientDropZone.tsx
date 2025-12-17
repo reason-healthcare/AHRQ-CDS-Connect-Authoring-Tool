@@ -8,14 +8,14 @@ import clsx from 'clsx';
 import PatientVersionModal from './modals/PatientVersionModal';
 import { addPatient } from 'queries/testing';
 import { autoDetectFHIRVersion, getPatientResource, getPatientResourceType } from 'utils/patients';
-import type { PatientBundle } from '../../types/patient';
+import type { FHIRBundle } from '../../types/patient';
 import { useDropZoneStyles, useSpacingStyles } from 'styles/hooks';
 
 const PatientDropZone: React.FC = () => {
   const [showPatientUploadedMessage, setShowPatientUploadedMessage] = useState(false);
   const [showPatientVersionModal, setShowPatientVersionModal] = useState(false);
   const [showUploadError, setShowUploadError] = useState(false);
-  const [patientData, setPatientData] = useState<PatientBundle | null>(null);
+  const [patientData, setPatientData] = useState<FHIRBundle | null>(null);
   const [versionOptions, setVersionOptions] = useState<string[]>(['R4', 'STU3', 'DSTU2']);
   const queryClient = useQueryClient();
   const { mutateAsync: asyncAddPatient, isPending: isAddingPatient } = useMutation({
@@ -59,7 +59,7 @@ const PatientDropZone: React.FC = () => {
             setShowUploadError(true);
             return;
           }
-          const parsedBundle = JSON.parse(result) as PatientBundle;
+          const parsedBundle = JSON.parse(result) as FHIRBundle;
 
           if (getPatientResourceType(parsedBundle) === 'Bundle' && getPatientResource(parsedBundle)) {
             setPatientData(parsedBundle);

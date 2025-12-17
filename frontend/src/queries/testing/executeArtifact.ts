@@ -6,13 +6,13 @@ import cqlfhir from 'cql-exec-fhir';
 
 import type { Artifact, DataModel, Parameter } from '../../types/artifact';
 import type { ElmFile } from '../../types/query';
-import type { PatientBundle } from '../../types/patient';
+import type { FHIRBundle } from '../../types/patient';
 
 interface ExecuteArtifactParams {
   elmFiles: ElmFile[];
   artifact: Artifact;
   params: Parameter[];
-  patients: PatientBundle[];
+  patients: FHIRBundle[];
   vsacApiKey: string;
   codeService: {
     ensureValueSets: (

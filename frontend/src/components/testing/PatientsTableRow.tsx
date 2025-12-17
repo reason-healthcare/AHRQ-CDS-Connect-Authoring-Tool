@@ -21,7 +21,7 @@ import {
 import type { PatientData } from '../../types/patient';
 import { useTableStyles } from 'styles/hooks';
 
-function savePatientBundle(patient: PatientData): void {
+function saveFHIRBundle(patient: PatientData): void {
   FileSaver.saveAs(
     new Blob([JSON.stringify(patient.patient, null, 2)], { type: 'application/json' }),
     `Bundle-${getPatientFirstName(patient)}-${getPatientLastName(patient)}.json`
@@ -82,7 +82,7 @@ const PatientsTableRow: React.FC<PatientsTableRowProps> = ({ isDisabled, isSelec
         </Tooltip>
 
         <Tooltip title="Download">
-          <IconButton aria-label="download patient details" color="primary" onClick={() => savePatientBundle(patient)}>
+          <IconButton aria-label="download patient details" color="primary" onClick={() => saveFHIRBundle(patient)}>
             <DownloadIcon />
           </IconButton>
         </Tooltip>

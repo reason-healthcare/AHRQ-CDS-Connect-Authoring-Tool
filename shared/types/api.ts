@@ -43,7 +43,7 @@ export interface UpdateArtifactResponse {
 }
 
 // Patient API endpoints
-export interface PatientBundle {
+export interface FHIRBundle {
   resourceType: 'Bundle';
   type: 'collection';
   entry: Array<{
@@ -63,20 +63,20 @@ export interface PatientBundle {
 export interface GetPatientsResponse {
   patients: Array<{
     _id: string;
-    patient: PatientBundle;
+    patient: FHIRBundle;
     updatedAt?: string;
     createdAt?: string;
   }>;
 }
 
 export interface CreatePatientRequest {
-  patient: PatientBundle;
+  patient: FHIRBundle;
 }
 
 export interface CreatePatientResponse {
   patient: {
     _id: string;
-    patient: PatientBundle;
+    patient: FHIRBundle;
     updatedAt?: string;
     createdAt?: string;
   };
