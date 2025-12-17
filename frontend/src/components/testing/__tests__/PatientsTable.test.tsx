@@ -11,7 +11,7 @@ jest.mock('file-saver');
 
 interface RenderComponentProps {
   patients?: unknown[];
-  handleExecuteCQL?: () => void;
+  handleExecuteCQL?: (params: unknown) => Promise<void>;
   [key: string]: unknown;
 }
 
@@ -19,7 +19,9 @@ describe('<PatientsTable />', () => {
   const patientsMock = [mockPatientDstu2, mockPatientStu3, mockPatientR4];
 
   const renderComponent = (props: RenderComponentProps = {}) =>
-    render(<PatientsTable patients={patientsMock} handleExecuteCQL={jest.fn()} {...props} />);
+    render(
+      <PatientsTable patients={patientsMock} handleExecuteCQL={jest.fn().mockResolvedValue(undefined)} {...props} />
+    );
 
   afterAll(() => nock.restore());
 
@@ -70,7 +72,7 @@ describe('<PatientsTable />', () => {
     await waitFor(() => userEvent.click(row.getByRole('button', { name: 'download patient details' })));
     expect(mockSaveAs).toHaveBeenCalledTimes(1);
     expect(mockSaveAs).toHaveBeenCalledWith(
-      new Blob([mockPatientR4], { type: 'application/json' }),
+      new Blob([mockPatientR4 as any], { type: 'application/json' }),
       'Bundle-Geneva168-Reynolds644.json'
     );
   });

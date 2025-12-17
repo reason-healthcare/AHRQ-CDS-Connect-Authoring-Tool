@@ -1,4 +1,6 @@
-const mockPatientStu3 = {
+import { PatientData } from '../../types/patient';
+
+const mockPatientStu3: PatientData = {
   _id: '5c34d2bca28df915d719d035',
   updatedAt: '2019-01-08T16:41:32.506Z',
   createdAt: '2019-01-08T16:41:32.506Z',

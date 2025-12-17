@@ -4,14 +4,15 @@ import { render, screen, userEvent, waitFor } from 'utils/test-utils';
 import { mockPatientDstu2, mockPatientStu3, mockPatientR4 } from 'mocks/patients';
 import { getPatientAge } from 'utils/patients';
 import PatientDetailsModal, { PatientDetailsModalProps } from '../PatientDetailsModal';
+import { PatientData } from '../../../../types/patient';
 
 describe('<PatientDetailsModal />', () => {
-  const renderComponent = (props: PatientDetailsModalProps = {}) =>
-    render(<PatientDetailsModal handleCloseModal={jest.fn()} {...props} />);
+  const renderComponent = (props: Partial<PatientDetailsModalProps> = {}) =>
+    render(<PatientDetailsModal handleCloseModal={jest.fn()} patient={props.patient as PatientData} {...props} />);
 
   it('calls handleCloseModal when closing the modal', async () => {
     const handleCloseModal = jest.fn();
-    renderComponent({ handleCloseModal, patient: mockPatientDstu2 });
+    renderComponent({ handleCloseModal, patient: mockPatientDstu2 as PatientData });
 
     await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Close' })));
 
@@ -26,7 +27,9 @@ describe('<PatientDetailsModal />', () => {
 
       expect(screen.getByText(/Robin67 Baumbach677/)).toBeInTheDocument();
       expect(screen.getByText(/female/)).toBeInTheDocument();
-      expect(screen.getByText(new RegExp(getPatientAge(patient)))).toBeInTheDocument();
+      // getPatientAge returns string[], but RegExp expects string
+      // React renders arrays as space-separated text, so we join with space
+      expect(screen.getByText(new RegExp(getPatientAge(patient).join(' ')))).toBeInTheDocument();
     });
 
     it('renders the patient details sections', () => {
@@ -60,7 +63,9 @@ describe('<PatientDetailsModal />', () => {
 
       expect(screen.getByText(/Arnulfo253 McClure239/)).toBeInTheDocument();
       expect(screen.getByText(/male/)).toBeInTheDocument();
-      expect(screen.getByText(new RegExp(getPatientAge(patient)))).toBeInTheDocument();
+      // getPatientAge returns string[], but RegExp expects string
+      // React renders arrays as space-separated text, so we join with space
+      expect(screen.getByText(new RegExp(getPatientAge(patient).join(' ')))).toBeInTheDocument();
     });
 
     it('renders the patient details sections', () => {
@@ -92,7 +97,9 @@ describe('<PatientDetailsModal />', () => {
 
       expect(screen.getByText(/Geneva168 Reynolds644/)).toBeInTheDocument();
       expect(screen.getByText(/female/)).toBeInTheDocument();
-      expect(screen.getByText(new RegExp(getPatientAge(patient)))).toBeInTheDocument();
+      // getPatientAge returns string[], but RegExp expects string
+      // React renders arrays as space-separated text, so we join with space
+      expect(screen.getByText(new RegExp(getPatientAge(patient).join(' ')))).toBeInTheDocument();
     });
 
     it('renders the patient details sections', () => {

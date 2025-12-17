@@ -56,9 +56,7 @@ const ExecuteCQLModal: React.FC<ExecuteCQLModalProps> = ({ patients, handleClose
       artifact: artifactToExecute,
       params: paramsToExecute,
       dataModel,
-      selectedPatients: patients.map(
-        patient => patient.patient || ({ resourceType: 'Bundle', type: 'collection', entry: [] } as PatientBundle)
-      )
+      selectedPatients: patients.map(patient => patient.patient)
     });
     handleCloseModal();
   };

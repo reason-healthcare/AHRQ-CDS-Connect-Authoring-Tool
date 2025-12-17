@@ -1,7 +1,7 @@
 # Frontend Test Issues and Fix Plan
 
-**Last Updated:** After TypeScript migration fixes (2024)
-**Current Status:** 2 failing tests, 703 passing tests, 3 skipped tests
+**Last Updated:** After TypeScript type error resolution (2024)
+**Current Status:** 2 failing tests, 710 passing tests, 3 skipped tests
 
 ## Pre-Test Checklist
 
@@ -21,9 +21,9 @@ Before running tests or making code changes, ensure you follow these steps:
 
 ## Test Summary
 
-- **Test Suites:** 0 failed, 74 passed, 74 total
-- **Tests:** 0 failed, 705 passed, 3 skipped, 708 total
-- **Success Rate:** 100% (705/705 non-skipped tests passing)
+- **Test Suites:** 2 failed, 72 passed, 74 total
+- **Tests:** 2 failed, 710 passed, 3 skipped, 715 total
+- **Success Rate:** 99.7% (710/712 non-skipped tests passing)
 
 ## Failing Tests
 
@@ -479,6 +479,7 @@ Received:
 
 **Root Cause:**
 The CQL executor (`executor.exec(patientSource)`) returns results for all patients that were loaded into the patient source via `patientSource.loadBundles(patients)`. Even though only one patient is selected in the test, the patient source may contain multiple patients, causing the executor to return results for all of them. Additionally, none of the 4 patient results have `MeetsInclusionCriteria` set to `true`, suggesting either:
+
 1. The patient ID mapping between CQL executor results and the displayed patients is incorrect
 2. The CQL execution is not correctly identifying the selected patient's results
 3. The DSTU2 patient data doesn't satisfy the inclusion criteria

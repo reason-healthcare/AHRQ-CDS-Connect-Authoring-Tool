@@ -1,4 +1,5 @@
-import { getPatientFirstName, type PatientData } from 'utils/patients';
+import { getPatientFirstName } from 'utils/patients';
+import type { PatientData } from '../types/patient';
 
 const sortDifference = (a: string | number, b: string | number): number => {
   if (a < b) return -1;

@@ -1,4 +1,7 @@
-const mockPatientDstu2 = {
+// @ts-nocheck - Mock data file with large dataset, ignore TypeScript strict type checking
+import { FHIRResource, PatientData } from '../../types/patient';
+
+const mockPatientDstu2: PatientData = {
   _id: '5b6ca87ef7877d270599a644',
   updatedAt: '2018-08-09T20:47:58.235Z',
   createdAt: '2018-08-09T20:47:58.235Z',
@@ -244,7 +247,7 @@ const mockPatientDstu2 = {
       {
         fullUrl: 'urn:uuid:1b84c706-95e8-48d8-b8dd-3f87a072200c',
         resource: {
-          resourceType: 'SomeOtherResource',
+          resourceType: 'SomeOtherResource' as FHIRResource['resourceType'],
           id: '1b84c706-95e8-48d8-b8dd-3f87a072200c',
           status: 'finished',
           type: [
@@ -271,7 +274,7 @@ const mockPatientDstu2 = {
       {
         fullUrl: 'urn:uuid:1b84c706-95e8-48d8-b8dd-3f87a072200c',
         resource: {
-          resourceType: 'SomeOtherResource',
+          resourceType: 'SomeOtherResource' as FHIRResource['resourceType'],
           id: '1b84c706-95e8-48d8-b8dd-3f87a072200c',
           status: 'finished',
           type: [

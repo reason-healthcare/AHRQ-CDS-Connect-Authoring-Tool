@@ -165,10 +165,3 @@ export interface Artifact {
   updatedAt?: string;
   createdAt?: string;
 }
-
-export interface LibraryInUse {
-  name: string;
-  version?: string;
-  path?: string;
-  [key: string]: string | number | boolean | undefined;
-}

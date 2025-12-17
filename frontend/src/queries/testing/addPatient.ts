@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Patient, PatientBundle } from '../../types/patient';
+import type { PatientBundle } from '../../types/patient';
 
 interface AddPatientParams {
   patient: PatientBundle;

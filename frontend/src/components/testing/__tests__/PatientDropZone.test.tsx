@@ -63,7 +63,7 @@ describe('<PatientDropZone />', () => {
 
   it('allows a patient JSON FHIR bundle to be uploaded and added directly after FHIR version detected', async () => {
     const scope = nock('http://localhost')
-      .post(`/authoring/api/testing`, { patient: mockPatientR4.patient, fhirVersion: 'R4' })
+      .post(`/authoring/api/testing`, { patient: mockPatientR4.patient, fhirVersion: 'R4' } as any)
       .reply(200, {});
 
     render(<PatientDropZone />);

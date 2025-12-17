@@ -1,22 +1,22 @@
 import * as types from '../actions/types';
-import type { Artifact, LibraryInUse } from '../types/artifact';
+import type { Artifact } from '../types/artifact';
 
 export interface ArtifactState {
   artifact: Artifact | null;
   artifactSaved: boolean;
-  librariesInUse: LibraryInUse[];
+  librariesInUse: string[];
 }
 
 interface UpdateArtifactAction {
   type: typeof types.UPDATE_ARTIFACT;
   artifact: Artifact;
-  librariesInUse: LibraryInUse[];
+  librariesInUse: string[];
 }
 
 interface LoadArtifactAction {
   type: typeof types.LOAD_ARTIFACT;
   artifact: Artifact;
-  librariesInUse: LibraryInUse[];
+  librariesInUse: string[];
 }
 
 interface SaveArtifactSuccessAction {

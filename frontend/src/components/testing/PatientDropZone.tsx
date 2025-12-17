@@ -59,15 +59,15 @@ const PatientDropZone: React.FC = () => {
             setShowUploadError(true);
             return;
           }
-          const parsedPatientData = JSON.parse(result) as PatientBundle;
+          const parsedBundle = JSON.parse(result) as PatientBundle;
 
-          if (getPatientResourceType(parsedPatientData) === 'Bundle' && getPatientResource(parsedPatientData)) {
-            setPatientData(parsedPatientData);
-            const versions = autoDetectFHIRVersion({ patient: parsedPatientData });
+          if (getPatientResourceType(parsedBundle) === 'Bundle' && getPatientResource(parsedBundle)) {
+            setPatientData(parsedBundle);
+            const versions = autoDetectFHIRVersion({ patient: parsedBundle });
             if (versions.length === 1) {
               // If version detected, add the patient right away
               try {
-                await asyncAddPatient({ patient: parsedPatientData, fhirVersion: versions[0] });
+                await asyncAddPatient({ patient: parsedBundle, fhirVersion: versions[0] });
               } catch (error) {
                 console.error('Add patient failed:', error);
               }

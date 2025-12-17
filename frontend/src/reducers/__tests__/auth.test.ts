@@ -10,17 +10,6 @@ interface Action {
   [key: string]: unknown;
 }
 
-const defaultState: AuthState = {
-  isAuthenticating: false,
-  isAuthenticated: false,
-  isLoggingOut: false,
-  isLoadingSettings: false,
-  termsAcceptedDate: null,
-  username: null,
-  authStatus: null,
-  authStatusText: ''
-};
-
 describe('auth reducer', () => {
   it('should return the initial state', () => {
     expect(reducer(undefined, {} as AuthAction)).toEqual({
@@ -39,23 +28,23 @@ describe('auth reducer', () => {
   it('should handle getting the current user', () => {
     let action: Action = { type: types.USER_REQUEST };
     let newState = { isAuthenticating: true };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { isAuthenticating: false };
+    const previousState = { isAuthenticating: false } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.USER_RECEIVED, username: 'Test username' };
-    newState = { isAuthenticating: false, isAuthenticated: true, username: 'Test username' };
+    newState = { isAuthenticating: false, isAuthenticated: true, username: 'Test username' } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
   });
 
   // ----------------------- LOGIN ----------------------------------------- //
   it('should handle logging the user in', () => {
     let action: Action = { type: types.LOGIN_REQUEST };
-    let newState = { isAuthenticating: true, authStatus: null };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    let newState = { isAuthenticating: true, authStatus: null } as AuthState;
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { isAuthenticating: false, authStatus: 'Test auth status' };
+    const previousState = { isAuthenticating: false, authStatus: 'Test auth status' } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.LOGIN_SUCCESS, username: 'Test username' };
@@ -65,7 +54,7 @@ describe('auth reducer', () => {
       username: 'Test username',
       authStatus: 'loginSuccess',
       authStatusText: 'You have been successfully logged in.'
-    };
+    } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.LOGIN_FAILURE, status: 'Test status', statusText: 'Test status text' };
@@ -74,17 +63,17 @@ describe('auth reducer', () => {
       isAuthenticated: false,
       authStatus: 'loginFailure',
       authStatusText: 'Authentication Error: Test status Test status text, please try again.'
-    };
+    } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
   });
 
   // ------------------------- LOGOUT ---------------------------------------- //
   it('should handle logging the user out', () => {
     let action: Action = { type: types.LOGOUT_REQUEST };
-    let newState = { isAuthenticating: false, authStatus: null, isLoggingOut: true };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    let newState = { isAuthenticating: false, authStatus: null, isLoggingOut: true } as AuthState;
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { isAuthenticating: false, authStatus: 'Test auth status' };
+    const previousState = { isAuthenticating: false, authStatus: 'Test auth status' } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.LOGOUT_SUCCESS };
@@ -95,7 +84,7 @@ describe('auth reducer', () => {
       username: null,
       authStatus: 'logoutSuccess',
       authStatusText: 'You have been successfully logged out.'
-    };
+    } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.LOGOUT_FAILURE, status: 'Test status', statusText: 'Test status text' };
@@ -105,7 +94,7 @@ describe('auth reducer', () => {
       isLoggingOut: false,
       authStatus: 'logoutFailure',
       authStatusText: 'Authentication Error: Test status Test status text, please try again.'
-    };
+    } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
   });
 
@@ -113,9 +102,9 @@ describe('auth reducer', () => {
   it('should handle setting the auth status', () => {
     const action: Action = { type: types.SET_AUTH_STATUS, status: 'Test status' };
     const newState = { authStatus: 'Test status' };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { authStatus: 'Old test status' };
+    const previousState = { authStatus: 'Old test status' } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
   });
 
@@ -123,18 +112,18 @@ describe('auth reducer', () => {
   it('should handle getting user settings', () => {
     const date = new Date().toString();
     let action: Action = { type: types.USER_SETTINGS_REQUEST };
-    let newState = { isLoadingSettings: true, termsAcceptedDate: null };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    let newState = { isLoadingSettings: true, termsAcceptedDate: null } as AuthState;
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { isLoadingSettings: false, termsAcceptedDate: date };
+    const previousState = { isLoadingSettings: false, termsAcceptedDate: date } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.USER_SETTINGS_SUCCESS, settings: { termsAcceptedDate: date } };
-    newState = { isLoadingSettings: false, termsAcceptedDate: date };
+    newState = { isLoadingSettings: false, termsAcceptedDate: date } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.USER_SETTINGS_FAILURE, status: 'Test status', statusText: 'Test status text' };
-    newState = { isLoadingSettings: false, termsAcceptedDate: null };
+    newState = { isLoadingSettings: false, termsAcceptedDate: null } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
   });
 
@@ -143,9 +132,9 @@ describe('auth reducer', () => {
     const date = new Date().toString();
     let action: Action = { type: types.UPDATE_USER_SETTINGS_REQUEST };
     let newState = { isLoadingSettings: true, termsAcceptedDate: null };
-    expect(reducer([], action as AuthAction)).toEqual(newState);
+    expect(reducer({} as AuthState, action as AuthAction)).toEqual(newState);
 
-    const previousState = { isLoadingSettings: false, termsAcceptedDate: date };
+    const previousState = { isLoadingSettings: false, termsAcceptedDate: date } as AuthState;
     expect(reducer(previousState, action as AuthAction)).toEqual(newState);
 
     action = { type: types.UPDATE_USER_SETTINGS_SUCCESS, settings: { termsAcceptedDate: date } };

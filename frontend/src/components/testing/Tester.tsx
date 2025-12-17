@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Alert, CircularProgress } from '@mui/material';
 
@@ -12,7 +11,7 @@ import { ELMErrorModal } from 'components/modals';
 import type { ELMError } from 'components/modals/ELMErrorModal';
 import { executeArtifact, fetchPatients, validateArtifact } from 'queries/testing';
 import type { Artifact } from '../../types/artifact';
-import type { PatientData } from '../../types/patient';
+import type { FHIRBundle, PatientData } from '../../types/patient';
 import type { ElmFile, CqlFile } from '../../types/query';
 import { useSpacingStyles } from 'styles/hooks';
 import CodeService from 'utils/code_service/CodeService';
@@ -22,7 +21,7 @@ export const validate404ErrorMessage = 'Unable to retrieve codes for a value set
 
 interface TestResultsState {
   results: TestResultsData;
-  patientsExecuted: PatientData[];
+  patientsExecuted: FHIRBundle[];
   artifact: Artifact;
   elmFiles: ElmFile[];
   cqlFiles: CqlFile[];
@@ -120,7 +119,7 @@ const Tester: React.FC = () => {
         />
       )}
 
-      {!patientsIsLoading && <PatientsTable patients={patients || []} handleExecuteCQL={handleExecuteCQL} />}
+      {!patientsIsLoading && <PatientsTable patients={patients as PatientData[]} handleExecuteCQL={handleExecuteCQL} />}
 
       {elmErrors && <ELMErrorModal errors={elmErrors as ELMError[]} handleCloseModal={() => setElmErrors(null)} />}
     </div>

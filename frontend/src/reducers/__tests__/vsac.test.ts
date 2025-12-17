@@ -16,6 +16,6 @@ describe('vsac reducer', () => {
   it('should handle setting the vsac api key', () => {
     const action: SetVSACApiKeyAction = { type: types.SET_VSAC_API_KEY, apiKey: 'key' };
     const newState: VSACState = { apiKey: 'key' };
-    expect(reducer([], action)).toEqual(newState);
+    expect(reducer({} as VSACState, action)).toEqual(newState);
   });
 });
