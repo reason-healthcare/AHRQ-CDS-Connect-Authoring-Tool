@@ -6,7 +6,6 @@
     "typeRoots": ["./node_modules/@types"],
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -23,7 +22,7 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../shared/types/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*.test.js"],
   "ts-node": {
     "esm": true,

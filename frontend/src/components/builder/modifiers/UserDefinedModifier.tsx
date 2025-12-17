@@ -43,7 +43,7 @@ const UserDefinedModifier: React.FC<UserDefinedModifierProps> = ({
           elementInstance={elementInstance}
           handleCloseModal={() => setShowModifierModal(false)}
           handleUpdateModifiers={handleUpdateModifiers}
-          modifierToEdit={modifier as unknown as ModifierTree}
+          modifierToEdit={modifier as ModifierTree}
         />
       )}
     </div>

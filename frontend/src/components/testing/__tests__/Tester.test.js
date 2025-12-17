@@ -183,15 +183,10 @@ describe('<Tester />', () => {
         await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'View Detailed Results' })));
         expect(screen.getAllByText(/"Inpatient Encounter Exists"/)).toHaveLength(2);
 
-        const meetsInclusionLabels = screen.getAllByLabelText(/meets inclusion criteria:/i);
-        expect(meetsInclusionLabels[0]).toHaveTextContent('1 of 1 patients');
-        const meetsExclusionLabels = screen.getAllByLabelText(/meets exclusion criteria:/i);
-        expect(meetsExclusionLabels[0]).toHaveTextContent('0 of 1 patients');
-        // Patient-specific results use camelCase labels without spaces
-        const patientMeetsInclusion = screen.getAllByLabelText(/meetsinclusioncriteria:/i);
-        expect(patientMeetsInclusion[0]).toHaveTextContent('Yes');
-        const patientMeetsExclusion = screen.getAllByLabelText(/meetsexclusioncriteria:/i);
-        expect(patientMeetsExclusion[0]).toHaveTextContent('No Value');
+        expect(screen.getByLabelText(/meets inclusion criteria:/i)).toHaveTextContent('1 of 1 patients');
+        expect(screen.getByLabelText(/meets exclusion criteria:/i)).toHaveTextContent('0 of 1 patients');
+        expect(screen.getByLabelText(/meetsinclusioncriteria:/i)).toHaveTextContent('Yes');
+        expect(screen.getByLabelText(/meetsexclusioncriteria:/i)).toHaveTextContent('No Value');
         expect(screen.getByLabelText(/recommendation:/i)).toHaveTextContent('Do adult things');
         expect(screen.getByLabelText(/rationale:/i)).toHaveTextContent('No Value');
         expect(screen.getByLabelText(/errors:/i)).toHaveTextContent('No Value');

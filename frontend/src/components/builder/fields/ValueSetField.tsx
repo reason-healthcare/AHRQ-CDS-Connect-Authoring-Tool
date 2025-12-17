@@ -30,7 +30,7 @@ const ValueSetField: React.FC<ValueSetFieldProps> = ({ field, handleUpdateField 
   });
 
   // The API returns an array directly, not an expansion object
-  const valueSets: ValueSetOption[] = (data as unknown as ValueSetOption[]) || [];
+  const valueSets: ValueSetOption[] = (Array.isArray(data) ? data : []) as ValueSetOption[];
 
   return (
     <div id="value-set-field">

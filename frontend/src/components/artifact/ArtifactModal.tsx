@@ -6,62 +6,9 @@ import { formatISO } from 'date-fns';
 import ArtifactModalForm from './ArtifactModalForm';
 import { Modal } from 'components/elements';
 import { useInitialValues } from './hooks';
-import { stripContextFields } from 'utils/fields';
+import { stripContextFields, ContextField } from 'utils/fields';
 import type { Artifact } from '../../types/artifact';
-
-// ContextField type from utils/fields.ts
-interface ContextField {
-  contextType: string;
-  gender?: string;
-  ageRangeMin?: number;
-  ageRangeMax?: number;
-  ageRangeUnitOfTime?: string;
-  code?: string;
-  system?: string;
-  other?: string;
-  userType?: string;
-  workflowSetting?: string;
-  workflowTask?: string;
-  clinicalVenue?: string;
-  program?: string;
-}
-
-interface ArtifactFormValues {
-  name: string;
-  version: string;
-  description: string;
-  url: string;
-  status: string | null;
-  experimental: string | null;
-  publisher: string;
-  context: Array<Record<string, unknown>>;
-  purpose: string;
-  usage: string;
-  strengthOfRecommendation?: {
-    strengthOfRecommendation: string | null;
-    code: string;
-    system: string;
-    other: string;
-  };
-  qualityOfEvidence?: {
-    qualityOfEvidence: string | null;
-    code: string;
-    system: string;
-    other: string;
-  };
-  copyright: string;
-  approvalDate: Date | null;
-  lastReviewDate: Date | null;
-  effectivePeriod: {
-    start: Date | null;
-    end: Date | null;
-  };
-  topic: Array<Record<string, unknown>>;
-  author: Array<Record<string, unknown>>;
-  reviewer: Array<Record<string, unknown>>;
-  endorser: Array<Record<string, unknown>>;
-  relatedArtifact: Array<Record<string, unknown>>;
-}
+import { ArtifactFormValues } from './hooks/useInitialValues';
 
 interface ArtifactSubmitValues {
   name: string;
@@ -71,7 +18,7 @@ interface ArtifactSubmitValues {
   status: string | null;
   experimental: string | null;
   publisher: string;
-  context: Array<Record<string, unknown>>;
+  context: ContextField[];
   purpose: string;
   usage: string;
   strengthOfRecommendation?: {
@@ -102,9 +49,9 @@ interface ArtifactSubmitValues {
 
 interface ArtifactModalProps {
   artifactEditing?: Artifact | null;
-  handleAddArtifact?: (values: Record<string, unknown>) => void;
+  handleAddArtifact?: (values: ArtifactSubmitValues) => void;
   handleCloseModal: () => void;
-  handleUpdateArtifact?: (artifact: Artifact, values: Record<string, unknown>) => void;
+  handleUpdateArtifact?: (artifact: Artifact, values: Partial<ArtifactSubmitValues>) => void;
 }
 
 function dateToStringTransform(value: Date | null): string | null {
@@ -142,15 +89,13 @@ const ArtifactModal: React.FC<ArtifactModalProps> = ({
           start: dateToStringTransform(values.effectivePeriod.start),
           end: dateToStringTransform(values.effectivePeriod.end)
         },
-        context: stripContextFields(values.context as unknown as ContextField[]) as unknown as Array<
-          Record<string, unknown>
-        >
+        context: stripContextFields(values.context as ContextField[])
       };
 
       if (artifactEditing) {
-        handleUpdateArtifact?.(artifactEditing, newValues as unknown as Record<string, unknown>);
+        handleUpdateArtifact?.(artifactEditing, newValues);
       } else {
-        handleAddArtifact?.(newValues as unknown as Record<string, unknown>);
+        handleAddArtifact?.(newValues);
       }
 
       handleCloseModal();

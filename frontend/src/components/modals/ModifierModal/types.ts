@@ -48,6 +48,13 @@ export interface ModifierTree {
   type?: string;
   id?: string;
   name?: string;
+  values?: Record<string, unknown>;
+  validator?: {
+    type: string;
+    fields: string[];
+    args?: string[];
+  };
+  // where is required and must be the tree structure (not boolean)
   where: {
     id: string;
     conjunctionType: 'and' | 'or';

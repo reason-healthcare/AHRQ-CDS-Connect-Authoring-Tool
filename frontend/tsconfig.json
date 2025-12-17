@@ -18,8 +18,9 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["*"]
-    }
+    },
+    "types": ["jest", "node"]
   },
-  "include": ["src"],
+  "include": ["src", "../shared/types"],
   "exclude": ["node_modules", "build"]
 }

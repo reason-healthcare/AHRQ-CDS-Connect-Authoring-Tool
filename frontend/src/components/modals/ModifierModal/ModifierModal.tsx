@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../../store/hooks';
 
 import ModifierModalHeader from './ModifierModalHeader';
 import ModifierSelector from './ModifierSelector';
@@ -19,7 +20,7 @@ import ruleIsComplete from './ModifierBuilder/utils/ruleIsComplete';
 
 type DisplayMode = 'selectModifiers' | 'buildModifier' | 'editModifier' | 'selectFhirVersion' | null;
 
-interface ModifierModalProps {
+export interface ModifierModalProps {
   elementInstance: Instance;
   handleCloseModal: () => void;
   handleUpdateModifiers: (modifiers: Modifier[], fhirVersion: string) => void;
@@ -48,7 +49,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
       : []
   );
   const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion || '');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const styles = useStyles();
   const typeSupportedByBuilder =
     Boolean(resourceMap[elementInstance.returnType || '']) &&
@@ -62,12 +63,14 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
 
   const handleSaveModal = async (): Promise<void> => {
     if (fhirVersion !== artifact.fhirVersion) {
-      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }) as unknown as { type: string });
+      // updateArtifact returns a thunk that dispatches an action
+      // The dispatch will execute it and return the action object
+      await dispatch(updateArtifact(artifact, { fhirVersion: fhirVersion }));
     }
+    const { modifierTreesToModifiers } = await import('utils/modifierConversions');
+    const convertedModifiers = modifierTreesToModifiers(modifiersToAdd);
     handleUpdateModifiers(
-      modifierToEdit
-        ? (modifiersToAdd as unknown as Modifier[])
-        : (elementInstance.modifiers || []).concat(modifiersToAdd as unknown as Modifier[]),
+      modifierToEdit ? convertedModifiers : (elementInstance.modifiers || []).concat(convertedModifiers),
       fhirVersion
     );
     handleCloseModal();
@@ -102,7 +105,7 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
       Header={
         <ModifierModalHeader
           elementInstance={elementInstance}
-          modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
+          modifiersToAdd={modifiersToAdd as Array<Modifier & { uniqueId?: string; name?: string }>}
         />
       }
       hasCancelButton
@@ -155,9 +158,9 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
             elementInstance={elementInstance}
             handleGoBack={handleReset}
             hasLimitedModifiers={hasLimitedModifiers}
-            modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
+            modifiersToAdd={modifiersToAdd as Array<Modifier & { uniqueId?: string; name?: string }>}
             setModifiersToAdd={(modifiers: Array<Modifier & { uniqueId?: string; name?: string }>) =>
-              setModifiersToAdd(modifiers as unknown as Array<ModifierTree & { uniqueId?: string; name?: string }>)
+              setModifiersToAdd(modifiers as Array<ModifierTree & { uniqueId?: string; name?: string }>)
             }
           />
         )}
@@ -169,10 +172,10 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
             elementInstanceReturnType={elementInstance.returnType || ''}
             fhirVersion={fhirVersion}
             handleGoBack={handleReset}
-            modifiersToAdd={modifiersToAdd as unknown as Array<Modifier & { uniqueId?: string; name?: string }>}
+            modifiersToAdd={modifiersToAdd as Array<Modifier & { uniqueId?: string; name?: string }>}
             modifierToEdit={modifierToEdit}
             setModifiersToAdd={(modifiers: Array<Modifier & { uniqueId?: string; name?: string }>) =>
-              setModifiersToAdd(modifiers as unknown as Array<ModifierTree & { uniqueId?: string; name?: string }>)
+              setModifiersToAdd(modifiers as Array<ModifierTree & { uniqueId?: string; name?: string }>)
             }
           />
         )}

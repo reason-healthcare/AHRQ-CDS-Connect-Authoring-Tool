@@ -3,10 +3,7 @@ import _ from 'lodash';
 
 import patientResourceKeys from 'data/patientResourceKeys';
 import getProperty from 'utils/getProperty';
-import type { PatientData as SharedPatientData, PatientEntry } from '../types/patient';
-
-// Re-export the shared type for backward compatibility
-export type PatientData = SharedPatientData;
+import type { PatientData, FHIRBundleEntry } from '../types/patient';
 
 export interface OtherResourceType {
   resource: string;
@@ -23,9 +20,7 @@ export function extractOtherPatientResourceData({
   const displayedResources = Object.keys(patientResourceKeys[fhirVersion as keyof typeof patientResourceKeys] || {});
 
   const otherResourceTypes: OtherResourceType[] = [];
-  // Handle both patient.entry and patient.patient.entry structures
-  const entry = patient.entry || patient.patient?.entry;
-  entry?.forEach(entry => {
+  patient.entry?.forEach(entry => {
     const resource = entry.resource.resourceType;
     if (displayedResources.indexOf(resource) === -1 && resource !== 'Patient') {
       // other resource
@@ -53,8 +48,7 @@ export function extractPatientResourceData(
     resourceType = resourceName;
   }
 
-  // Handle both patient.entry and patient.patient.entry structures
-  const entry = patient.entry || patient.patient?.entry;
+  const entry = patient.entry;
   const resources = entry?.filter(entry => entry.resource.resourceType === resourceType) || [];
 
   const data: Record<string, unknown>[] = [];
@@ -63,7 +57,7 @@ export function extractPatientResourceData(
     const resourceKeys = patientResourceKeys[fhirVersion as keyof typeof patientResourceKeys]?.[resourceType];
     if (resourceKeys) {
       Object.keys(resourceKeys).forEach(key => {
-        row[key] = getProperty(resource.resource as unknown as Record<string, unknown>, resourceKeys[key]);
+        row[key] = getProperty(resource.resource, resourceKeys[key]);
       });
     }
     data.push(row);
@@ -166,17 +160,18 @@ function getResourceElement(
   patientData: PatientData,
   resourceType: string,
   element: string | null = null
-): PatientEntry | null {
+): FHIRBundleEntry | null {
   if (element == null) {
     return (
-      (_.chain(patientData).get('patient.entry').find({ resource: { resourceType } }).value() as PatientEntry) ?? null
+      (_.chain(patientData).get('patient.entry').find({ resource: { resourceType } }).value() as FHIRBundleEntry) ??
+      null
     );
   }
 
   const matchingResources = _.chain(patientData)
     .get('patient.entry')
     .filter({ resource: { resourceType } })
-    .value() as PatientEntry[];
+    .value() as FHIRBundleEntry[];
   return matchingResources.find(r => _.get(r, `resource.${element}`) != null) || null;
 }
 

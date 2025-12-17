@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import lowerFirst from 'lodash/lowerFirst';
 import * as parsers from './propertyParsers';
 
-function parseObject(object: Record<string, unknown>, propertyPath: string): unknown {
+function parseObject(object: object, propertyPath: string): unknown {
   if (isEmpty(propertyPath)) {
     return object;
   }
@@ -11,7 +11,14 @@ function parseObject(object: Record<string, unknown>, propertyPath: string): unk
 
   let property: unknown = object;
   for (let i = 0; property && i < parts.length; ++i) {
-    if (typeof property === 'object' && property !== null && !Array.isArray(property)) {
+    if (Array.isArray(property)) {
+      // Handle firstObject on arrays
+      if (parts[i] === 'firstObject') {
+        property = property[0];
+      } else {
+        return '';
+      }
+    } else if (typeof property === 'object' && property !== null) {
       property =
         parts[i] === 'firstObject' ? (property as unknown[])[0] : (property as Record<string, unknown>)[parts[i]];
     } else {
@@ -22,7 +29,7 @@ function parseObject(object: Record<string, unknown>, propertyPath: string): unk
   return property;
 }
 
-export default function getProperty(object: Record<string, unknown>, path: string): string {
+export default function getProperty(object: object, path: string): string {
   const m = /^(([^:]+):)?([^:]+)$/.exec(path);
   if (!m) {
     return '';

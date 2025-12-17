@@ -67,9 +67,9 @@ const Artifact: React.FC = () => {
     [asyncDeleteArtifact]
   );
   const handleAddArtifact = useCallback(
-    async (artifactProps?: Partial<ArtifactType>) => {
+    async (artifactProps?: Partial<ArtifactType> | Record<string, unknown>) => {
       try {
-        await asyncAddArtifact({ artifactProps });
+        await asyncAddArtifact({ artifactProps: artifactProps as Partial<ArtifactType> });
       } catch (error) {
         console.error('Add artifact failed:', error);
       }
@@ -77,9 +77,9 @@ const Artifact: React.FC = () => {
     [asyncAddArtifact]
   );
   const handleUpdateArtifact = useCallback(
-    async (artifact: ArtifactType, artifactProps: Partial<ArtifactType>) => {
+    async (artifact: ArtifactType, artifactProps: Partial<ArtifactType> | Record<string, unknown>) => {
       try {
-        await asyncUpdateArtifact({ artifact, artifactProps });
+        await asyncUpdateArtifact({ artifact, artifactProps: artifactProps as Partial<ArtifactType> });
       } catch (error) {
         console.error('Update artifact failed:', error);
       }

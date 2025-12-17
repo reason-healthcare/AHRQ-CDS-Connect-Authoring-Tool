@@ -8,13 +8,13 @@ import ElementCardLabel from 'components/elements/ElementCard/ElementCardLabel';
 import { ValueSetSelectModal } from 'components/modals';
 import { Tooltip } from 'components/elements';
 
-interface ValueSet {
+export interface ValueSet {
   name: string;
   oid: string;
   [key: string]: unknown;
 }
 
-interface ValueSetListTemplateProps {
+export interface ValueSetListTemplateProps {
   handleDeleteValueSet: (valueSet: ValueSet) => void;
   valueSets: ValueSet[];
 }

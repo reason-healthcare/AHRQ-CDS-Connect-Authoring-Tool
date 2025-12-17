@@ -63,11 +63,7 @@ const ExternalCqlDropZone: React.FC = () => {
       console.error('Save artifact failed:', error);
     }
   }, [invokeSaveArtifact, artifact, dispatch]);
-  const addMutation = useMutation<
-    ExternalCqlLibrary,
-    AddExternalCqlError,
-    { library: Record<string, string | number | boolean | undefined> }
-  >({
+  const addMutation = useMutation<ExternalCqlLibrary, AddExternalCqlError, { library: Record<string, unknown> }>({
     mutationFn: async ({ library }) => addExternalCql(library),
     onSuccess: (library: ExternalCqlLibrary) => {
       setMessage('Library successfully added');
@@ -117,7 +113,7 @@ const ExternalCqlDropZone: React.FC = () => {
             cqlFileContent: fileContentToSend,
             fileType: cqlFileType,
             artifact
-          } as unknown as Record<string, string | number | boolean | undefined>;
+          };
           setUploadErrorMessage(null);
           handleSaveArtifact();
           addMutation.mutate({ library });

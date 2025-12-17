@@ -834,7 +834,8 @@ function singlePost(req: AuthenticatedRequest, res: Response): void {
           const libraries = await CQLLibrary.find({ user: req.user?.uid || '', linkedArtifactId: artifactId }).exec();
           const elmResult = elmResultsToSave[0] as Record<string, unknown>; // This is the single file upload case, so elmResultsToSave will only ever have one item.
           const defaultLibrary = authoringToolExports.map(l => l.name).includes(elmResult.name as string);
-          const librariesArray = libraries as unknown as Array<Record<string, unknown>>;
+          const { documentsToPlainObjects } = await import('../utils/mongooseHelpers.js');
+          const librariesArray = documentsToPlainObjects(libraries);
           const dupName = librariesArray.find(
             (lib: Record<string, unknown>) => (lib.name as string) === (elmResult.name as string)
           );
@@ -1014,7 +1015,8 @@ async function singleDelete(req: AuthenticatedRequest, res: Response): Promise<v
         const artifactResponse = await Artifact.findById(linkedArtifactId).exec();
         if (artifactResponse) {
           let currentFHIRVersion: string;
-          const artifactRecord = artifactResponse as unknown as Record<string, unknown>;
+          const { documentToPlainObject } = await import('../utils/mongooseHelpers.js');
+          const artifactRecord = documentToPlainObject(artifactResponse);
           if (artifactHasServiceRequest(artifactRecord)) {
             currentFHIRVersion = '4.0.x';
           } else if (artifactHasCustomModifiers(artifactRecord)) {

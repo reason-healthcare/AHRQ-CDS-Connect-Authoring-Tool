@@ -121,10 +121,11 @@ const ArtifactSchema = new Schema<IArtifact>(
 
 //Convert the schema into an CPG Publishable Library JSON object
 ArtifactSchema.methods.toPublishableLibrary = function (): fhir4.Library {
-  //the ultimate value to return
-  const retVal: Record<string, unknown> = {};
-
-  retVal['resourceType'] = 'Library';
+  //the ultimate value to return - build it as a Library structure
+  // Build the Library object - use Record for dynamic property access, then convert
+  const retVal: Record<string, unknown> = {
+    resourceType: 'Library'
+  };
 
   //handle the extensions
   if (
@@ -286,7 +287,11 @@ ArtifactSchema.methods.toPublishableLibrary = function (): fhir4.Library {
     });
   };
   removeEmpty(retVal);
-  return retVal as unknown as fhir4.Library;
+  // Type assertion is safe here because we've constructed a valid Library structure
+  // retVal has resourceType: 'Library' and all required fields are set
+  // We build it as Record<string, unknown> for dynamic property access, but it conforms to Library structure
+  const libraryResult = retVal as Partial<fhir4.Library> & { resourceType: 'Library' };
+  return libraryResult as fhir4.Library;
 };
 
 //helper function to map contacts into CPG form.  used by toPublishableLibrary()
@@ -326,8 +331,8 @@ ArtifactSchema.methods.convertContext = function (): Array<fhir4.UsageContext> |
       .map(function (context: Record<string, unknown>) {
         const type = context['contextType'] as string;
         const ctxMap = contextMappings.find((x: { type: string }) => x.type === type);
-        //the object we'll build into CPG format
-        let tmpCtx: Record<string, unknown> = {};
+        //the object we'll build into CPG format - build as UsageContext structure
+        let tmpCtx: Partial<fhir4.UsageContext> = {};
         let code: string,
           tax: { Code: string; Classification: string; Specialization?: string },
           display: string,
@@ -342,16 +347,30 @@ ArtifactSchema.methods.convertContext = function (): Array<fhir4.UsageContext> |
               },
               valueRange: {
                 low: {
-                  value: new Number(context['ageRangeMin']),
-                  unit: context['ageRangeUnitOfTime'],
+                  value: Number(context['ageRangeMin']) || 0,
+                  unit: context['ageRangeUnitOfTime'] as string | undefined,
                   system: 'http://unitsofmeasure.org',
-                  code: (ctxMap as { codes: Record<string, string> })['codes'][context['ageRangeUnitOfTime'] as string]
+                  code:
+                    (ctxMap &&
+                    typeof ctxMap === 'object' &&
+                    'codes' in ctxMap &&
+                    typeof ctxMap.codes === 'object' &&
+                    ctxMap.codes !== null
+                      ? (ctxMap.codes as Record<string, string>)[context['ageRangeUnitOfTime'] as string]
+                      : undefined) || ''
                 },
                 high: {
-                  value: new Number(context['ageRangeMax']),
-                  unit: context['ageRangeUnitOfTime'],
+                  value: Number(context['ageRangeMax']) || 0,
+                  unit: context['ageRangeUnitOfTime'] as string | undefined,
                   system: 'http://unitsofmeasure.org',
-                  code: (ctxMap as { codes: Record<string, string> })['codes'][context['ageRangeUnitOfTime'] as string]
+                  code:
+                    (ctxMap &&
+                    typeof ctxMap === 'object' &&
+                    'codes' in ctxMap &&
+                    typeof ctxMap.codes === 'object' &&
+                    ctxMap.codes !== null
+                      ? (ctxMap.codes as Record<string, string>)[context['ageRangeUnitOfTime'] as string]
+                      : undefined) || ''
                 }
               }
             };
@@ -415,11 +434,27 @@ ArtifactSchema.methods.convertContext = function (): Array<fhir4.UsageContext> |
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: (ctxMap as { system: string })['system'],
-                    code:
-                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[code]?.['code'] || '',
-                    display:
-                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[code]?.['display'] || ''
+                    system: ctxMap?.system || '',
+                    code: (() => {
+                      if (ctxMap && code && typeof ctxMap === 'object') {
+                        const ctxMapRecord = ctxMap as Record<string, unknown>;
+                        const value = ctxMapRecord[code];
+                        if (value && typeof value === 'object' && value !== null && 'code' in value) {
+                          return (value as { code: string; display: string }).code;
+                        }
+                      }
+                      return '';
+                    })(),
+                    display: (() => {
+                      if (ctxMap && code && typeof ctxMap === 'object') {
+                        const ctxMapRecord = ctxMap as Record<string, unknown>;
+                        const value = ctxMapRecord[code];
+                        if (value && typeof value === 'object' && value !== null && 'display' in value) {
+                          return (value as { code: string; display: string }).display;
+                        }
+                      }
+                      return '';
+                    })()
                   }
                 ]
               }
@@ -505,21 +540,35 @@ ArtifactSchema.methods.convertContext = function (): Array<fhir4.UsageContext> |
               valueCodeableConcept: {
                 coding: [
                   {
-                    system: (ctxMap as { system: string })['system'],
-                    code:
-                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[
-                        context[type] as string
-                      ]?.['code'] || '',
-                    display:
-                      (ctxMap as unknown as Record<string, { code: string; display: string }>)[
-                        context[type] as string
-                      ]?.['display'] || ''
+                    system: ctxMap?.system || '',
+                    code: (() => {
+                      const contextValue = context[type] as string;
+                      if (ctxMap && contextValue && typeof ctxMap === 'object') {
+                        const ctxMapRecord = ctxMap as Record<string, unknown>;
+                        const value = ctxMapRecord[contextValue];
+                        if (value && typeof value === 'object' && value !== null && 'code' in value) {
+                          return (value as { code: string; display: string }).code;
+                        }
+                      }
+                      return '';
+                    })(),
+                    display: (() => {
+                      const contextValue = context[type] as string;
+                      if (ctxMap && contextValue && typeof ctxMap === 'object') {
+                        const ctxMapRecord = ctxMap as Record<string, unknown>;
+                        const value = ctxMapRecord[contextValue];
+                        if (value && typeof value === 'object' && value !== null && 'display' in value) {
+                          return (value as { code: string; display: string }).display;
+                        }
+                      }
+                      return '';
+                    })()
                   }
                 ]
               }
             };
         }
-        return tmpCtx as unknown as fhir4.UsageContext;
+        return tmpCtx as fhir4.UsageContext;
       });
     return result;
   }

@@ -6,7 +6,7 @@ import UcumField from 'components/builder/fields/UcumField';
 import { useFieldStyles } from 'styles/hooks';
 import useStyles from './styles';
 
-interface QuantityModifierProps {
+export interface QuantityModifierProps {
   handleUpdateModifier: (updates: { value: number | string; unit: string }) => void;
   name: string;
   unit?: string;

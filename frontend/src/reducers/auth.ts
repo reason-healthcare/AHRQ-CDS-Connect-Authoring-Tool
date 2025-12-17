@@ -84,7 +84,7 @@ interface UpdateUserSettingsFailureAction {
   statusText: string;
 }
 
-type AuthAction =
+export type AuthAction =
   | UserRequestAction
   | UserReceivedAction
   | LoginRequestAction

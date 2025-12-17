@@ -241,7 +241,7 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
         <UserDefinedModifier
           elementInstance={elementInstance}
           handleUpdateModifier={handleUpdateModifier}
-          label={`Custom: ${getModifierExpression(modifier as unknown as ModifierTree)}`}
+          label={`Custom: ${getModifierExpression(modifier as ModifierTree)}`}
           modifier={modifier}
         />
       );

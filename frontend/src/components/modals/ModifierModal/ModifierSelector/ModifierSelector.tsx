@@ -53,6 +53,7 @@ const ModifierSelector: React.FC<ModifierSelectorProps> = ({
     queryFn: () => fetchModifiers(query),
     enabled: query.artifactId != null && query.artifactId !== ''
   });
+  const modifierMap = modifiersQuery.data?.modifierMap ?? {};
   const modifiersByInputType = modifiersQuery.data?.modifiersByInputType ?? {};
   const fieldStyles = useFieldStyles();
   const spacingStyles = useSpacingStyles();
@@ -61,8 +62,36 @@ const ModifierSelector: React.FC<ModifierSelectorProps> = ({
   const newModifiers = elementInstance.modifiers?.concat(modifiersToAdd) || modifiersToAdd;
   const returnTypeWithNewModifiers =
     newModifiers.length === 0 ? elementInstance.returnType : newModifiers[newModifiers.length - 1].returnType;
-  let selectableModifiers: SelectableModifier[] = (modifiersByInputType[returnTypeWithNewModifiers ?? ''] ??
-    []) as unknown as SelectableModifier[];
+  const modifiersForType = modifiersByInputType[returnTypeWithNewModifiers ?? ''] ?? [];
+  // Type guard to check if an object is a SelectableModifier
+  const isSelectableModifier = (mod: unknown): mod is SelectableModifier => {
+    if (!mod || typeof mod !== 'object') return false;
+    const modObj = mod as Record<string, unknown>;
+    // Check for required properties
+    const hasName = 'name' in modObj && typeof modObj.name === 'string';
+    const hasId = 'id' in modObj && typeof modObj.id === 'string';
+    return hasName && hasId;
+  };
+
+  let selectableModifiers: SelectableModifier[] = modifiersForType
+    .map((mod): SelectableModifier | null => {
+      // Get full modifier data from modifierMap if available
+      if (typeof mod === 'object' && mod != null && 'id' in mod) {
+        const modId = mod.id;
+        if (typeof modId === 'string' && modifierMap[modId]) {
+          const fullModifier = modifierMap[modId];
+          if (isSelectableModifier(fullModifier)) {
+            return fullModifier;
+          }
+        }
+      }
+      // Fallback to mod if it's already a SelectableModifier
+      if (isSelectableModifier(mod)) {
+        return mod;
+      }
+      return null;
+    })
+    .filter((mod): mod is SelectableModifier => mod !== null);
   if (hasLimitedModifiers) {
     selectableModifiers = selectableModifiers.filter(({ returnType }) => returnType === elementInstance.returnType);
   }

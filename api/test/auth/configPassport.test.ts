@@ -196,7 +196,7 @@ describe('configPassport', () => {
           expect(user).to.be.false;
           done();
         },
-        'users' as unknown as Record<string, string>
+        'users' as Record<string, string>
       );
     });
   });

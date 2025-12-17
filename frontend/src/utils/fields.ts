@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
 
-interface ContextField {
+export interface ContextField {
   contextType: string;
   gender?: string;
   ageRangeMin?: number;

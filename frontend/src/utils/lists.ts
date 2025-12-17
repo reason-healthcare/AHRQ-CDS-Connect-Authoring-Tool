@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { plural } from 'pluralize';
-import { getReturnType } from 'utils/instances';
+import { getReturnType, type Modifier } from 'utils/instances';
 import { findValueAtPath } from './find';
 
 // These lists are based off the lists defined in api/src/data/modifiers.js
@@ -33,6 +33,10 @@ export const isElementAndOr = (id: string | undefined): boolean => id === 'And' 
 export const isElementUnionIntersect = (id: string | undefined): boolean => id === 'Union' || id === 'Intersect';
 
 export const promoteReturnTypeToList = (returnType: string): string => {
+  // Handle empty string - return list_of_any as default
+  if (!returnType || returnType === '') {
+    return 'list_of_any';
+  }
   const isSingularElement = !returnType.startsWith('list_of_');
   if (isSingularElement) {
     return `list_of_${plural(returnType)}`;
@@ -52,7 +56,7 @@ export const checkReturnTypeCompatibilitySetList = (currentReturnType: string, i
 export const checkReturnTypeCompatibilityBooleanList = (
   currentReturnType: string,
   incomingReturnType: string,
-  isOnlyElement: boolean
+  isOnlyElement?: boolean
 ): string => {
   const booleanAndNull =
     (_.lowerCase(incomingReturnType) === 'none' && _.lowerCase(currentReturnType) === 'boolean') ||
@@ -83,14 +87,50 @@ export const getListReturnType = (baseElementList: BaseElementList, isBooleanLis
   // Set the initial type to the first child's type to start
   if (baseElementList.childInstances.length > 0) {
     const firstChild = baseElementList.childInstances[0];
-    currentReturnType = getReturnType(firstChild.returnType || '', firstChild.modifiers || []);
+    // Access returnType - use direct property access
+    let firstChildReturnType = '';
+    if (firstChild && typeof firstChild === 'object' && firstChild !== null) {
+      const childRecord = firstChild as Record<string, unknown>;
+      // Direct property access - check for undefined, null, or empty string
+      const returnTypeValue = childRecord.returnType;
+      if (returnTypeValue !== undefined && returnTypeValue !== null) {
+        if (typeof returnTypeValue === 'string') {
+          firstChildReturnType = returnTypeValue;
+        }
+      }
+    }
+    const firstChildModifiers =
+      firstChild && typeof firstChild === 'object' && firstChild !== null && 'modifiers' in firstChild
+        ? Array.isArray((firstChild as Record<string, unknown>).modifiers)
+          ? ((firstChild as Record<string, unknown>).modifiers as Modifier[])
+          : []
+        : [];
+    currentReturnType = getReturnType(firstChildReturnType, firstChildModifiers);
     if (!isBoolean) {
       currentReturnType = promoteReturnTypeToList(currentReturnType);
     }
   }
 
   baseElementList.childInstances.forEach(child => {
-    let incomingReturnType = getReturnType(child.returnType || '', child.modifiers || []);
+    // Access returnType - use direct property access
+    let childReturnType = '';
+    if (child && typeof child === 'object' && child !== null) {
+      const childRecord = child as Record<string, unknown>;
+      // Direct property access - check for undefined, null, or empty string
+      const returnTypeValue = childRecord.returnType;
+      if (returnTypeValue !== undefined && returnTypeValue !== null) {
+        if (typeof returnTypeValue === 'string') {
+          childReturnType = returnTypeValue;
+        }
+      }
+    }
+    const childModifiers =
+      child && typeof child === 'object' && child !== null && 'modifiers' in child
+        ? Array.isArray((child as Record<string, unknown>).modifiers)
+          ? ((child as Record<string, unknown>).modifiers as Modifier[])
+          : []
+        : [];
+    let incomingReturnType = getReturnType(childReturnType, childModifiers);
     // Base Element And/Or Lists can go multiple children deep so need recursion to check the type
     if (isBoolean && child.childInstances) {
       incomingReturnType = getListReturnType(child as BaseElementList, isBoolean);
@@ -129,17 +169,41 @@ export const calculateReturnTypeAfterElementRemoved = (
   // Temporarily remove the element that will be deleted to correctly calculate return type.
   const indexToRemove = parseInt(path.slice(-1), 10);
   const baseElementList = _.cloneDeep(baseElement);
-  const target = findValueAtPath(baseElementList, path.slice(0, path.length - 2)) as { childInstances?: unknown[] };
-  if (target && target.childInstances) {
-    target.childInstances.splice(indexToRemove, 1);
+  const pathToParent = path.slice(0, path.length - 2); // Remove '.0' or '.1' etc
+  const target = findValueAtPath(baseElementList, pathToParent);
+
+  // target could be the array itself or an object with childInstances property
+  let targetArray: unknown[] | undefined;
+  if (Array.isArray(target)) {
+    targetArray = target;
+  } else if (target && typeof target === 'object' && target !== null && 'childInstances' in target) {
+    targetArray = (target as { childInstances?: unknown[] }).childInstances;
+  } else {
+    // Fallback: try to get childInstances from baseElementList directly
+    targetArray = baseElementList.childInstances;
+  }
+
+  if (targetArray) {
+    targetArray.splice(indexToRemove, 1);
     // Temporarily add in any new elements being added (used for indenting/outdenting)
     if (elementsToAdd.length > 0) {
       elementsToAdd.forEach(addition => {
         // addition type: { instance: childInstance to add in, path: string, index: number }
-        const targetToAdd = findValueAtPath(baseElementList, addition.path) as { childInstances?: unknown[] };
-        if (targetToAdd && targetToAdd.childInstances) {
-          const indexToAdd = addition.index !== undefined ? addition.index : target.childInstances?.length || 0;
-          targetToAdd.childInstances.splice(indexToAdd, 0, addition.instance);
+        const targetToAdd = findValueAtPath(baseElementList, addition.path);
+        let targetArrayToAdd: unknown[] | undefined;
+        if (Array.isArray(targetToAdd)) {
+          targetArrayToAdd = targetToAdd;
+        } else if (
+          targetToAdd &&
+          typeof targetToAdd === 'object' &&
+          targetToAdd !== null &&
+          'childInstances' in targetToAdd
+        ) {
+          targetArrayToAdd = (targetToAdd as { childInstances?: unknown[] }).childInstances;
+        }
+        if (targetArrayToAdd) {
+          const indexToAdd = addition.index !== undefined ? addition.index : targetArrayToAdd.length;
+          targetArrayToAdd.splice(indexToAdd, 0, addition.instance);
         }
       });
     }
@@ -169,7 +233,10 @@ export const isBaseElementListUsed = (element: { usedBy?: unknown[] }): boolean 
 export const checkForNeedToPromote = (baseElementSetList: BaseElementList): void => {
   baseElementSetList.childInstances.forEach(child => {
     // Unions/Intersects only have children one level deep
-    let childReturnType = getReturnType(child.returnType || '', child.modifiers || []);
+    const childRecord = child as Record<string, unknown>;
+    const childReturnTypeValue = (childRecord?.returnType as string | undefined) || '';
+    const childModifiersValue = Array.isArray(childRecord?.modifiers) ? (childRecord.modifiers as Modifier[]) : [];
+    let childReturnType = getReturnType(childReturnTypeValue, childModifiersValue);
     // All set lists will have a return type of list_of_SOMETHING. If any child on its own
     // has a singular return type, it needs to be promoted to a list in the CQL.
     if (!childReturnType.startsWith('list_of_') && baseElementSetList.childInstances.length > 1) {

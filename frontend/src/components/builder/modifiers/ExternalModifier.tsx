@@ -7,12 +7,12 @@ import { ArgumentsTemplate } from 'components/builder/templates';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from './styles';
 
-interface ModifierArgument {
+export interface ModifierArgument {
   name: string;
   [key: string]: unknown;
 }
 
-interface ArgumentType {
+export interface ArgumentType {
   calculated: string;
   [key: string]: unknown;
 }

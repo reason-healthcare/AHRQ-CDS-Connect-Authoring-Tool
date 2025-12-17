@@ -95,7 +95,7 @@ describe('Route: /authoring/api/auth/login', () => {
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
       sinon.replace(passport, 'authenticate', mockAuthenticate);
-      options.user = 'leroy' as unknown as { uid: string };
+      options.user = 'leroy' as { uid: string };
       request(app)
         .post('/authoring/api/auth/login')
         .send({ username: 'bob', password: 'limecurd' })

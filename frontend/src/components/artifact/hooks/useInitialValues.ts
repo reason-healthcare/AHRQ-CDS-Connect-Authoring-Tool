@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { parseISO } from 'date-fns';
 import type { Artifact } from '../../../types/artifact';
+import type { ContextField } from '../../../utils/fields';
 
-interface ArtifactFormValues {
+export interface ArtifactFormValues {
   name: string;
   version: string;
   description: string;
@@ -10,7 +11,7 @@ interface ArtifactFormValues {
   status: string | null;
   experimental: string | null;
   publisher: string;
-  context: Array<Record<string, unknown>>;
+  context: ContextField[];
   purpose: string;
   usage: string;
   strengthOfRecommendation?: {

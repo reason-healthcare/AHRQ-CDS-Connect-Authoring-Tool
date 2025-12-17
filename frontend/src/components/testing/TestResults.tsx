@@ -7,7 +7,7 @@ import { KeyValueList } from 'components/elements';
 import { getPatientId, getPatientFullName } from 'utils/patients';
 import type { Artifact } from '../../types/artifact';
 import type { ElmFile, CqlFile } from '../../types/query';
-import type { PatientData } from '../../types/patient';
+import type { FHIRBundle } from '../../types/patient';
 import { useSpacingStyles } from 'styles/hooks';
 import useStyles from './styles';
 
@@ -28,7 +28,7 @@ export interface TestResultsData {
 interface TestResultsProps {
   artifact: Artifact;
   handleOnClose: () => void;
-  patientsExecuted: PatientData[];
+  patientsExecuted: FHIRBundle[];
   results: TestResultsData;
   cqlFiles: CqlFile[];
   elmFiles: ElmFile[];
@@ -50,7 +50,7 @@ const TestResults: React.FC<TestResultsProps> = ({
   const resultsCount = resultsArray.length;
 
   const resultsMetaList = [
-    { key: 'Artifact', value: artifact.name || '' },
+    { key: 'Artifact', value: artifact.name },
     { key: 'Meets Inclusion Criteria', value: `${resultsIncludedCount} of ${resultsCount} patients` },
     { key: 'Meets Exclusion Criteria', value: `${resultsExcludedCount} of ${resultsCount} patients` }
   ];
@@ -66,11 +66,11 @@ const TestResults: React.FC<TestResultsProps> = ({
 
       <div className={spacingStyles.verticalPadding}>
         {patientsExecuted.map(patient => {
-          const patientId = getPatientId(patient);
+          const patientId = getPatientId({ patient });
           return (
             <TestResultsSection
               key={patientId || `patient-${Math.random()}`}
-              patientName={getPatientFullName(patient)}
+              patientName={getPatientFullName({ patient })}
               results={results.patientResults[patientId || ''] || {}}
               cqlFiles={cqlFiles}
               elmFiles={elmFiles}

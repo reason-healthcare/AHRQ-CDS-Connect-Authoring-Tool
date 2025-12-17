@@ -140,16 +140,14 @@ async function duplicate(req: AuthenticatedRequest, res: Response, _next: unknow
         res.sendStatus(404);
       } else {
         const artifactNamesArray = artifactNames.map(a => ({ name: a.name || '' }));
-        const duplicateToInsert = prepareDuplicateArtifact(
-          artifact.toObject() as unknown as Record<string, unknown>,
-          artifactNamesArray
-        );
+        const { documentToPlainObject } = await import('../utils/mongooseHelpers.js');
+        const duplicateToInsert = prepareDuplicateArtifact(documentToPlainObject(artifact), artifactNamesArray);
 
         const duplicateResponse = await Artifact.create(duplicateToInsert);
         const library = await CQLLibrary.find({ linkedArtifactId: parentID }).exec();
         if (library.length !== 0) {
           const promises = library.map(lib => {
-            const libObj = lib.toObject() as unknown as Record<string, unknown>;
+            const libObj = documentToPlainObject(lib);
             const newLib: Record<string, unknown> = {
               ...libObj,
               linkedArtifactId: duplicateResponse._id

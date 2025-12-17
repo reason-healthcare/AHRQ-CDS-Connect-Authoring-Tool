@@ -7,7 +7,7 @@ export interface ELMError {
   [key: string]: unknown;
 }
 
-interface ELMErrorModalProps {
+export interface ELMErrorModalProps {
   handleCloseModal: () => void;
   errors: ELMError[];
 }

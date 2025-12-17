@@ -24,7 +24,7 @@ interface SaveArtifactSuccessAction {
   artifact: Artifact;
 }
 
-type ArtifactAction = UpdateArtifactAction | LoadArtifactAction | SaveArtifactSuccessAction;
+export type ArtifactAction = UpdateArtifactAction | LoadArtifactAction | SaveArtifactSuccessAction;
 
 export const defaultState: ArtifactState = {
   artifact: null,
@@ -46,7 +46,7 @@ export default function artifacts(state: ArtifactState = defaultState, action: A
       return {
         ...state,
         artifactSaved: true,
-        artifact: action.artifact
+        artifact: 'artifact' in action ? action.artifact : state.artifact
       };
     default:
       return state;

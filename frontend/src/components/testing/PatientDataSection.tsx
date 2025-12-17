@@ -14,11 +14,10 @@ import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import clsx from 'clsx';
 
 import { useTextStyles } from 'styles/hooks';
-
-import type { OtherResourceType } from '../../utils/patients';
+import { OtherResourceType } from 'utils/patients';
 
 interface PatientDataSectionProps {
-  data: Array<Record<string, unknown> | OtherResourceType>;
+  data: Record<string, unknown>[] | OtherResourceType[];
   title: string;
 }
 

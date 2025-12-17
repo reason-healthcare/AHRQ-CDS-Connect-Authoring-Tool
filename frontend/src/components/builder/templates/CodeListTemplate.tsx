@@ -4,7 +4,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 
 import ElementCardLabel from 'components/elements/ElementCard/ElementCardLabel';
 
-interface Code {
+export interface Code {
   code: string;
   display?: string;
   codeSystem: {
@@ -13,7 +13,7 @@ interface Code {
   };
 }
 
-interface CodeListTemplateProps {
+export interface CodeListTemplateProps {
   codes: Code[];
   handleDeleteCode: (code: Code) => void;
 }

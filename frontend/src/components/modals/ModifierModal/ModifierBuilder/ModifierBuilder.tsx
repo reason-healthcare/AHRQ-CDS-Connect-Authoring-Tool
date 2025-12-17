@@ -52,7 +52,7 @@ const ModifierBuilder: React.FC<ModifierBuilderProps> = ({
   const handleUpdateModifierTree = (tree: ModifierTree['where']): void => {
     const updatedTree: ModifierTree = { ...modifierTree, returnType: getTreeReturnType(tree), where: tree };
     setModifierTree(updatedTree);
-    setModifiersToAdd([updatedTree as unknown as Modifier & { uniqueId?: string; name?: string }]);
+    setModifiersToAdd([updatedTree]);
   };
 
   return (

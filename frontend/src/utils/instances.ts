@@ -3,6 +3,9 @@ import _ from 'lodash';
 import { getOriginalBaseElement } from 'utils/baseElements';
 import { isElementAndOr } from './lists';
 
+// Import ModifierTree type for compatibility
+import type { ModifierTree } from '../components/modals/ModifierModal/types';
+
 export interface Modifier {
   validator?: {
     type: string;
@@ -10,7 +13,8 @@ export interface Modifier {
     args?: string[];
   };
   values?: Record<string, unknown>;
-  where?: boolean;
+  // where can be boolean (stored format) or ModifierTree['where'] (UI editing format)
+  where?: boolean | ModifierTree['where'];
   returnType?: string;
   id?: string;
   type?: string;
@@ -63,12 +67,13 @@ export function validateModifier(modifier: Modifier | null | undefined): string 
 // Gets the returnType of the last valid modifier
 export function getReturnType(startingReturnType: string, modifiers: Modifier[] = []): string {
   let returnType = startingReturnType;
-  if (modifiers.length === 0) return returnType;
+  if (modifiers.length === 0) return returnType || '';
 
   for (let index = modifiers.length - 1; index >= 0; index--) {
     const modifier = modifiers[index];
     // Check to see if the modifier is a user-built one.
-    if (modifier.where) {
+    // where can be boolean (true) or an object (ModifierTree['where'])
+    if (modifier.where === true || (modifier.where && typeof modifier.where === 'object')) {
       returnType = modifier.returnType || returnType;
     } else if (validateModifier(modifier) === null) {
       returnType = modifier.returnType || returnType;
@@ -76,7 +81,7 @@ export function getReturnType(startingReturnType: string, modifiers: Modifier[] 
     }
   }
 
-  return returnType;
+  return returnType || '';
 }
 
 function getAllChildInstances(childInstances: Instance[] | null | undefined): Instance[] {

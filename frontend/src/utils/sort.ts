@@ -22,8 +22,8 @@ export function sortAlphabeticallyByPatientName(
   a: { name?: { given?: string[] } },
   b: { name?: { given?: string[] } }
 ): number {
-  const aName = getPatientFirstName(a as unknown as PatientData);
-  const bName = getPatientFirstName(b as unknown as PatientData);
+  const aName = getPatientFirstName(a as PatientData);
+  const bName = getPatientFirstName(b as PatientData);
 
   if (aName > bName || (aName && !bName)) {
     return 1;
