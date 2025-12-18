@@ -7,9 +7,7 @@ import { supportedResourceProperties as resources } from './resources.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const dataElements = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../data/stu3_dataelements.json'), 'utf8')
-);
+const dataElements = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/stu3_dataelements.json'), 'utf8'));
 
 let generatedResources = [];
 // For each resource in the datafile

@@ -36,7 +36,3 @@ export function getContextMappingValue(
 export function getContextMappingSystem(ctxMap: ContextMapping | undefined): string {
   return ctxMap?.system || '';
 }
-
-
-
-

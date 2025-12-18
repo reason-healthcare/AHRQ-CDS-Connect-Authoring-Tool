@@ -1,18 +1,17 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import _ from 'lodash';
 import config from '../config.js';
-import fhir4 from 'fhir/r4';
 
-const VSAC_FHIR_ENDPOINT = config.get('terminologyService') as string;
+const VSAC_FHIR_ENDPOINT = config.get('terminologyService');
 
 /**
- * Gets the value set for the given oid,
- *
- * @param {string} oid - the VSAC oid you are after
- * @param {string} username the VSAC user to authenticate as
- * @param {string} password the VSAC user's password
- * @returns {Promise<object>} an object containing the FHIR response for the OID
- */
+* Gets the value set for the given oid,
+
+* @param {string} oid - the VSAC oid you are after
+* @param {string} username the VSAC user to authenticate as
+* @param {string} password the VSAC user's password
+* @returns {Promise<object>} an object containing the FHIR response for the OID
+*/
 
 const codeLookups: Record<string, string> = {
   'http://snomed.info/sct': 'SNOMEDCT',
@@ -130,7 +129,7 @@ export interface ValueSetResult {
 
 async function getValueSet(oid: string, username: string, password: string): Promise<ValueSetResult> {
   // Strip version suffix from oid if present (e.g., "2468|13579" -> "2468")
-  const cleanOid = stripBarFromId(oid);
+  const cleanOid = cleanId(oid, undefined);
   const options: AxiosRequestConfig = {
     method: 'GET',
     url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${cleanOid}/$expand`,
@@ -142,14 +141,9 @@ async function getValueSet(oid: string, username: string, password: string): Pro
 
   const res: AxiosResponse<fhir4.ValueSet> = await axios(options);
   const response = res.data;
-  // Extract version from id if present (e.g., "2468|13579" -> "13579")
-  let version = response.meta?.versionId;
-  if (response.id && response.id.indexOf('|') !== -1) {
-    version = response.id.slice(response.id.indexOf('|') + 1);
-  }
   return {
     oid: cleanId(response.id, response.version),
-    version,
+    version: response.meta?.versionId,
     displayName: response.title || response.name,
     codes: (response.expansion?.contains || []).map(c => {
       return {
@@ -180,8 +174,8 @@ async function getValueSetCodeCount(username: string, password: string, oid: str
   };
   // Because this is only used to get a count, we don't need to care about any errors. Just catch and ignore.
   // This avoids 500 errors being thrown in the browser console and appearing in the modal when searching.
-  const result = await axios(options).catch(() => undefined);
-  const count = (result?.data as fhir4.ValueSet | undefined)?.expansion?.total || 0;
+  const result = await axios(options).catch(() => {});
+  const count = result?.data?.expansion?.total || 0;
   return count;
 }
 
@@ -232,7 +226,7 @@ async function searchForValueSets(search: string, username: string, password: st
         valueSet.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
           ?.valueDate || '',
       purpose: parsePurpose(valueSet.purpose),
-      status: valueSet.status,
+      status: valueSet.status || '',
       codeSystem: [],
       // The code counts are not currently returned in the response from the original request, so if we don't
       // see a code count send a separate request to get the counts for this value set; this results in 1+n
@@ -269,25 +263,22 @@ async function getCode(code: string, system: string, username: string, password:
     }
   };
 
-  const res: AxiosResponse<fhir4.Parameters> = await axios(options);
-  const codeJSON = res.data.parameter || [];
-  const codeObject = _.zipObject(
-    _.map(codeJSON, 'name'),
-    _.map(codeJSON, p => (p as { valueString?: string }).valueString)
-  ) as Record<string, string | undefined>;
+  const res = await axios(options);
+  const codeJSON = res.data.parameter;
+  let codeObject = _.zipObject(_.map(codeJSON, 'name'), _.map(codeJSON, 'valueString'));
   return {
     system,
-    systemName: codeObject.name as string | undefined,
-    systemOID: codeObject.Oid as string | undefined,
-    version: codeObject.version as string | undefined,
+    systemName: codeObject.name,
+    systemOID: codeObject.Oid,
+    version: codeObject.version,
     code,
-    display: codeObject.display as string | undefined
+    display: codeObject.display
   };
 }
 
 async function getOneValueSet(username: string, password: string): Promise<fhir4.ValueSet> {
   const oneCodeVSOID = '2.16.840.1.113762.1.4.1';
-  const options: AxiosRequestConfig = {
+  const options = {
     method: 'GET',
     url: `${VSAC_FHIR_ENDPOINT}/ValueSet/${oneCodeVSOID}`,
     headers: {

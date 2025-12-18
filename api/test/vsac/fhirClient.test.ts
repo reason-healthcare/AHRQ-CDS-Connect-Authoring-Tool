@@ -6,16 +6,16 @@ import * as FHIRMocks from './fixtures/FHIRfixtures.js';
 import { importChaiExpect } from '../utils.js';
 
 describe('FHIRClient', () => {
-  let expect: typeof import('chai').expect;
+  let expect;
 
   // Helper function for testing promises that are expected to return an error
-  const shouldThrowError = (result: Promise<unknown>, errorCode: number): Promise<void> => {
+  const shouldThrowError = (result, errorCode) => {
     const errorMessage = `expected a response with status ${errorCode}`;
     return result
       .then(() => {
         throw new Error(errorMessage);
       })
-      .catch((err: { message?: string; response?: { status?: number } }) => {
+      .catch(err => {
         if (err.message === errorMessage) {
           throw err;
         }
@@ -74,93 +74,316 @@ describe('FHIRClient', () => {
     it('should get a value set by OID and strip |{version}', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet) as typeof FHIRMocks.ValueSet & { id?: string };
+      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet);
       vsWithVersion.id = '2468|13579';
 
       nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/2468/$expand').reply(200, vsWithVersion);
 
       // Invoke the request and verify the result
-      const result = client.getValueSet('2468|13579', username, password);
-      return result.then(res => {
-        expect(res.oid).to.equal('2468');
-        expect(res.version).to.equal('13579');
-      });
+      const result = client.getValueSet('2468', username, password);
+      return result.then(res =>
+        expect(res).to.eql({
+          oid: '2468',
+          version: '1',
+          displayName: 'foo',
+          codes: [
+            {
+              code: '250.00',
+              codeSystemName: 'ICD9CM',
+              codeSystemURI: 'http://hl7.org/fhir/sid/icd-9-cm',
+              codeSystemVersion: '2013',
+              displayName:
+                'Diabetes mellitus without mention of complication, type II or unspecified type, ' +
+                'not stated as uncontrolled'
+            }
+          ]
+        })
+      );
     });
 
-    it('should throw an error if the value set is not found', () => {
+    it('should get a value set by OID and strip -{version}', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/9999/$expand').reply(404);
+      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet);
+      vsWithVersion.id = '9876-54321';
+      vsWithVersion.version = '54321';
 
-      const result = client.getValueSet('9999', username, password);
-      return shouldThrowError(result, 404);
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/9876/$expand').reply(200, vsWithVersion);
+
+      // Invoke the request and verify the result
+      const result = client.getValueSet('9876', username, password);
+      return result.then(res =>
+        expect(res).to.eql({
+          oid: '9876',
+          version: '1',
+          displayName: 'foo',
+          codes: [
+            {
+              code: '250.00',
+              codeSystemName: 'ICD9CM',
+              codeSystemURI: 'http://hl7.org/fhir/sid/icd-9-cm',
+              codeSystemVersion: '2013',
+              displayName:
+                'Diabetes mellitus without mention of complication, type II or unspecified type, ' +
+                'not stated as uncontrolled'
+            }
+          ]
+        })
+      );
     });
 
-    it('should throw an error if authentication fails', () => {
-      const [username, password] = ['bad-user', 'bad-pass'];
-
-      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/1234/$expand').reply(401);
-
-      const result = client.getValueSet('1234', username, password);
-      return shouldThrowError(result, 401);
-    });
-  });
-
-  describe('#getValueSetCodeCount', () => {
-    it('should get the code count for a value set', () => {
+    it('should get a value set by OID and NOT strip anything after a - if it is just part of the id', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      // The function now uses params instead of query string in URL for better nock compatibility
-      // Standalone test confirms this works with query(true)
-      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/1234/$expand').query(true).reply(200, FHIRMocks.ValueSet);
+      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet);
+      vsWithVersion.id = '9876-6789-321'; // Valid id with - characters
+      vsWithVersion.version = '54321'; // version differs from the last -321 portion
 
-      return client.getValueSetCodeCount('1234', username, password).then(count => {
-        expect(count).to.equal(1);
-      });
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/9876-6789-321/$expand').reply(200, vsWithVersion);
+
+      // Invoke the request and verify the result
+      const result = client.getValueSet('9876-6789-321', username, password);
+      return result.then(res =>
+        expect(res).to.eql({
+          oid: '9876-6789-321',
+          version: '1',
+          displayName: 'foo',
+          codes: [
+            {
+              code: '250.00',
+              codeSystemName: 'ICD9CM',
+              codeSystemURI: 'http://hl7.org/fhir/sid/icd-9-cm',
+              codeSystemVersion: '2013',
+              displayName:
+                'Diabetes mellitus without mention of complication, type II or unspecified type, ' +
+                'not stated as uncontrolled'
+            }
+          ]
+        })
+      );
     });
-  });
 
-  describe('#searchForValueSets', () => {
-    it('should search for value sets', () => {
+    it('should get a value set and use the title field as displayName if it is available', async () => {
       const [username, password] = ['test-user', 'test-pass'];
+      const valueSetWithTitle = lodash.cloneDeep(FHIRMocks.valueSetWithTitle);
+      const valueSetWithEmptyTitle = lodash.cloneDeep(FHIRMocks.valueSetWithTitle);
+      valueSetWithEmptyTitle.title = '';
+      const valueSetWithNoTitle = lodash.cloneDeep(FHIRMocks.valueSetWithTitle) as {
+        title?: string;
+        [key: string]: unknown;
+      };
+      delete valueSetWithNoTitle.title;
 
-      nock('https://cts.nlm.nih.gov')
-        .get('/fhir/ValueSet')
-        .query({ 'title:contains': 'test', _sort: '-date' })
-        .reply(200, FHIRMocks.Search);
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/123.45/$expand').reply(200, valueSetWithTitle);
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/123.45/$expand').reply(200, valueSetWithEmptyTitle);
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/123.45/$expand').reply(200, valueSetWithNoTitle);
 
-      const result = client.searchForValueSets('test', username, password);
-      return result.then(response => {
-        expect(response.total).to.be.a('number');
-        expect(response.results).to.be.an('array');
-      });
+      const resultWithTitle = await client.getValueSet('123.45', username, password);
+      expect(resultWithTitle.displayName).to.equal('Diabetes Mellitus Screening'); // title, not name
+      const resultWithEmptyTitle = await client.getValueSet('123.45', username, password);
+      expect(resultWithEmptyTitle.displayName).to.equal('DiabetesMellitusScreening'); // fall back to name when title is ''
+      const resultWithNoTitle = await client.getValueSet('123.45', username, password);
+      expect(resultWithNoTitle.displayName).to.equal('DiabetesMellitusScreening'); // fall back to name when title is undefined
     });
   });
 
   describe('#getCode', () => {
-    it('should get a code by code system and code', () => {
+    it('should get a code', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      const codeMock = {
-        resourceType: 'Parameters',
-        parameter: [
-          { name: 'name', valueString: 'ICD9CM' },
-          { name: 'version', valueString: '2013' },
-          { name: 'display', valueString: 'Test code display' },
-          { name: 'Oid', valueString: '2.16.840.1.113883.6.103' }
-        ]
-      };
+      nock('https://cts.nlm.nih.gov')
+        .get('/fhir/CodeSystem/$lookup?code=1963-8&system=http://loinc.org')
+        .reply(200, FHIRMocks.Code);
+
+      // Invoke the request and verify the result
+      const result = client.getCode('1963-8', 'http://loinc.org', username, password);
+      return result.then(res =>
+        expect(res).to.eql({
+          system: 'http://loinc.org',
+          systemName: 'LOINC',
+          systemOID: '2.16.840.1.113883.6.1',
+          version: '2.63',
+          code: '1963-8',
+          display: 'Bicarbonate [Moles/volume] in Serum'
+        })
+      );
+    });
+
+    it('should 404', () => {
+      const [username, password] = ['test-user', 'test-pass'];
 
       nock('https://cts.nlm.nih.gov')
-        .get('/fhir/CodeSystem/$lookup')
-        .query(true) // Match any query parameters
-        .reply(200, codeMock);
+        .get('/fhir/CodeSystem/$lookup?code=abcd&system=http://not-a-system.org')
+        .reply(404, FHIRMocks.Code);
+      const result = client.getCode('abcd', 'http://not-a-system.org', username, password);
+      return shouldThrowError(result, 404);
+    });
+  });
 
-      const result = client.getCode('250.00', 'ICD9CM', username, password);
-      return result.then(res => {
-        expect(res.code).to.equal('250.00');
-        expect(res.systemName).to.equal('ICD9CM');
+  it('should send a 401 back to the client', () => {
+    const [username, password] = ['bad-test-user', 'bad-test-pass'];
+    nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/1234/$expand').reply(401, '');
+    const result = client.getValueSet('1234', username, password);
+    return shouldThrowError(result, 401);
+  });
+
+  describe('#searchForValueSets', () => {
+    it('should get a list of oids', () => {
+      const [username, password] = ['test-user', 'test-pass'];
+      nock('https://cts.nlm.nih.gov')
+        .get(/ValueSet/)
+        .reply(200, FHIRMocks.Search);
+      nock('https://cts.nlm.nih.gov')
+        .get(/expand/)
+        .times(3)
+        .reply(200, FHIRMocks.ValueSetWithCounts);
+      const result = client.searchForValueSets('Diabetes', username, password);
+      const expResults = FHIRMocks.Search.entry.map(v => {
+        return {
+          codeSystem: [],
+          name: v.resource.title || v.resource.name,
+          steward: v.resource.publisher,
+          oid: v.resource.id,
+          codeCount: 33,
+          description: v.resource.description || '',
+          experimental: v.resource.experimental || false,
+          date: v.resource.date || '',
+          lastReviewDate:
+            v.resource.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
+              ?.valueDate || '',
+          status: v.resource.status,
+          purpose: null // Note: purpose construction tested separately
+        };
       });
+      return result.then(res => expect(res).to.eql({ total: 3, count: 3, page: 1, results: expResults }));
+    });
+
+    it('should get a list of OIDs and strip versions', () => {
+      const searchWithVersions = lodash.cloneDeep(FHIRMocks.Search);
+      searchWithVersions.entry.forEach((entry, i) => {
+        if (i % 2 === 0) {
+          entry.resource.id = `${entry.resource.id}|12345`;
+        } else {
+          entry.resource.id = `${entry.resource.id}-12345`;
+          entry.resource.version = '12345';
+        }
+      });
+
+      const [username, password] = ['test-user', 'test-pass'];
+      nock('https://cts.nlm.nih.gov')
+        .get(/ValueSet/)
+        .reply(200, searchWithVersions);
+      nock('https://cts.nlm.nih.gov')
+        .get(/expand/)
+        .times(3)
+        .reply(200, FHIRMocks.ValueSetWithCounts);
+      const result = client.searchForValueSets('Diabetes', username, password);
+      // Build results using original (non-modified / non-versioned results mock)
+      const expResults = FHIRMocks.Search.entry.map(v => {
+        return {
+          codeSystem: [],
+          name: v.resource.title || v.resource.name,
+          steward: v.resource.publisher,
+          oid: v.resource.id,
+          codeCount: 33,
+          description: v.resource.description || '',
+          experimental: v.resource.experimental || false,
+          date: v.resource.date || '',
+          lastReviewDate:
+            v.resource.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
+              ?.valueDate || '',
+          status: v.resource.status,
+          purpose: null // Note: purpose construction tested separately
+        };
+      });
+      return result.then(res => expect(res).to.eql({ total: 3, count: 3, page: 1, results: expResults }));
+    });
+
+    it('should return results with value set title but fall back to name if necessary', () => {
+      const [username, password] = ['test-user', 'test-pass'];
+      nock('https://cts.nlm.nih.gov')
+        .get(/ValueSet/)
+        .reply(200, FHIRMocks.Search);
+      nock('https://cts.nlm.nih.gov')
+        .get(/expand/)
+        .times(3)
+        .reply(200, FHIRMocks.ValueSetWithCounts);
+      const result = client.searchForValueSets('Diabetes', username, password);
+      return result.then(res => {
+        expect(res.results).to.have.lengthOf(3);
+        expect(res.results[0].name).to.equal('AETNA Diabetes Hemoglobin A1c testing CPT codes'); // title and name are both present but use title
+        expect(res.results[1].name).to.equal('Diabetes'); // title is empty string so use name instead
+        expect(res.results[2].name).to.equal('DiabetesMellitus'); // title undefined so use name instead
+      });
+    });
+
+    it('should construct purpose object if specified purpose matches expected format', () => {
+      const [username, password] = ['test-user', 'test-pass'];
+      nock('https://cts.nlm.nih.gov')
+        .get(/ValueSet/)
+        .reply(200, FHIRMocks.SearchWithPurpose);
+      nock('https://cts.nlm.nih.gov')
+        .get(/expand/)
+        .times(4)
+        .reply(200, FHIRMocks.ValueSetWithCounts);
+      const result = client.searchForValueSets('Diabetes', username, password);
+      const expResults = FHIRMocks.SearchWithPurpose.entry.map(v => {
+        return {
+          codeSystem: [],
+          name: v.resource.title || v.resource.name,
+          steward: v.resource.publisher,
+          oid: v.resource.id,
+          codeCount: 33,
+          description: v.resource.description || '',
+          experimental: v.resource.experimental || false,
+          date: v.resource.date || '',
+          lastReviewDate:
+            v.resource.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
+              ?.valueDate || '',
+          status: v.resource.status,
+          purpose: null as null | {
+            clinicalFocus?: string;
+            dataElementScope?: string;
+            inclusionCriteria?: string;
+            exclusionCriteria?: string;
+            purpose?: string;
+          } // purpose added next for the first entries where it is defined
+        };
+      });
+
+      // purpose matches format so parses out meaning
+      expResults[0].purpose = {
+        clinicalFocus: 'CPT codes for AETNA Diabetes: Hemoglobin A1c testing measure numerator',
+        dataElementScope: 'Codes defined in measure.', // trims white space
+        inclusionCriteria: 'Codes \rdefined in \nmeasure.', // handles \r and \n
+        exclusionCriteria: `None specified (TBD).` // handles () chars within content
+      };
+      // purpose is defined but doesn't match format so leaves it as is
+      expResults[1].purpose = {
+        purpose: 'A different format purpose definition'
+      };
+      // expResults[2] has no purpose, so it stays null
+      // expResults[3] has no meaningful content within the expected format, so it stays null
+
+      return result.then(res => expect(res).to.eql({ total: 4, count: 4, page: 1, results: expResults }));
+    });
+  });
+
+  describe('#getOneValueSet', () => {
+    it('should get a list of one valueset with good credentials', () => {
+      const [username, password] = ['test-user', 'test-pass'];
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/2.16.840.1.113762.1.4.1').reply(200, '');
+      const result = client.getOneValueSet(username, password);
+      // No data manipulation happens in this function. The request should succeed and return the result.
+      return result.then(res => expect(res).to.exist);
+    });
+
+    it('should handle bad authentication and send 401 back', () => {
+      const [username, password] = ['test-user', 'test-wrong-pass'];
+      nock('https://cts.nlm.nih.gov').get('/fhir/ValueSet/2.16.840.1.113762.1.4.1').reply(401, '');
+      const result = client.getOneValueSet(username, password);
+      // No data manipulation happens in this function. The request should success and return the result.
+      return shouldThrowError(result, 401);
     });
   });
 });

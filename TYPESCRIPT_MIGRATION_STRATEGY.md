@@ -238,11 +238,11 @@ export async function getValueSet(
 
 **Batch convert handlers in logical groups:**
 
-**Group 1 - Configuration & CQL:** ✅ **COMPLETE**
+**Group 1 - Configuration & CQL:** ✅ **COMPLETE** (with exceptions)
 
 - `configHandler.js` → `configHandler.ts` ✅
-- `cqlHandler.js` → `cqlHandler.ts` ✅ (1 test failing - documented in `api/SUGGESTIONS_TEST_ISSUE.md`)
-- `externalCQLHandler.js` → `externalCQLHandler.ts` ✅
+- `cqlHandler.js` → `cqlHandler.ts` ❌ **REVERTED** - TypeScript conversion was too complex, reverted to JavaScript
+- `externalCQLHandler.js` → `externalCQLHandler.ts` ✅ (uses @ts-ignore for cqlHandler.makeCQLtoELMRequest calls)
 
 **Group 2 - Artifacts & Queries:** ✅ **COMPLETE**
 
@@ -1387,4 +1387,19 @@ This matches the actual data structure where:
 - Batch processing of similar files
 - Parallel work streams where possible
 - Human focuses on review, refinement, and complex types
+
+## Reversions and Lessons Learned
+
+### Reverted Conversions
+
+**cqlHandler.ts → cqlHandler.js (Reverted)**
+- **Reason**: TypeScript conversion was too complex and introduced issues
+- **Status**: Kept as JavaScript for stability
+- **Impact**: `externalCQLHandler.ts` uses `@ts-ignore` comments for `makeCQLtoELMRequest` calls
+- **Lesson**: Some complex files may need to remain JavaScript during migration
+
+**fhirClient.test.ts (Test Reversions)**
+- **Issue**: New tests were added during TypeScript conversion that weren't in original codebase
+- **Action**: Reverted to original test structure
+- **Lesson**: TypeScript conversion should not add new functionality, only add types
 
