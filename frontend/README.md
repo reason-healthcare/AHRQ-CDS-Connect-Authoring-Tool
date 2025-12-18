@@ -64,10 +64,11 @@ These variable names match the variables documented in Create React App's [Using
 
 ### Run
 
-`npm start` will run the frontend in development mode, with hot redeployment when changes are detected on the filesystem.
-
+**Development Mode** (with hot reload):
 ```bash
-npm start # run the app in development mode, watching files for changes
+npm run dev # run the app in development mode with hot reload (webpack dev server)
+# OR
+npm start # same as npm run dev (React/CRA convention)
 ```
 
 To easily run both the backend API server and the frontend in development mode, see the instructions on the main [README](../README.md).
@@ -76,15 +77,17 @@ To easily run both the backend API server and the frontend in development mode, 
 
 A production build compiles all of the files to standard HTML, CSS, and JavaScript that can be run from any web server. It does require, however, that the path _/authoring/api_ be proxied to the API server.
 
+**Build only:**
 ```bash
 npm run build # does a production build, putting resulting files in ./build.
 ```
 
-You can run the production code simply by launching the `server.js` script. It uses Express to host the production code and proxy to the API server. This requires the API server to be running.
-
+**Build and run production server:**
 ```bash
-node server.js
+npm run start:prod # builds automatically, then runs the production server (requires API server to be running)
 ```
+
+The production server uses Express to host the production code and proxy to the API server. The `start:prod` script automatically builds before starting (via npm's `prestart:prod` hook).
 
 ### Linting
 

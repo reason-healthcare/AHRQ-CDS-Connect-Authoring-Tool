@@ -74,7 +74,7 @@ Each of the subprojects (_api_ and _frontend_) must have the dependencies instal
 ```sh
 cd api
 npm i # Install project dependencies
-npm run start # Run the Express API application
+npm run dev # Run the Express API application in development mode (with auto-reload)
 ```
 
 After the api dependency install successfully runs, install the frontend dependencies:
@@ -82,7 +82,9 @@ After the api dependency install successfully runs, install the frontend depende
 ```sh
 cd ../frontend
 npm i # Install project dependencies
-npm run start # Run the React application
+npm run dev # Run the React application in development mode (with hot reload)
+# OR
+npm run start # Same as npm run dev (React convention)
 ```
 
 The frontend should now be available at [http://localhost:3000/authoring](http://localhost:3000/authoring)!

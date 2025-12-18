@@ -98,9 +98,10 @@
   },
   "scripts": {
     "build": "craco build",
+    "dev": "craco start",
     "start": "craco start",
-    "_start-prod": "node server.js",
-    "start-prod": "run-s build _start-prod",
+    "prestart:prod": "npm run build",
+    "start:prod": "node server.js",
     "test": "craco test --maxWorkers=2",
     "test-ci": "CI=1 craco --no-compilation-cache --expose-gc test --coverage=false --runInBand --logHeapUsage",
     "test-debug": "CI=1 craco --inspect-brk test --runInBand --no-cache",

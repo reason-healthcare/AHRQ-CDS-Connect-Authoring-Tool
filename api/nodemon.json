@@ -2,7 +2,7 @@
   "watch": ["src"],
   "ext": "js,ts,json",
   "ignore": ["src/**/*.test.ts", "src/**/*.test.js", "node_modules", "dist"],
-  "exec": "node src/server.js",
+  "exec": "tsx src/server.ts",
   "env": {
     "NODE_ENV": "development"
   }

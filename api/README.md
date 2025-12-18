@@ -116,17 +116,18 @@ For development purposes, the [Local Authentication Strategy](https://github.com
 
 ### Run
 
-`npm start` will run the api server:
-
+**Development Mode** (with auto-reload):
 ```bash
-npm start # run the api server
+npm run dev # run the api server in development mode with auto-reload (uses nodemon + tsx)
 ```
 
-`npm run start-dev` will run the api server in development mode, reloading the server when changes are detected.
-
+**Production Mode** (compiled TypeScript):
 ```bash
-npm run start-dev # run the api server with hot-reloading for development
+npm run build # compile TypeScript to JavaScript
+npm run start # run the compiled api server (builds automatically via prestart hook)
 ```
+
+**Note:** The `start` script automatically runs `build` before starting (via npm's `prestart` hook), so you can use `npm run start` directly without manually building first.
 
 ### Linting
 

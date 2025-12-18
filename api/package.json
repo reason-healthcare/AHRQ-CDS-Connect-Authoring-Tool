@@ -71,6 +71,7 @@
     "sinon": "^21.0.0",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.4"
   },
   "scripts": {
@@ -81,10 +82,8 @@
     "lint": "eslint .",
     "prettier": "prettier --check \"**/*.+(js|jsx|json|css|md|ts|tsx)\"",
     "prettier:fix": "prettier --write \"**/*.+(js|jsx|json|css|md|ts|tsx)\"",
-    "start-dev": "nodemon",
     "start": "node dist/server.js",
-    "start:ts": "ts-node --esm src/server.ts",
-    "dev:ts": "nodemon --exec \"node --loader ts-node/esm src/server.js\"",
+    "dev": "nodemon",
     "test-ci": "mocha --reporter spec --recursive --no-colors",
     "test-cov": "nyc --reporter=html --reporter=text --report-dir=./.nyc_output/coverage mocha --reporter spec --recursive",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules --loader ts-node/esm --no-warnings\" TS_NODE_PROJECT=./tsconfig.json TS_NODE_ESM=true mocha --reporter spec --recursive \"test/**/*.test.{js,ts}\"",
