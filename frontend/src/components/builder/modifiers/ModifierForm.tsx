@@ -98,7 +98,7 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
       return (
         <BooleanComparisonModifier
           handleUpdateModifier={createUpdateWrapper<{ value?: string }>()}
-          value={(modifier.values as { value?: boolean })?.value ? 'true' : 'false'}
+          value={(modifier.values as { value?: string })?.value}
         />
       );
     case 'CheckExistence':
