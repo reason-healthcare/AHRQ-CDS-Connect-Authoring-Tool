@@ -207,7 +207,7 @@ const ValueSetSearchResultsTable: React.FC<ValueSetSearchResultsTableProps> = ({
   };
 
   useEffect(() => {
-    if (searchResultCount != null) setSearchCount({ count: searchResultCount, total: searchResultTotal || 0 });
+    if (searchResultCount != null) setSearchCount({ count: searchResultCount, total: searchResultTotal });
   }, [searchResultCount, searchResultTotal, setSearchCount]);
 
   return (

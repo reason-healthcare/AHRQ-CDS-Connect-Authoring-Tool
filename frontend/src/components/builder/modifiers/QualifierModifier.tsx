@@ -32,7 +32,7 @@ const QualifierModifier: React.FC<QualifierModifierProps> = ({ code, handleUpdat
   const handleSelectQualifier = useCallback(
     (newQualifier: string) => {
       const selectedOption = options.find(option => option.value === newQualifier);
-      handleUpdateModifier({ qualifier: selectedOption?.value || null, valueSet: null, code: null });
+      handleUpdateModifier({ qualifier: selectedOption?.value, valueSet: null, code: null });
     },
     [handleUpdateModifier]
   );

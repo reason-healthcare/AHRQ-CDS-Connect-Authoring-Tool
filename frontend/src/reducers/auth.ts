@@ -201,7 +201,7 @@ export default function auth(state: AuthState = defaultState, action: AuthAction
       return {
         ...state,
         isLoadingSettings: false,
-        termsAcceptedDate: action.settings.termsAcceptedDate ?? null
+        termsAcceptedDate: action.settings.termsAcceptedDate
       };
     default:
       return state;

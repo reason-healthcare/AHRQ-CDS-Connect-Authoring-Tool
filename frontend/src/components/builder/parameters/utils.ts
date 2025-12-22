@@ -30,7 +30,7 @@ export const parameterHasChangedUse = (parameter: Parameter, allElements: Instan
       const commentValue =
         commentField && 'value' in commentField ? (commentField as { id?: string; value?: unknown }).value : undefined;
       const useComment = (typeof commentValue === 'string' ? commentValue : '') || '';
-      return (use.modifiers?.length || 0) > 0 || useComment !== comment;
+      return use.modifiers?.length > 0 || useComment !== comment;
     })
   );
 };

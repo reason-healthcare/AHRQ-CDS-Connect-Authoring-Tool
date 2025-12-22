@@ -22,7 +22,7 @@ const ruleIsComplete = (rule: Rule): boolean => {
   );
 
   if (isConjunction) {
-    return (rule.rules?.length ?? 0) > 0;
+    return rule.rules.length > 0;
   } else {
     return (
       Boolean(rule.resourceProperty) &&

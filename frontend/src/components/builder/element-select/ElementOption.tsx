@@ -25,7 +25,7 @@ const ElementOption: React.FC<ElementOptionProps> = ({ option }) => {
       {option.vsacAuthRequired && (
         <VpnKeyIcon className={spacingStyles.marginLeft} data-testid="vsac-auth-required-icon" fontSize="small" />
       )}
-      {option.statementType === 'function' && <span>{` | Function(${option.arguments?.length || 0})`}</span>}
+      {option.statementType === 'function' && <span>{` | Function(${option.arguments.length})`}</span>}
       {option.displayReturnType && <span>{` | ${option.displayReturnType}`}</span>}
       {option.hasEmptyList && <NotInterestedIcon className={spacingStyles.marginLeft} fontSize="small" />}
       {option.isVersionLocked && <LockIcon className={spacingStyles.marginLeft} fontSize="small" />}

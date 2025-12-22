@@ -1,9 +1,7 @@
 import type { BaseElement } from '../../../types/artifact';
 
 export const getBaseElementReturnType = (baseElement: BaseElement): string | undefined =>
-  (baseElement.modifiers?.length || 0) > 0
-    ? baseElement.modifiers[baseElement.modifiers.length - 1]?.returnType
-    : baseElement.returnType;
+  baseElement.modifiers?.length > 0 ? baseElement.modifiers.slice(-1)[0].returnType : baseElement.returnType;
 
 export const getBaseElementName = (baseElement: BaseElement | undefined): string | number | null | undefined => {
   if (!baseElement) return undefined;

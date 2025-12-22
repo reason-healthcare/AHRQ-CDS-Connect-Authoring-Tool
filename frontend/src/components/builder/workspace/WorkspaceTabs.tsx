@@ -143,7 +143,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     if (elementsToAdd) {
       // Note: elements in elementsToAdd are a custom object with the element, path, and index to add
       elementsToAdd.forEach(element => {
-        addInstance(treeName, element.instance, element.path, uid, element.index || null, tree, null);
+        addInstance(treeName, element.instance, element.path, uid, element.index, tree);
       });
     }
 

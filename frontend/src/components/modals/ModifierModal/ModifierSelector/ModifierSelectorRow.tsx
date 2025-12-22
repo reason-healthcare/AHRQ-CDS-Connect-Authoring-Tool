@@ -30,7 +30,7 @@ const ModifierSelectorRow: React.FC<ModifierSelectorRowProps> = ({
   const styles = useStyles();
   const validationWarning = validateModifier(modifier);
   const { canBeRemoved, tooltipText } = modifierCanBeRemoved(
-    Boolean((elementInstance.usedBy?.length ?? 0) > 0),
+    Boolean(elementInstance.usedBy?.length > 0),
     modifiersToAdd.indexOf(modifier),
     elementInstance.returnType,
     modifiersToAdd

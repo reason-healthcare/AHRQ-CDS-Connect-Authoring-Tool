@@ -358,7 +358,7 @@ export function isEmptyIntersect(listInstance: Instance): boolean {
   return (
     listInstance.returnType === 'list_of_any' &&
     listInstance.name === 'Intersect' &&
-    (listInstance.childInstances?.length || 0) > 0
+    listInstance.childInstances.length > 0
   );
 }
 

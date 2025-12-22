@@ -46,7 +46,7 @@ const IfThenClause: React.FC<IfThenClauseProps> = ({
   const { errorStatement, expTreeExclude, expTreeInclude } = artifact;
   const styles = useStyles();
 
-  const hasNestedStatement = (ifThenClause.statements?.length || 0) > 0;
+  const hasNestedStatement = ifThenClause.statements.length > 0;
   const ifThenClauseIndex = statement?.ifThenClauses?.indexOf(ifThenClause) ?? 0;
   const isRoot = statement.id === 'root';
   const label = ifThenClauseIndex === 0 ? (isRoot ? 'If' : 'And if') : 'Else if';

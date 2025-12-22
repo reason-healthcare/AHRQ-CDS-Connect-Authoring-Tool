@@ -22,7 +22,7 @@ const NestedErrorStatement: React.FC<NestedErrorStatementProps> = ({
     (state: { artifacts: { artifact: { errorStatement: ErrorStatement } } }) => state.artifacts.artifact
   );
   const { errorStatement } = artifact;
-  const hasIfThenClauses = (statement.ifThenClauses?.length || 0) > 0;
+  const hasIfThenClauses = statement.ifThenClauses.length > 0;
 
   const handleDeleteIfThenClause = (index: number): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
