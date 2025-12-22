@@ -68,7 +68,7 @@ export function doesBaseElementInstanceNeedWarning(instance: Instance, allInstan
 export function doesBaseElementUseNeedWarning(instance: Instance, baseElements: BaseElement[]): boolean {
   const elementNameField = getFieldWithId(instance.fields, 'element_name');
   const instanceCommentField = getFieldWithId(instance.fields, 'comment');
-  const instanceCommentValue = (instanceCommentField as { value?: string })?.value;
+  const instanceCommentValue = (instanceCommentField as { value?: string })?.value || '';
 
   if (instance.type === 'baseElement') {
     const referenceField = getFieldWithType(instance.fields, 'reference') as { value?: { id?: string } } | undefined;
