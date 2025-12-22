@@ -60,7 +60,7 @@ const IfThenClause: React.FC<IfThenClauseProps> = ({
 
   const handleToggleNestedStatements = (): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    const statementRef = getStatementById(newErrorStatement, statement.id);
     if (statementRef && statementRef.ifThenClauses) {
       statementRef.ifThenClauses[index].thenClause = '';
       if (hasNestedStatement) {

@@ -197,13 +197,13 @@ export function address(a: Address | null | undefined): string {
 
   const parts: string[] = [];
   if (!isEmpty(a.city)) {
-    parts.push(a.city || '');
+    parts.push(a.city);
   }
   if (!isEmpty(a.state)) {
-    parts.push(a.state || '');
+    parts.push(a.state);
   }
   if (!isEmpty(a.country)) {
-    parts.push(a.country || '');
+    parts.push(a.country);
   }
 
   return parts.join(', ');

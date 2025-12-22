@@ -15,12 +15,12 @@ export const modifierCanBeRemoved = (
 ): ModifierRemovalResult => {
   const hasMultipleModifiers = modifiers.length > 1;
   const nextModifier = modifiers[index + 1] as ModifierTree | undefined;
-  const nextModifierAllowsReturnType = Boolean(nextModifier?.inputTypes?.includes(returnType || ''));
+  const nextModifierAllowsReturnType = Boolean(nextModifier?.inputTypes?.includes(returnType));
   const isFirstModifier = index === 0;
   const isLastModifier = index === modifiers.length - 1;
   const previousModifier = modifiers[index - 1] as ModifierTree | undefined;
   const nextModifierAllowsPreviousReturnType = Boolean(
-    nextModifier?.inputTypes?.includes(previousModifier?.returnType || '')
+    nextModifier?.inputTypes?.includes(previousModifier?.returnType)
   );
   const nextToLastModifierReturnTypeMatchesElement = Boolean(
     modifiers[modifiers.length - 2]?.returnType === getReturnType(returnType, modifiers)

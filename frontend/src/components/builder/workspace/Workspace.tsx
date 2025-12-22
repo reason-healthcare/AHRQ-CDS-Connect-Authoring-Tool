@@ -101,7 +101,7 @@ const Workspace: React.FC = () => {
 
   // Scroll when navigating to an element from a link
   useEffect(() => {
-    const elementToScrollTo = document.getElementById(scrollToId || '');
+    const elementToScrollTo = document.getElementById(scrollToId);
     if (elementToScrollTo) elementToScrollTo.scrollIntoView();
     dispatch(setScrollToId(null));
   }, [scrollToId, dispatch]);

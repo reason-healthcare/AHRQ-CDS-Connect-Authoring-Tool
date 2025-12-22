@@ -42,9 +42,9 @@ const ReferenceTemplate: React.FC<ReferenceTemplateProps> = ({
         return (referenceField.value as { id?: string })?.id || '';
       case 'baseElementArgumentReference':
       case 'parameterArgumentReference':
-        return (referenceField.value as { elementName?: string })?.elementName || '';
+        return (referenceField.value as { elementName?: string })?.elementName;
       default:
-        return elementNames.find(name => name.id === (referenceField.value as { id?: string })?.id)?.name || '';
+        return elementNames.find(name => name.id === (referenceField.value as { id?: string })?.id)?.name;
     }
   };
 
@@ -68,7 +68,7 @@ const ReferenceTemplate: React.FC<ReferenceTemplateProps> = ({
       activeTabIndex = referenceTabIndex;
     if (activeTabIndex == null) return;
 
-    dispatch(setScrollToId((referenceField.value as { id?: string })?.id || ''));
+    dispatch(setScrollToId((referenceField.value as { id?: string })?.id));
     dispatch(setActiveTab(activeTabIndex));
   };
 

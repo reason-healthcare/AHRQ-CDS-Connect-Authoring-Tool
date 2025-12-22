@@ -15,7 +15,7 @@ function createTemplateInstance(
   children: TemplateInstance[] | undefined = undefined
 ): TemplateInstance {
   const instance = _.cloneDeep(template) as TemplateInstance;
-  instance.uniqueId = _.uniqueId(instance.id || '');
+  instance.uniqueId = _.uniqueId(instance.id);
 
   if (template.conjunction) {
     instance.childInstances = children || [];

@@ -72,7 +72,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({ handleUpdateRecommend
               handleUpdateRecommendations(
                 moveRecommendation(recommendations, index, direction === 'up' ? index - 1 : index + 1)
               );
-              setScrollTo(recommendation.uid || null);
+              setScrollTo(recommendation.uid);
             }}
             handleUpdateRecommendation={(updatedRecommendation: RecommendationType) => {
               handleUpdateRecommendations(updateRecommendation(recommendations, index, updatedRecommendation));

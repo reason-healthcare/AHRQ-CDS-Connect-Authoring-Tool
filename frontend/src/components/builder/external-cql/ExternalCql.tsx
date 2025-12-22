@@ -12,7 +12,7 @@ import type { ExternalCqlLibrary } from '../../../types/query';
 
 const ExternalCql: React.FC = () => {
   const artifact = useAppSelector(state => state.artifacts.artifact);
-  const query = { artifactId: artifact?._id || '' };
+  const query = { artifactId: artifact?._id };
   const { data: externalCqlList, isLoading } = useQuery<ExternalCqlLibrary[]>({
     queryKey: ['externalCql', query],
     queryFn: () => fetchExternalCqlList(query),

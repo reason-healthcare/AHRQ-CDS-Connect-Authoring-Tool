@@ -39,7 +39,7 @@ const ExecuteCQLModal: React.FC<ExecuteCQLModalProps> = ({ patients, handleClose
     [artifacts, fhirVersion]
   );
   const artifactOptions = useMemo(
-    () => validArtifactsToExecute.map(artifact => ({ value: artifact.name || '', label: artifact.name || '' })),
+    () => validArtifactsToExecute.map(artifact => ({ value: artifact.name, label: artifact.name })),
     [validArtifactsToExecute]
   );
   const handleSubmit = (): void => {

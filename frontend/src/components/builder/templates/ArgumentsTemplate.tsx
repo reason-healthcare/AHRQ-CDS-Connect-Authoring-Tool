@@ -42,49 +42,43 @@ const ArgumentsTemplate: React.FC<ArgumentsTemplateProps> = ({
   isNested
 }) => {
   const artifact = useAppSelector(state => state.artifacts.artifact);
-  const { baseElements, parameters } = artifact || { baseElements: [], parameters: [] };
-  const query = { artifactId: artifact?._id };
-  const { data: externalCqlListData } = useQuery<ExternalCqlLibrary[]>({
+  const { baseElements, parameters } = artifact;
+  const query = { artifactId: artifact._id };
+  const { data: externalCqlList } = useQuery<ExternalCqlLibrary[]>({
     queryKey: ['externalCql', query],
-    queryFn: () => fetchExternalCqlList(query),
-    enabled: artifact?._id != null
+    queryFn: () => fetchExternalCqlList(query)
   });
-
-  // Use ExternalCqlLibrary directly - getExternalCqlByType will transform it
-  const externalCqlList = externalCqlListData || [];
 
   const sourceOptions = [
     {
       value: 'baseElement',
       label: 'Base Element',
-      isDisabled: getBaseElementsByType(baseElements || [], argumentType).length === 0
+      isDisabled: getBaseElementsByType(baseElements, argumentType).length === 0
     },
     { value: 'editor', label: 'Editor', isDisabled: !isSupportedEditorType(argumentType) },
     {
       value: 'externalCql',
       label: 'External CQL',
-      isDisabled: getExternalCqlByType(externalCqlList || [], argumentType).length === 0
+      isDisabled: getExternalCqlByType(externalCqlList, argumentType).length === 0
     },
     {
       value: 'parameter',
       label: 'Parameter',
-      isDisabled: getParametersByType(parameters || [], argumentType).length === 0
+      isDisabled: getParametersByType(parameters, argumentType).length === 0
     }
   ];
 
-  const matchingParameters = getParametersByType(parameters || [], argumentType).map((parameter: Parameter) => ({
-    value: parameter.uniqueId || '',
-    label: parameter.name || ''
+  const matchingParameters = getParametersByType(parameters, argumentType).map((parameter: Parameter) => ({
+    value: parameter.uniqueId,
+    label: parameter.name
   }));
 
-  const matchingBaseElements = getBaseElementsByType(baseElements || [], argumentType).map(
-    (baseElement: BaseElement) => ({
-      value: baseElement.uniqueId || '',
-      label: getBaseElementName(baseElement)
-    })
-  );
+  const matchingBaseElements = getBaseElementsByType(baseElements, argumentType).map((baseElement: BaseElement) => ({
+    value: baseElement.uniqueId,
+    label: getBaseElementName(baseElement)
+  }));
 
-  const matchingExternalCQL = getExternalCqlByType(externalCqlList || [], argumentType).map(
+  const matchingExternalCQL = getExternalCqlByType(externalCqlList, argumentType).map(
     (externalCQLElement: { libraryName: string; elementName: string; type: string }) => ({
       value: `"${externalCQLElement.libraryName}"."${externalCQLElement.elementName}"`,
       label: `${externalCQLElement.elementName} | ${
@@ -175,11 +169,11 @@ const ArgumentsTemplate: React.FC<ArgumentsTemplateProps> = ({
                 selected: String(event.target.value),
                 elementName: (() => {
                   if (argumentValue.argSource === 'baseElement') {
-                    const baseElement = getBaseElementById(baseElements || [], String(event.target.value));
+                    const baseElement = getBaseElementById(baseElements, String(event.target.value));
                     const name = baseElement ? getBaseElementName(baseElement) : null;
-                    return typeof name === 'string' ? name : String(name || '');
+                    return typeof name === 'string' ? name : String(name);
                   } else {
-                    return getParameterById(parameters || [], String(event.target.value))?.name || '';
+                    return getParameterById(parameters, String(event.target.value))?.name;
                   }
                 })()
               });

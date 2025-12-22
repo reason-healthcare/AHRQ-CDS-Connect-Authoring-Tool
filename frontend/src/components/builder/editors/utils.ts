@@ -175,15 +175,15 @@ const editorErrors = (type: string, value: EditorValue): EditorErrors => {
 
     case 'decimal': {
       const decValue = value as DecimalValue | undefined;
-      return { invalidInput: !isBlank(decValue?.decimal) && !isValidDecimal(decValue?.decimal || '') };
+      return { invalidInput: !isBlank(decValue?.decimal) && !isValidDecimal(decValue?.decimal) };
     }
 
     case 'interval_of_decimal': {
       const idecValue = value as IntervalDecimalValue | undefined;
       return {
         invalidInput:
-          (!isBlank(idecValue?.firstDecimal) && !isValidDecimal(idecValue?.firstDecimal || '')) ||
-          (!isBlank(idecValue?.secondDecimal) && !isValidDecimal(idecValue?.secondDecimal || ''))
+          (!isBlank(idecValue?.firstDecimal) && !isValidDecimal(idecValue?.firstDecimal)) ||
+          (!isBlank(idecValue?.secondDecimal) && !isValidDecimal(idecValue?.secondDecimal))
       };
     }
 
@@ -194,15 +194,15 @@ const editorErrors = (type: string, value: EditorValue): EditorErrors => {
       const iintValue = value as IntervalIntegerValue | undefined;
       return {
         invalidInput:
-          (!isBlank(iintValue?.firstInteger) && !isValidInteger(iintValue?.firstInteger || '')) ||
-          (!isBlank(iintValue?.secondInteger) && !isValidInteger(iintValue?.secondInteger || ''))
+          (!isBlank(iintValue?.firstInteger) && !isValidInteger(iintValue?.firstInteger)) ||
+          (!isBlank(iintValue?.secondInteger) && !isValidInteger(iintValue?.secondInteger))
       };
     }
 
     case 'system_quantity': {
       const qtyValue = value as QuantityValue | undefined;
       return {
-        invalidInput: Boolean(qtyValue) && !isBlank(qtyValue?.quantity) && !isValidDecimal(qtyValue?.quantity || ''),
+        invalidInput: Boolean(qtyValue) && !isBlank(qtyValue?.quantity) && !isValidDecimal(qtyValue?.quantity),
         incompleteInput: Boolean(qtyValue?.unit) && isBlank(qtyValue?.quantity)
       };
     }
@@ -212,8 +212,8 @@ const editorErrors = (type: string, value: EditorValue): EditorErrors => {
       return {
         invalidInput:
           Boolean(iqtyValue) &&
-          ((!isBlank(iqtyValue?.firstQuantity) && !isValidDecimal(iqtyValue?.firstQuantity || '')) ||
-            (!isBlank(iqtyValue?.secondQuantity) && !isValidDecimal(iqtyValue?.secondQuantity || ''))),
+          ((!isBlank(iqtyValue?.firstQuantity) && !isValidDecimal(iqtyValue?.firstQuantity)) ||
+            (!isBlank(iqtyValue?.secondQuantity) && !isValidDecimal(iqtyValue?.secondQuantity))),
         incompleteInput:
           Boolean(iqtyValue?.unit) && isBlank(iqtyValue?.firstQuantity) && isBlank(iqtyValue?.secondQuantity)
       };
@@ -228,17 +228,17 @@ const hasErrors = (type: string, errors: EditorErrors): boolean => {
   switch (type) {
     case 'datetime':
     case 'interval_of_datetime':
-      return Boolean(errors.incompleteInput);
+      return errors.incompleteInput;
 
     case 'decimal':
     case 'integer':
     case 'interval_of_decimal':
     case 'interval_of_integer':
-      return Boolean(errors.invalidInput);
+      return errors.invalidInput;
 
     case 'system_quantity':
     case 'interval_of_quantity':
-      return Boolean(errors.invalidInput || errors.incompleteInput);
+      return errors.invalidInput || errors.incompleteInput;
 
     default:
       return false;

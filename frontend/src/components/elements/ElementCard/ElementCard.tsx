@@ -104,11 +104,11 @@ const ElementCard: React.FC<ElementCardProps> = ({
             commentField={commentField}
             handleUpdateComment={handleUpdateComment}
             handleUpdateTitleField={handleUpdateTitleField}
-            hasErrors={hasErrors || false}
+            hasErrors={hasErrors}
             showComment={showComment}
             showContent={showContent}
             titleField={titleField}
-            titleFieldIsDisabled={disableTitleField || false}
+            titleFieldIsDisabled={disableTitleField}
             titleLabel={label}
           />
         }

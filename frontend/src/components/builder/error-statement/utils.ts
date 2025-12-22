@@ -16,8 +16,8 @@ export const generateErrorStatement = (id?: string): ErrorStatement => ({
 export const getStatementById = (errorStatement: ErrorStatement, id: string): ErrorStatement | null => {
   if (errorStatement.id === id) return errorStatement;
 
-  for (const ifThenClause of errorStatement.ifThenClauses || []) {
-    for (const statement of (ifThenClause.statements || []) as ErrorStatement[]) {
+  for (const ifThenClause of errorStatement.ifThenClauses) {
+    for (const statement of ifThenClause.statements as ErrorStatement[]) {
       const foundStatement = getStatementById(statement, id);
       if (foundStatement) return foundStatement;
     }
@@ -30,7 +30,7 @@ export const ifThenClauseMissingStatementWarning = (
   ifThenClause: ErrorStatementIfThenClause,
   statement: ErrorStatement
 ): string | undefined => {
-  if (ifThenClause.ifCondition?.value && (ifThenClause.statements?.length || 0) === 0 && ifThenClause.thenClause === '')
+  if (ifThenClause.ifCondition?.value && ifThenClause.statements.length === 0 && ifThenClause.thenClause === '')
     return 'Then';
   else if (!ifThenClause.ifCondition?.value && (ifThenClause.thenClause !== '' || statement.elseClause !== ''))
     return 'If';
@@ -42,12 +42,10 @@ export const ifThenClauseDisabledIfConditionWarning = (
   expTreeExclude: ExpressionTree
 ): string | undefined => {
   if (
-    (ifThenClause.ifCondition?.uniqueId === 'default-subpopulation-1' &&
-      (expTreeInclude.childInstances?.length || 0) === 0) ||
-    (ifThenClause.ifCondition?.uniqueId === 'default-subpopulation-2' &&
-      (expTreeExclude.childInstances?.length || 0) === 0)
+    (ifThenClause.ifCondition?.uniqueId === 'default-subpopulation-1' && expTreeInclude.childInstances.length === 0) ||
+    (ifThenClause.ifCondition?.uniqueId === 'default-subpopulation-2' && expTreeExclude.childInstances.length === 0)
   )
-    return ifThenClause.ifCondition?.label || undefined;
+    return ifThenClause.ifCondition?.label;
 };
 
 export const errorStatementHasWarnings = (
@@ -55,13 +53,13 @@ export const errorStatementHasWarnings = (
   expTreeInclude: ExpressionTree,
   expTreeExclude: ExpressionTree
 ): boolean => {
-  for (const ifThenClause of errorStatement.ifThenClauses || []) {
+  for (const ifThenClause of errorStatement.ifThenClauses) {
     if (
       ifThenClauseMissingStatementWarning(ifThenClause, errorStatement) ||
       ifThenClauseDisabledIfConditionWarning(ifThenClause, expTreeInclude, expTreeExclude)
     )
       return true;
-    for (const statement of (ifThenClause.statements || []) as ErrorStatement[]) {
+    for (const statement of ifThenClause.statements as ErrorStatement[]) {
       return errorStatementHasWarnings(statement, expTreeInclude, expTreeExclude);
     }
   }

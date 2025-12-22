@@ -47,7 +47,7 @@ describe('<ConjunctionGroup />', () => {
   const instance: Instance = {
     ...templateInstanceToInstance(instanceTree),
     path: '',
-    childInstances: [...(instanceTree.childInstances || []).map(inst => templateInstanceToInstance(inst)), orInstance]
+    childInstances: [...instanceTree.childInstances.map(inst => templateInstanceToInstance(inst)), orInstance]
   };
 
   const renderComponent = ({ groupInstance = instance, ...props }: RenderComponentProps = {}) =>
@@ -171,7 +171,7 @@ describe('<ConjunctionGroup />', () => {
       groupInstance: {
         ...templateInstanceToInstance(instanceTree),
         path: '',
-        childInstances: (instanceTree.childInstances || []).map(inst => templateInstanceToInstance(inst))
+        childInstances: instanceTree.childInstances.map(inst => templateInstanceToInstance(inst))
       } as Instance
     });
 
@@ -234,7 +234,7 @@ describe('<ConjunctionGroup />', () => {
   });
 
   it('has an expression phrase', async () => {
-    const topLevelChildInstances = _.cloneDeep(instanceTree.childInstances || []);
+    const topLevelChildInstances = _.cloneDeep(instanceTree.childInstances);
     const nameField0 = topLevelChildInstances[0]?.fields?.find(f => f.id === 'element_name');
     if (nameField0) nameField0.value = 'Top Level Age';
     const nameField1 = topLevelChildInstances[1]?.fields?.find(f => f.id === 'element_name');

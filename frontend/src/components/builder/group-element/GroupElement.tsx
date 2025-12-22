@@ -127,7 +127,7 @@ const GroupElement: React.FC<GroupElementProps> = ({
         <ExpressionPhrase instance={groupInstance} baseElements={baseElements} />
         {showReturnType && (
           <ReturnTypeTemplate
-            returnType={_.startCase(groupInstance.returnType || '')}
+            returnType={_.startCase(groupInstance.returnType)}
             returnTypeIsValid={hasValidReturnType}
           />
         )}

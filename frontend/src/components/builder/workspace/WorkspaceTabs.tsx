@@ -86,7 +86,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
     if (updatedFhirVersion !== artifact.fhirVersion) {
       artifactPropsToUpdate.fhirVersion = updatedFhirVersion;
     }
@@ -100,14 +100,14 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     incomingTree: Instance[] | null = null
   ): void => {
     if (!artifact) return;
-    const baseElements = artifact.baseElements || [];
+    const baseElements = artifact.baseElements;
     const tree = incomingTree || baseElements;
     tree.push(instance);
 
     let artifactPropsToUpdate: Partial<Artifact> = { baseElements: tree };
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
     if (updatedFhirVersion !== artifact.fhirVersion) {
       artifactPropsToUpdate.fhirVersion = updatedFhirVersion;
     }
@@ -154,7 +154,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
     if (updatedFhirVersion !== artifact.fhirVersion) {
       artifactPropsToUpdate.fhirVersion = updatedFhirVersion;
     }
@@ -204,7 +204,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
         if (!target.fields) return;
         // function to retrieve relevant field
         const fieldIndex = target.fields.findIndex(field =>
-          Object.prototype.hasOwnProperty.call(editedField, field.id || '')
+          Object.prototype.hasOwnProperty.call(editedField, field.id)
         );
 
         if (fieldIndex === -1) return;
@@ -213,10 +213,9 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
         if (editedField.attributeToEdit) {
           (target.fields[fieldIndex] as Record<string, string | number | boolean | null | undefined>)[
             editedField.attributeToEdit as string
-          ] = editedField[(target.fields[fieldIndex].id || '') as keyof typeof editedField];
+          ] = editedField[target.fields[fieldIndex].id as keyof typeof editedField];
         } else {
-          target.fields[fieldIndex].value =
-            editedField[(target.fields[fieldIndex].id || '') as keyof typeof editedField];
+          target.fields[fieldIndex].value = editedField[target.fields[fieldIndex].id as keyof typeof editedField];
         }
       });
     }
@@ -260,7 +259,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     }
 
     const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+    const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
     if (updatedFhirVersion !== artifact.fhirVersion && fhirVersion == null) {
       artifactPropsToUpdate.fhirVersion = updatedFhirVersion;
     }
@@ -277,7 +276,7 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     const artifactPropsToUpdate: Partial<Artifact> = { [target]: subpopulations };
     if (updateFHIRVersion) {
       const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-      const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+      const updatedFhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
       if (updatedFhirVersion !== artifact.fhirVersion) {
         artifactPropsToUpdate.fhirVersion = updatedFhirVersion;
       }
@@ -290,13 +289,13 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ externalCqlList, handleSa
     if (!artifact) return;
     const artifactPropsToUpdate: Partial<Artifact> = { recommendations };
     const recommendationsArray = recommendations;
-    if (artifact.fhirVersion === '' && recommendationsArray.some(rec => (rec.suggestions?.length || 0) > 0)) {
+    if (artifact.fhirVersion === '' && recommendationsArray.some(rec => rec.suggestions.length > 0)) {
       // Once a suggestion is added, only FHIR R4 versions are allowed
       artifactPropsToUpdate.fhirVersion = '4.0.x';
-    } else if (recommendationsArray.every(rec => (rec.suggestions?.length || 0) === 0)) {
+    } else if (recommendationsArray.every(rec => rec.suggestions.length === 0)) {
       // If there are no suggestions, recalculate the FHIR version based on the rest of the artifact
       const updatedArtifact = { ...artifact, ...artifactPropsToUpdate };
-      artifactPropsToUpdate.fhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id || '');
+      artifactPropsToUpdate.fhirVersion = getFHIRVersion(updatedArtifact, externalCqlList, artifact._id);
     }
     handleUpdateArtifact(artifact, artifactPropsToUpdate);
   };

@@ -59,7 +59,7 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
       ) {
         const valueWithId = referenceField.value as FieldValueWithId;
         if (valueWithId.id) {
-          addBaseElementUsage(baseElementsInUse, valueWithId.id, element.uniqueId || '');
+          addBaseElementUsage(baseElementsInUse, valueWithId.id, element.uniqueId);
         }
       } else if (
         referenceField?.id === 'externalCqlReference' &&
@@ -73,7 +73,7 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
           ?.map(arg => arg.value)
           .forEach(arg => {
             if (arg?.argSource && arg?.selected && arg.argSource === 'baseElement') {
-              addBaseElementUsage(baseElementsInUse, arg.selected, element.uniqueId || '');
+              addBaseElementUsage(baseElementsInUse, arg.selected, element.uniqueId);
             }
           });
       }
@@ -89,7 +89,7 @@ export function getBaseElementsInUse(allElements: Instance[]): BaseElementUsage[
           if (Array.isArray(modifierValue)) {
             modifierValue.forEach((arg: { argSource?: string; selected?: string }) => {
               if (arg?.argSource && arg?.selected && arg.argSource === 'baseElement') {
-                addBaseElementUsage(baseElementsInUse, arg.selected, element.uniqueId || '');
+                addBaseElementUsage(baseElementsInUse, arg.selected, element.uniqueId);
               }
             });
           }

@@ -84,7 +84,7 @@ const Parameter: React.FC<ParameterProps> = ({
   ];
 
   const expressions = [
-    { label: startsWithVowel(type || '') ? 'An' : 'A' },
+    { label: startsWithVowel(type) ? 'An' : 'A' },
     { label: typeOptions.find(({ value }) => value === type)?.label || '', isTag: true },
     { label: 'parameter' },
     { label: valueStr ? 'that defaults to' : 'with no default value' }

@@ -71,7 +71,7 @@ const InclusionExclusionCard: React.FC<InclusionExclusionCardProps> = ({
             {children.map((child, index) => (
               <InclusionExclusionCard
                 key={index}
-                children={child.childInstances || []}
+                children={child.childInstances}
                 depth={depth + 1}
                 label={child.elementType}
                 linkId={child.elementId}

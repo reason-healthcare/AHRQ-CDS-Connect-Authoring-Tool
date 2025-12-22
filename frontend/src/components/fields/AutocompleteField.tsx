@@ -36,7 +36,7 @@ const FormikSelect: React.FC<FormikSelectProps> = ({
       autoSelect
       autoHighlight
       className={fieldStyles.fieldInputLg}
-      getOptionLabel={(option: AutocompleteOption) => option?.label || ''}
+      getOptionLabel={(option: AutocompleteOption) => option?.label}
       id={name}
       onChange={handleChange}
       options={options}

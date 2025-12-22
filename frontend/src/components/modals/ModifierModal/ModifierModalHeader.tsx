@@ -31,7 +31,7 @@ const ModifierModalHeader: React.FC<ModifierModalHeaderProps> = ({ elementInstan
         <div className={styles.headerTag}>
           <div className={clsx(styles.headerIndicator, styles.headerIndicatorHighlight)}>
             <ExpressionPhrase
-              instance={{ ...elementInstance, modifiers: [...(elementInstance.modifiers ?? []), ...modifiersToAdd] }}
+              instance={{ ...elementInstance, modifiers: [...elementInstance.modifiers, ...modifiersToAdd] }}
               baseElements={baseElements}
               inModal={true}
             />
@@ -41,7 +41,7 @@ const ModifierModalHeader: React.FC<ModifierModalHeaderProps> = ({ elementInstan
         <div className={styles.headerTag}>
           <div className={styles.headerIndicator} data-testid="modifier-return-type">
             <span className={styles.headerIndicatorLabel}>Return Type:</span>
-            {changeToCase(elementInstance.returnType ?? '', 'capitalCase')}
+            {changeToCase(elementInstance.returnType, 'capitalCase')}
             {modifiersReturnType && (
               <>
                 <ArrowForwardIcon className={spacingStyles.horizontalPadding} fontSize="small" />
@@ -49,16 +49,13 @@ const ModifierModalHeader: React.FC<ModifierModalHeaderProps> = ({ elementInstan
                 {changeToCase(modifiersReturnType, 'capitalCase')}
               </>
             )}
-            {!modifiersReturnType && (elementInstance.modifiers?.length ?? 0) > 0 && (
+            {!modifiersReturnType && elementInstance.modifiers.length > 0 && (
               <>
                 <ArrowForwardIcon className={spacingStyles.horizontalPadding} fontSize="small" />
-                {getReturnType(elementInstance.returnType ?? '', elementInstance.modifiers ?? []) === 'boolean' && (
+                {getReturnType(elementInstance.returnType, elementInstance.modifiers) === 'boolean' && (
                   <CheckIcon fontSize="small" />
                 )}
-                {changeToCase(
-                  getReturnType(elementInstance.returnType ?? '', elementInstance.modifiers ?? []),
-                  'capitalCase'
-                )}
+                {changeToCase(getReturnType(elementInstance.returnType, elementInstance.modifiers), 'capitalCase')}
               </>
             )}
           </div>

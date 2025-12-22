@@ -159,7 +159,7 @@ export function getElementTemplate(
     return found !== undefined;
   });
 
-  return _.cloneDeep(elementTemplate || []).filter(template => !template.suppress);
+  return _.cloneDeep(elementTemplate).filter(template => !template.suppress);
 }
 
 export function getInstanceByReference(

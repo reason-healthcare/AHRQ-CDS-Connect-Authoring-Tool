@@ -68,7 +68,7 @@ export function doesBaseElementInstanceNeedWarning(instance: Instance, allInstan
 export function doesBaseElementUseNeedWarning(instance: Instance, baseElements: BaseElement[]): boolean {
   const elementNameField = getFieldWithId(instance.fields, 'element_name');
   const instanceCommentField = getFieldWithId(instance.fields, 'comment');
-  const instanceCommentValue = (instanceCommentField as { value?: string })?.value || '';
+  const instanceCommentValue = (instanceCommentField as { value?: string })?.value;
 
   if (instance.type === 'baseElement') {
     const referenceField = getFieldWithType(instance.fields, 'reference') as { value?: { id?: string } } | undefined;
@@ -241,7 +241,7 @@ export function parameterHasDuplicateName(
 }
 
 export function validateElement(instance: Instance): string | null {
-  const templateInstanceFields = (instance.fields || []).reduce(
+  const templateInstanceFields = instance.fields.reduce(
     (previous, current) => ({
       ...previous,
       [current.id || '']: (
@@ -275,7 +275,7 @@ export function hasReturnTypeError(
   validReturnType: string,
   validateReturnType: boolean | null | undefined
 ): boolean {
-  const currentReturnType = getReturnType(startingReturnType, modifiers || []);
+  const currentReturnType = getReturnType(startingReturnType, modifiers);
   return currentReturnType !== validReturnType && validateReturnType !== false;
 }
 
@@ -294,7 +294,7 @@ export function hasGroupNestedWarning(
     let warning = false;
     if (child.conjunction) {
       warning = hasGroupNestedWarning(
-        child.childInstances || [],
+        child.childInstances,
         instanceNames,
         baseElements,
         parameters,
@@ -309,8 +309,8 @@ export function hasGroupNestedWarning(
         string,
         string | number | { id?: string; name?: string; value?: string; type?: string } | null
       > = {};
-      (child.fields || []).forEach(field => {
-        fields[field.id || ''] = (
+      child.fields.forEach(field => {
+        fields[field.id] = (
           field as { value?: string | number | { id?: string; name?: string; value?: string; type?: string } | null }
         ).value;
       });
@@ -388,7 +388,7 @@ export const getListGroupErrors = (
   const doesHaveBaseElementWarning = doesBaseElementInstanceNeedWarning(listInstance, allInstancesInAllTrees);
   const listIsEmptyIntersect = isEmptyIntersect(listInstance);
   const isInvalidList =
-    (listInstance.id === 'And' || listInstance.id === 'Or') && hasInvalidListWarning(listInstance.returnType || '');
+    (listInstance.id === 'And' || listInstance.id === 'Or') && hasInvalidListWarning(listInstance.returnType);
   const listAlerts: Alert[] = [
     {
       alertSeverity: 'error',
@@ -425,7 +425,7 @@ export const getSubpopulationErrors = (
     instanceNames.findIndex(
       name => name.id !== subpopulation.uniqueId && name.name === subpopulation.subpopulationName
     ) !== -1;
-  const doesHaveSubpopulationUsedAlert = isSubpopulationUsed(recommendations, subpopulation.uniqueId || '');
+  const doesHaveSubpopulationUsedAlert = isSubpopulationUsed(recommendations, subpopulation.uniqueId);
   const subpopulationAlerts: Alert[] = [
     {
       alertSeverity: 'error',

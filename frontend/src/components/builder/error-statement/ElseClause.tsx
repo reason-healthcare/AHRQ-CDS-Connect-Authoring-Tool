@@ -24,7 +24,7 @@ const ElseClause: React.FC<ElseClauseProps> = ({ handleUpdateErrorStatement, sta
 
   const handleAddIfThenClause = (): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    const statementRef = getStatementById(newErrorStatement, statement.id);
     if (statementRef) {
       if (!statementRef.ifThenClauses) {
         statementRef.ifThenClauses = [];
@@ -36,7 +36,7 @@ const ElseClause: React.FC<ElseClauseProps> = ({ handleUpdateErrorStatement, sta
 
   const handleUpdateElseClause = (newValue: string): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    const statementRef = getStatementById(newErrorStatement, statement.id);
     if (statementRef) {
       statementRef.elseClause = newValue;
       handleUpdateErrorStatement(newErrorStatement);

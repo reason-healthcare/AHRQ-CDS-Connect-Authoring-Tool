@@ -41,7 +41,7 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
   };
 
   const deleteParameter = (uniqueId: string | undefined): void => {
-    const newParameters = (parameters || []).filter(p => p.uniqueId !== uniqueId);
+    const newParameters = parameters.filter(p => p.uniqueId !== uniqueId);
     handleUpdateParameters(newParameters);
   };
 
@@ -64,7 +64,7 @@ const Parameters: React.FC<ParametersProps> = ({ handleUpdateParameters }) => {
       updates = param;
     }
 
-    const newParameters = (parameters || []).map(p => (p.uniqueId === uniqueId ? { ...p, ...updates } : p));
+    const newParameters = parameters.map(p => (p.uniqueId === uniqueId ? { ...p, ...updates } : p));
     handleUpdateParameters(newParameters);
   };
 

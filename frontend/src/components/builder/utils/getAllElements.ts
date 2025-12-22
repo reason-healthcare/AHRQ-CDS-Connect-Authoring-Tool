@@ -23,11 +23,11 @@ export function getElements(tabName: string, elements: Instance[], flattenedElem
 const getAllElements = (artifact: Artifact): Instance[] => {
   const { expTreeInclude, expTreeExclude, subpopulations, baseElements, parameters } = artifact;
 
-  return getElements('expTreeInclude', expTreeInclude?.childInstances || []).concat(
-    getElements('expTreeExclude', expTreeExclude?.childInstances || [])
-      .concat(getElements('subpopulations', (subpopulations || []).filter(({ special }) => !special) as Instance[]))
-      .concat(getElements('baseElements', baseElements || []))
-      .concat(getElements('parameters', parameters || []))
+  return getElements('expTreeInclude', expTreeInclude?.childInstances).concat(
+    getElements('expTreeExclude', expTreeExclude?.childInstances)
+      .concat(getElements('subpopulations', subpopulations.filter(({ special }) => !special) as Instance[]))
+      .concat(getElements('baseElements', baseElements))
+      .concat(getElements('parameters', parameters))
   );
 };
 

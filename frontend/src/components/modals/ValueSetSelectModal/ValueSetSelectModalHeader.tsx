@@ -34,7 +34,7 @@ const ValueSetSelectModalHeader: React.FC<ValueSetSelectModalHeaderProps> = ({
   const handleSearch = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
-      onSearch(searchValueRef.current || null);
+      onSearch(searchValueRef.current);
     },
     [searchValueRef, onSearch]
   );

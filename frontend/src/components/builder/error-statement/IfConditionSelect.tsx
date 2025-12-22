@@ -52,10 +52,10 @@ const IfConditionSelect: React.FC<IfConditionSelectProps> = ({
     const subpopulationIsDisabled = (subpopulationId: string): boolean => {
       switch (subpopulationId) {
         case 'default-subpopulation-1':
-          if ((expTreeInclude.childInstances?.length || 0) === 0) return true;
+          if (expTreeInclude.childInstances.length === 0) return true;
           break;
         case 'default-subpopulation-2':
-          if ((expTreeExclude.childInstances?.length || 0) === 0) return true;
+          if (expTreeExclude.childInstances.length === 0) return true;
           break;
         default:
           return false;
@@ -79,19 +79,19 @@ const IfConditionSelect: React.FC<IfConditionSelectProps> = ({
           ? `"${subpopulation.subpopulationName}"`
           : `"${subpopulation.uniqueId}"`,
       uniqueId: subpopulation.uniqueId,
-      isDisabled: subpopulationIsDisabled(subpopulation.uniqueId || '')
+      isDisabled: subpopulationIsDisabled(subpopulation.uniqueId)
     }));
 
     return [{ label: 'Recommendations is null', value: '"Recommendation" is null' }]
       .concat(_.sortBy(booleanParameterOptions, ['label']))
       .concat(_.sortBy(subpopulationOptions, ['label']));
-  }, [expTreeExclude.childInstances?.length, expTreeInclude.childInstances?.length, parameters, subpopulations]);
+  }, [expTreeExclude.childInstances.length, expTreeInclude.childInstances.length, parameters, subpopulations]);
 
   const selectedOption = options.find(({ value }) => value === ifCondition?.value);
 
   const handleUpdateIfCondition = (newValue: string): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    const statementRef = getStatementById(newErrorStatement, statement.id);
     if (statementRef) {
       const condition = options.find(({ value }) => value === newValue);
       if (condition && statementRef.ifThenClauses) {
@@ -113,7 +113,7 @@ const IfConditionSelect: React.FC<IfConditionSelectProps> = ({
         value={selectedOption?.value || ''}
       />
 
-      {(statement.ifThenClauses?.length || 0) > 1 && (
+      {statement.ifThenClauses.length > 1 && (
         <IconButton
           aria-label="delete-if-then-clause"
           color="primary"

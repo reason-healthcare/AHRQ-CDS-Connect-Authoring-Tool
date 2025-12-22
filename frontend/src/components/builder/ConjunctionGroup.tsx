@@ -81,14 +81,14 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
     staleTime: Infinity
   });
 
-  if (isTemplatesLoading || !artifact) {
+  if (isTemplatesLoading) {
     return <CircularProgress />;
   }
 
-  const baseElements = artifact.baseElements || [];
+  const baseElements = artifact.baseElements;
   const allElements = getAllElements(artifact) ?? [];
   const instanceNames = getElementNames(allElements);
-  const parameters = (artifact.parameters || []).filter(({ name }) => name?.length);
+  const parameters = artifact.parameters.filter(({ name }) => name?.length);
 
   const conjunctionGroupOptions = templates?.find(t => t.name === 'Operations')?.entries ?? [];
   const listOperationOptions = templates?.find(t => t.name === 'List Operations')?.entries ?? [];
@@ -100,23 +100,23 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
     baseElements,
     parameters,
     allElements,
-    validateReturnType || false
+    validateReturnType
   );
 
   // if root component, returns root artifact path, otherwise calls child's getPath function with artifact id
   const getPath = (): string => {
     if (root) {
-      return instance.path || '';
+      return instance.path;
     }
     if (getPathOfParent) {
-      return getPathOfParent(instance.uniqueId || '');
+      return getPathOfParent(instance.uniqueId);
     }
     return '';
   };
 
   const getChildsPath = (id: string): string => {
     const artifactTree = instance;
-    const childIndex = (artifactTree.childInstances || []).findIndex(inst => inst.uniqueId === id);
+    const childIndex = artifactTree.childInstances.findIndex(inst => inst.uniqueId === id);
     return `${getPath()}.childInstances.${childIndex}`;
   };
 
@@ -153,14 +153,10 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
     } else if (conjunctionType) {
       // Indent a single templateInstance
       const newInstance = createTemplateInstance(conjunctionType, [element]) as Instance;
-      const index = Number(
-        getChildsPath(element.uniqueId || '')
-          .split('.')
-          .pop()
-      ); // Index to add new conjunction at
+      const index = Number(getChildsPath(element.uniqueId).split('.').pop()); // Index to add new conjunction at
       const toAdd = [{ instance: newInstance, path: getPath(), index }];
 
-      deleteInstance(treeName, getChildsPath(element.uniqueId || ''), toAdd);
+      deleteInstance(treeName, getChildsPath(element.uniqueId), toAdd);
     }
   };
 
@@ -170,10 +166,10 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
     }
     if (element.conjunction) {
       // Outdenting a conjunction group. Removes the conjunction, readds each child to the conjunction's parent
-      const toAdd = (element.childInstances || []).map((child, i) => {
+      const toAdd = element.childInstances.map((child, i) => {
         // Path of the parent where items get added
         const parentPath = getPath().split('.').slice(0, -2).join('.');
-        const indexStr = getPath().split('.').pop() || '0';
+        let indexStr = getPath().split('.').pop(); // Index of the conjunction group
         const index = Number(indexStr) + i; // Index to add the conjunction's children at
         return { instance: child, path: parentPath, index };
       });
@@ -183,10 +179,10 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
       // Outdenting a single templateInstance
       // Path of the parent of the group instance is coming from. This is where it will be readded
       const parentPath = getPath().split('.').slice(0, -2).join('.');
-      const indexStr = getPath().split('.').pop() || '0';
+      const indexStr = getPath().split('.').pop(); // Index of the parent
       const index = Number(indexStr) + 1; // Readd the child that is being outdented right below the parent it came from
       const toAdd = [{ instance: element, path: parentPath, index }];
-      deleteInstance(treeName, getChildsPath(element.uniqueId || ''), toAdd);
+      deleteInstance(treeName, getChildsPath(element.uniqueId), toAdd);
     }
   };
 
@@ -198,33 +194,26 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
         allowOutdent={getPath() !== ''} // cannot outdent if at the root
         baseElementInUsedList={!!disableAddElement}
         elementInstance={instance}
-        handleDeleteElement={() => deleteInstance(treeName, getChildsPath(instance.uniqueId || ''))}
+        handleDeleteElement={() => deleteInstance(treeName, getChildsPath(instance.uniqueId))}
         handleIndent={() => indentClickHandler(instance)}
         handleOutdent={() => outdentClickHandler(instance)}
         handleUpdateElement={newElementField =>
-          editInstance(treeName, newElementField, getChildsPath(instance.uniqueId || ''), false)
+          editInstance(treeName, newElementField, getChildsPath(instance.uniqueId), false)
         }
-        hasErrors={hasWarnings(
-          instance,
-          instanceNames,
-          baseElements,
-          parameters,
-          allElements,
-          validateReturnType || false
-        )}
-        indentParity={getIndentParity(getChildsPath(instance.uniqueId || ''))}
+        hasErrors={hasWarnings(instance, instanceNames, baseElements, parameters, allElements, validateReturnType)}
+        indentParity={getIndentParity(getChildsPath(instance.uniqueId))}
         label={getLabelForInstance(instance, baseElements)}
         updateModifiers={(modifiers, fhirVersion) =>
           updateInstanceModifiers(
             treeName,
             modifiers,
-            getChildsPath(instance.uniqueId || ''),
-            subpopulationUniqueId || null,
+            getChildsPath(instance.uniqueId),
+            subpopulationUniqueId,
             null,
             fhirVersion
           )
         }
-        validateReturnType={validateReturnType || false}
+        validateReturnType={validateReturnType}
       />
 
       <ConjunctionTypeSelect
@@ -243,7 +232,7 @@ const ConjunctionGroup: React.FC<ConjunctionGroupProps> = ({
   );
 
   const renderChildren = (): React.ReactElement[] =>
-    (instance.childInstances || []).map(child => {
+    instance.childInstances.map(child => {
       // return null if child instance conjunction is false
       if (child.conjunction) {
         return (

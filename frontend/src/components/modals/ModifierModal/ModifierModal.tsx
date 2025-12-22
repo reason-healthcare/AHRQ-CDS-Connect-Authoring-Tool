@@ -48,12 +48,12 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
         ]
       : []
   );
-  const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion || '');
+  const [fhirVersion, setFhirVersion] = useState<string>(artifact.fhirVersion);
   const dispatch = useAppDispatch();
   const styles = useStyles();
   const typeSupportedByBuilder =
     Boolean(resourceMap[elementInstance.returnType || '']) &&
-    (fhirVersion === '' || resourceMap[elementInstance.returnType || '']?.supportedVersions.includes(fhirVersion));
+    (fhirVersion === '' || resourceMap[elementInstance.returnType]?.supportedVersions.includes(fhirVersion));
   const hasModifiers = elementInstance.modifiers?.length !== 0;
 
   let modalTitle = 'Add Modifiers';
@@ -70,14 +70,14 @@ const ModifierModal: React.FC<ModifierModalProps> = ({
     const { modifierTreesToModifiers } = await import('utils/modifierConversions');
     const convertedModifiers = modifierTreesToModifiers(modifiersToAdd);
     handleUpdateModifiers(
-      modifierToEdit ? convertedModifiers : (elementInstance.modifiers || []).concat(convertedModifiers),
+      modifierToEdit ? convertedModifiers : elementInstance.modifiers.concat(convertedModifiers),
       fhirVersion
     );
     handleCloseModal();
   };
 
   const handleReset = (): void => {
-    setFhirVersion(artifact.fhirVersion || '');
+    setFhirVersion(artifact.fhirVersion);
     setDisplayMode(null);
     setModifiersToAdd([]);
   };

@@ -58,7 +58,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ depth, label, l
               key={index}
               depth={1}
               label="Link"
-              text={"label: '" + (link.label || '') + "', url: '" + (link.url || '') + "'"}
+              text={"label: '" + link.label + "', url: '" + link.url + "'"}
             />
           ))}
 

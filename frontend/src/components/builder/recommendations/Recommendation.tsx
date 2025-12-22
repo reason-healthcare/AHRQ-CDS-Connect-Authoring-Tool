@@ -137,7 +137,7 @@ const Recommendation: React.FC<RecommendationProps> = ({
 
   const addSubpopulation = () => {
     setShowAddSubpopulation(true);
-    setScrollTo(recommendation.uid || null);
+    setScrollTo(recommendation.uid);
   };
 
   const addLink = () => {

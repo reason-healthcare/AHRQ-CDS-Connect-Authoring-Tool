@@ -85,7 +85,7 @@ const ExternalCqlDropZone: React.FC = () => {
         setUploadErrorMessage(errorText);
       }
       setUploadCqlErrors(
-        error.cqlErrors ? [...new Set(error.cqlErrors.map(err => err.message || '').filter(Boolean))] : null
+        error.cqlErrors ? [...new Set(error.cqlErrors.map(err => err.message).filter(Boolean))] : null
       );
     }
   });

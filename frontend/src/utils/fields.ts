@@ -110,7 +110,7 @@ export function isCpgComplete(name: string, values: CpgValues): boolean {
     case 'publisher':
       return Boolean(values.publisher);
     case 'context':
-      if (!values.context || values.context.length === 0) return false;
+      if (values.context.length === 0) return false;
       const contextCpgCompletedFields = values.context.map(value => contextCpgComplete(value));
       return contextCpgCompletedFields.every(fieldComplete => fieldComplete);
     case 'purpose':
@@ -142,21 +142,21 @@ export function isCpgComplete(name: string, values: CpgValues): boolean {
     case 'effectivePeriod':
       return Boolean(values.effectivePeriod?.start || values.effectivePeriod?.end);
     case 'topic':
-      if (!values.topic || values.topic.length === 0) return false;
+      if (values.topic.length === 0) return false;
       return values.topic.every(value =>
         Boolean(value.code && value.system && (value.system !== 'Other' || value.other))
       );
     case 'author':
-      if (!values.author || values.author.length === 0) return false;
+      if (values.author.length === 0) return false;
       return values.author.every(value => Boolean(value.author));
     case 'reviewer':
-      if (!values.reviewer || values.reviewer.length === 0) return false;
+      if (values.reviewer.length === 0) return false;
       return values.reviewer.every(value => Boolean(value.reviewer));
     case 'endorser':
-      if (!values.endorser || values.endorser.length === 0) return false;
+      if (values.endorser.length === 0) return false;
       return values.endorser.every(value => Boolean(value.endorser));
     case 'relatedArtifact':
-      if (!values.relatedArtifact || values.relatedArtifact.length === 0) return false;
+      if (values.relatedArtifact.length === 0) return false;
       const relatedArtifactCpgCompletedFields = values.relatedArtifact.map(value => relatedArtifactCpgComplete(value));
       return relatedArtifactCpgCompletedFields.every(fieldComplete => fieldComplete);
     default:

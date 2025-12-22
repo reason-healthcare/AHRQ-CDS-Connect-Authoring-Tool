@@ -154,7 +154,7 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
             className={fieldStyles.fieldInputLg}
             getOptionLabel={option => option?.label || ''}
             onChange={(e, option) => onChange(element.name, option?.value ?? '')}
-            options={element.options || []}
+            options={element.options}
             renderInput={params => <TextField {...params} placeholder="Select..." required />}
             value={element.options?.find(option => option.value === currentAction.resource[element.name]) ?? null}
           />
@@ -168,7 +168,7 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
               name="Text"
               placeholder="CodeableConcept text"
               onChange={event => updateCodeableConcept(element.name, event.target.value, true)}
-              value={(currentAction.resource[element.name] as CodeableConceptValue)?.text || ''}
+              value={(currentAction.resource[element.name] as CodeableConceptValue)?.text}
             />
             <EditorsTemplate
               type="system_code"

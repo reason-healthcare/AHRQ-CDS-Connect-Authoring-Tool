@@ -38,12 +38,12 @@ const ConjunctionCard: React.FC<ConjunctionCardProps> = ({
   const addGroup = (): void => {
     handleUpdateConjunction({
       ...rule,
-      rules: [...(rules ?? []), { id: uuidv4(), conjunctionType: conjunctionType === 'and' ? 'or' : 'and', rules: [] }]
+      rules: [...rules, { id: uuidv4(), conjunctionType: conjunctionType === 'and' ? 'or' : 'and', rules: [] }]
     });
   };
 
   const addRule = (): void => {
-    handleUpdateConjunction({ ...rule, rules: [...(rules ?? []), { id: uuidv4(), resourceProperty: '' }] });
+    handleUpdateConjunction({ ...rule, rules: [...rules, { id: uuidv4(), resourceProperty: '' }] });
   };
 
   const removeRule = useCallback(
@@ -105,7 +105,7 @@ const ConjunctionCard: React.FC<ConjunctionCardProps> = ({
           </IconButton>
         )}
 
-        {(rules ?? []).map((nestedRule, index) =>
+        {rules.map((nestedRule, index) =>
           nestedRule.conjunctionType ? (
             <ConjunctionCard
               key={nestedRule.id}

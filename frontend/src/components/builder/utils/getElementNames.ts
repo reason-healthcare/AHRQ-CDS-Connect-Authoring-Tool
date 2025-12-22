@@ -18,7 +18,7 @@ const getElementName = (element: Instance): string => {
 };
 
 const getElementNames = (allElements: Instance[]): ElementName[] => {
-  return allElements.map(element => ({ name: getElementName(element), id: element.uniqueId || '' }));
+  return allElements.map(element => ({ name: getElementName(element), id: element.uniqueId }));
 };
 
 export default getElementNames;

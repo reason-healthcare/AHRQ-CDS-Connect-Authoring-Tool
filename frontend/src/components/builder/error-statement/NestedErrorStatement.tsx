@@ -26,7 +26,7 @@ const NestedErrorStatement: React.FC<NestedErrorStatementProps> = ({
 
   const handleDeleteIfThenClause = (index: number): void => {
     const newErrorStatement = _.cloneDeep(errorStatement);
-    const statementRef = getStatementById(newErrorStatement, statement.id || '');
+    const statementRef = getStatementById(newErrorStatement, statement.id);
     if (statementRef && statementRef.ifThenClauses) {
       statementRef.ifThenClauses.splice(index, 1);
       handleUpdateErrorStatement(newErrorStatement);

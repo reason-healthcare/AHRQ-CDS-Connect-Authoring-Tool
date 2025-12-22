@@ -11,7 +11,7 @@ export function getOriginalBaseElement(
   instance: { fields?: ReferenceField[] },
   baseElements: Array<{ uniqueId?: string }>
 ): unknown {
-  const referenceField = getFieldWithType(instance.fields || [], 'reference') as ReferenceField | undefined;
+  const referenceField = getFieldWithType(instance.fields, 'reference') as ReferenceField | undefined;
   if (referenceField) {
     if (referenceField.id === 'parameterReference' || referenceField.id === 'externalCqlReference') {
       return instance;
@@ -30,7 +30,7 @@ export function getAllModifiersOnBaseElementUse(
   modifiers: unknown[] = []
 ): unknown[] {
   let currentModifiers = modifiers;
-  const referenceField = getFieldWithType(instance.fields || [], 'reference') as ReferenceField | undefined;
+  const referenceField = getFieldWithType(instance.fields, 'reference') as ReferenceField | undefined;
   if (referenceField) {
     if (referenceField.id === 'parameterReference' || referenceField.id === 'externalCqlReference') {
       return _.cloneDeep(instance.modifiers || []).concat(currentModifiers);

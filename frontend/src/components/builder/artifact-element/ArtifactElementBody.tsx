@@ -122,18 +122,18 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
 
   const handleRemoveModifier = (index: number): void => {
     const newModifiers = _.cloneDeep(elementInstance.modifiers) as Modifier[];
-    if (index > -1 && newModifiers) newModifiers.splice(index, 1);
-    updateModifiers(newModifiers || []);
+    if (index > -1) newModifiers.splice(index, 1);
+    updateModifiers(newModifiers);
   };
 
   const handleUpdateModifier = (index: number, values: Modifier[]): void => {
     const newModifiers = _.cloneDeep(elementInstance.modifiers) as Modifier[];
     if (values[0]?.where) {
-      if (newModifiers) newModifiers[index] = values[0];
-    } else if (newModifiers && newModifiers[index]) {
+      newModifiers[index] = values[0];
+    } else if (newModifiers[index]) {
       newModifiers[index].values = { ...newModifiers[index].values, ...values };
     }
-    updateModifiers(newModifiers || []);
+    updateModifiers(newModifiers);
   };
 
   return (
@@ -141,14 +141,14 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
       {validationError && <Alert severity={'error'}>{validationError}</Alert>}
       {returnTypeError && <Alert severity={'error'}>{returnTypeError}</Alert>}
 
-      <ExpressionPhrase instance={elementInstance} baseElements={baseElements || []} />
+      <ExpressionPhrase instance={elementInstance} baseElements={baseElements} />
 
       {elementInstance.fields && elementInstance.fields.length > 2 && elementInstance.type !== 'externalCqlElement' && (
         <FieldsTemplate
           fields={elementInstance.fields
             .filter(
               field =>
-                fieldsToRender.includes(field.type || '') &&
+                fieldsToRender.includes(field.type) &&
                 field.id !== 'comment' &&
                 field.id !== 'element_name' &&
                 typeof field.id === 'string'

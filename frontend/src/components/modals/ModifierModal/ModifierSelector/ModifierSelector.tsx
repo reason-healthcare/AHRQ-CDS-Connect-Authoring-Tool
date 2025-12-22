@@ -47,7 +47,7 @@ const ModifierSelector: React.FC<ModifierSelectorProps> = ({
   setModifiersToAdd
 }) => {
   const artifact = useSelector((state: RootState) => state.artifacts.artifact);
-  const query = { artifactId: artifact?._id || '' };
+  const query = { artifactId: artifact?._id };
   const modifiersQuery = useQuery({
     queryKey: ['modifiers', query],
     queryFn: () => fetchModifiers(query),

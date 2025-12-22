@@ -23,7 +23,7 @@ interface ExternalCqlDetailsModalProps {
 
 const ExternalCqlDetailsModal: React.FC<ExternalCqlDetailsModalProps> = ({ handleCloseModal, library }) => {
   const styles = useStyles();
-  const parameters = library.details?.parameters || [];
+  const parameters = library.details?.parameters;
   const functions = library.details?.functions || [];
   const definitions = library.details?.definitions || [];
 

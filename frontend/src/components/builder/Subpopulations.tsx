@@ -66,7 +66,7 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
     staleTime: Infinity
   });
 
-  if (isTemplatesLoading || !artifact) {
+  if (isTemplatesLoading) {
     return <CircularProgress />;
   }
 
@@ -78,8 +78,8 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
   }
 
   const { baseElements, recommendations, subpopulations } = artifact;
-  const parameters = artifact.parameters?.filter(({ name }) => name?.length) || [];
-  const numOfSpecialSubpopulations = subpopulations?.filter(s => s.special).length || 0;
+  const parameters = artifact.parameters.filter(({ name }) => name?.length);
+  const numOfSpecialSubpopulations = subpopulations.filter(s => s.special).length;
   const allElements = getAllElements(artifact) ?? [];
   const instanceNames = getElementNames(allElements);
 
@@ -88,15 +88,15 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
     (newSubpopulation as { name?: string }).name = '';
     (newSubpopulation as { path?: string }).path = '';
     (newSubpopulation as { subpopulationName?: string }).subpopulationName =
-      `Subpopulation ${(subpopulations?.length || 0) - numOfSpecialSubpopulations + 1}`;
+      `Subpopulation ${subpopulations.length - numOfSpecialSubpopulations + 1}`;
     (newSubpopulation as { expanded?: boolean }).expanded = true;
-    const newSubpopulations = (subpopulations || []).concat([newSubpopulation as SubpopulationType]);
+    const newSubpopulations = subpopulations.concat([newSubpopulation as SubpopulationType]);
 
     updateSubpopulations(newSubpopulations, TREE_NAME);
   };
 
   const setSubpopulationName = (name: string, uniqueId: string | undefined): void => {
-    const newSubpopulations = _.cloneDeep(subpopulations || []);
+    const newSubpopulations = _.cloneDeep(subpopulations);
     const subpopulationIndex = newSubpopulations.findIndex(sp => sp.uniqueId === uniqueId);
     if (subpopulationIndex !== -1) {
       newSubpopulations[subpopulationIndex].subpopulationName = name;
@@ -106,7 +106,7 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
   };
 
   const deleteSubpopulation = (uniqueId: string | undefined): void => {
-    const newSubpopulations = _.cloneDeep(subpopulations || []);
+    const newSubpopulations = _.cloneDeep(subpopulations);
     const subpopulationIndex = newSubpopulations.findIndex(sp => sp.uniqueId === uniqueId);
     if (subpopulationIndex !== -1) {
       newSubpopulations.splice(subpopulationIndex, 1);
@@ -123,11 +123,11 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
       {subpopulations
         ?.filter(s => !s.special)
         .map(subpopulation => {
-          const subpopulationAlerts = getSubpopulationErrors(subpopulation, recommendations || [], instanceNames);
+          const subpopulationAlerts = getSubpopulationErrors(subpopulation, recommendations, instanceNames);
           const hasNestedWarning = hasGroupNestedWarning(
             subpopulation.childInstances,
             instanceNames,
-            baseElements || [],
+            baseElements,
             parameters,
             allElements,
             true // validate
@@ -146,7 +146,7 @@ const Subpopulations: React.FC<SubpopulationsProps> = ({
                 path: string,
                 toAdd?: Array<{ instance: Instance; path: string; index?: number }> | null
               ) => deleteInstance(treeName, path, toAdd, subpopulation.uniqueId)} // Delete elements inside subpopulations
-              disableDeleteSubpopulationElement={isSubpopulationUsed(recommendations || [], subpopulation.uniqueId)}
+              disableDeleteSubpopulationElement={isSubpopulationUsed(recommendations, subpopulation.uniqueId)}
               editInstance={(
                 treeName: string,
                 fields: Array<Record<string, unknown>> | Record<string, unknown>,

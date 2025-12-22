@@ -95,9 +95,7 @@ interface GetElementEntriesParams {
 }
 
 export const vsacCodeDisplayName = (vsacCode: VsacCode): string =>
-  vsacCode.display && vsacCode.display.length < 60
-    ? vsacCode.display
-    : `${vsacCode.codeSystem?.name || ''} ${vsacCode.code || ''}`;
+  vsacCode.display && vsacCode.display.length < 60 ? vsacCode.display : `${vsacCode.codeSystem?.name} ${vsacCode.code}`;
 
 const getBaseElementReturnType = (baseElement: BaseElement): string | undefined => {
   if (baseElement.modifiers && baseElement.modifiers.length !== 0) {
@@ -115,7 +113,7 @@ const getDefinitions = (
     };
   }
 ): Array<{ calculatedReturnType?: string; [key: string]: unknown }> => {
-  return externalCqlLibrary.details?.definitions || [];
+  return externalCqlLibrary.details.definitions;
 };
 
 const getZeroArgFunctions = (
@@ -155,7 +153,7 @@ const isSupportedCqlFunction = (
     }
   > = []
 ): boolean => {
-  if (!cqlFunction.operand || cqlFunction.operand.length === 0 || !cqlFunction.argumentTypes) return true;
+  if (cqlFunction.operand.length === 0 || !cqlFunction.argumentTypes) return true;
 
   return cqlFunction.argumentTypes.every(argType => {
     return (
@@ -196,8 +194,8 @@ export const generateElement = ({
     case 'baseElements': {
       const baseElement = baseElements.find(element => element.uniqueId === subOption);
       if (!baseElement) return undefined;
-      const commentField = getFieldWithId(baseElement.fields || [], 'comment');
-      const nameField = getFieldWithId(baseElement.fields || [], 'element_name');
+      const commentField = getFieldWithId(baseElement.fields, 'comment');
+      const nameField = getFieldWithId(baseElement.fields, 'element_name');
 
       return {
         id: uuidv4(),
@@ -212,15 +210,15 @@ export const generateElement = ({
             id: 'element_name',
             type: 'string',
             name: 'Element Name',
-            value: (nameField as { value?: string })?.value || ''
+            value: (nameField as { value?: string })?.value
           },
           {
             id: 'baseElementReference',
             type: 'reference',
             name: 'reference',
             value: {
-              id: baseElement.uniqueId || '',
-              type: baseElement.type === 'parameter' ? baseElement.type : baseElement.name || ''
+              id: baseElement.uniqueId,
+              type: baseElement.type === 'parameter' ? baseElement.type : baseElement.name
             },
             static: true
           },
@@ -236,10 +234,9 @@ export const generateElement = ({
 
     case 'externalCql': {
       const cqlLibrary = externalCqlList.find(cqlLibrary => cqlLibrary._id === subOption);
-      if (!cqlLibrary || !cqlLibrary.details) return undefined;
-      const cqlLibraryDefinitions = (cqlLibrary.details.definitions || []).concat(cqlLibrary.details.parameters || []);
+      const cqlLibraryDefinitions = cqlLibrary.details.definitions.concat(cqlLibrary.details.parameters);
       const selectedCqlDefinition = cqlLibraryDefinitions.find(({ name }) => name === cqlOption);
-      const cqlLibraryFunctions = (cqlLibrary.details.functions || []).filter(cqlFunction =>
+      const cqlLibraryFunctions = cqlLibrary.details.functions.filter(cqlFunction =>
         isSupportedCqlFunction(cqlFunction, baseElements, externalCqlList)
       );
       const selectedCqlFunction = cqlLibraryFunctions.find(({ name }) => name === cqlOption);
@@ -259,7 +256,7 @@ export const generateElement = ({
             type: 'reference',
             name: 'reference',
             value: {
-              id: `${selectedCqlEntry.name || ''}${selectedCqlEntryType === 'GenericFunction' ? ' (Function)' : ''} from ${cqlLibrary.name || ''}`,
+              id: `${selectedCqlEntry.name}${selectedCqlEntryType === 'GenericFunction' ? ' (Function)' : ''} from ${cqlLibrary.name}`,
               element: selectedCqlEntry.name,
               library: cqlLibrary.name,
               arguments: Array.isArray(selectedCqlEntry.operand)
@@ -293,7 +290,7 @@ export const generateElement = ({
             id: 'parameterReference',
             type: 'reference',
             name: 'reference',
-            value: { id: parameter.uniqueId || '' },
+            value: { id: parameter.uniqueId },
             static: true
           },
           { id: 'comment', type: 'textarea', name: 'Comment', value: parameter.comment || '' }
@@ -322,7 +319,7 @@ export const generateElement = ({
         { id: 'element_name', type: 'string', name: 'Element Name', value: valueName },
         { id: 'comment', type: 'textarea', name: 'Comment' }
       ];
-      element.fields = newFields.concat((element.fields || []) as typeof newFields);
+      element.fields = newFields.concat(element.fields as typeof newFields);
       return element;
     }
   }
@@ -349,9 +346,9 @@ export const getElementEntries = ({
             return nameField?.value && baseElement.uniqueId !== parentElementId;
           })
           .map(baseElement => {
-            const nameField = getFieldWithId(baseElement.fields || [], 'element_name');
+            const nameField = getFieldWithId(baseElement.fields, 'element_name');
             return {
-              value: baseElement.uniqueId || '',
+              value: baseElement.uniqueId,
               label: ((nameField as { value?: string })?.value as string) || ''
             };
           }) || []
@@ -367,21 +364,21 @@ export const getElementEntries = ({
     case 'externalCql':
       if (!externalCqlList) return [];
       return externalCqlList.map(externalCql => {
-        const cqlFunctions = (externalCql.details?.functions || [])
+        const cqlFunctions = externalCql.details.functions
           .filter(cqlFunction => isSupportedCqlFunction(cqlFunction, baseElements, externalCqlList))
           .map(cqlFunction => ({
-            value: cqlFunction.name || '',
-            label: `${cqlFunction.name || ''} | Function(${Array.isArray(cqlFunction.operand) ? cqlFunction.operand.length : 0}) | ${cqlFunction.calculatedReturnType || ''}`
+            value: cqlFunction.name,
+            label: `${cqlFunction.name} | Function(${(cqlFunction.operand as unknown as unknown[]).length}) | ${cqlFunction.calculatedReturnType}`
           }));
-        const cqlDefinitions = (externalCql.details?.definitions || [])
-          .concat(externalCql.details?.parameters || [])
+        const cqlDefinitions = externalCql.details.definitions
+          .concat(externalCql.details.parameters)
           .map(cqlDefinition => ({
-            value: cqlDefinition.name || '',
-            label: `${cqlDefinition.name || ''} | ${cqlDefinition.calculatedReturnType || ''}`
+            value: cqlDefinition.name,
+            label: `${cqlDefinition.name} | ${cqlDefinition.calculatedReturnType}`
           }));
         return {
-          value: externalCql._id || '',
-          label: externalCql.name || '',
+          value: externalCql._id,
+          label: externalCql.name,
           options: cqlFunctions.concat(cqlDefinitions).sort(sortAlphabeticallyByKey('label'))
         };
       });
@@ -390,7 +387,7 @@ export const getElementEntries = ({
         artifact.parameters
           ?.filter(parameter => parameter.name)
           .map(parameter => ({
-            value: parameter.uniqueId || '',
+            value: parameter.uniqueId,
             label: (parameter.name as string) || ''
           })) || []
       );

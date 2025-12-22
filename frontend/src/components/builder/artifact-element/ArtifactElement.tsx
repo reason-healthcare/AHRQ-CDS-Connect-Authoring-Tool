@@ -49,13 +49,13 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
   validateReturnType
 }) => {
   const artifact = useAppSelector(state => state.artifacts.artifact);
-  const { baseElements, _id: artifactId } = artifact || { baseElements: undefined, _id: undefined };
+  const { baseElements, _id: artifactId } = artifact;
   const [showAllContent, setShowAllContent] = useState(true);
 
   const modifiersQuery = useQuery({
     queryKey: ['modifiers', { artifactId }],
-    queryFn: () => fetchModifiers({ artifactId: artifactId || '' }),
-    enabled: artifactId != null && artifact != null
+    queryFn: () => fetchModifiers({ artifactId }),
+    enabled: artifactId != null
   });
   const modifiersByInputType = useMemo(
     () => (modifiersQuery.data as { modifiersByInputType?: Record<string, Modifier[]> })?.modifiersByInputType ?? {},
@@ -94,7 +94,7 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
           (!elementInstance.cannotHaveModifiers && relevantModifiers.length > 0) || allowsVSAC ? (
             <ArtifactElementActions
               allowsVSAC={allowsVSAC}
-              hasLimitedModifiers={baseElementInUsedList || false}
+              hasLimitedModifiers={baseElementInUsedList}
               elementInstance={elementInstance}
               handleUpdateElement={handleUpdateElement}
               isLoadingModifiers={isLoadingModifiers}
@@ -106,7 +106,7 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
         alerts={alerts}
         allowIndent={allowIndent}
         allowOutdent={allowOutdent}
-        collapsedContent={<ExpressionPhrase closed instance={elementInstance} baseElements={baseElements || []} />}
+        collapsedContent={<ExpressionPhrase closed instance={elementInstance} baseElements={baseElements} />}
         commentField={commentField}
         disableDeleteMessage={
           (baseElementIsUsed || baseElementInUsedList) &&
@@ -124,13 +124,13 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
         hasErrors={hasErrors}
         indentParity={indentParity}
         label={label}
-        setShowAllContent={(value: boolean | null) => setShowAllContent(value ?? true)}
+        setShowAllContent={setShowAllContent}
         showAllContent={showAllContent}
         titleField={titleField}
       >
         <Stack spacing={2}>
           <ArtifactElementBody
-            baseElementIsUsed={baseElementIsUsed || baseElementInUsedList || false}
+            baseElementIsUsed={baseElementIsUsed || baseElementInUsedList}
             elementInstance={elementInstance as any}
             handleUpdateElement={handleUpdateElement as any}
             updateModifiers={updateModifiers}

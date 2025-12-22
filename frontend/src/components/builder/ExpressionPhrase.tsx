@@ -69,7 +69,7 @@ const ExpressionPhrase: React.FC<ExpressionPhraseProps> = ({ baseElements, insta
 
     if ((phraseTemplateInstance as { subpopulationName?: string }).subpopulationName && type === '') {
       // Subpopulation type not selected yet
-      type = phraseTemplateInstance.id || '';
+      type = phraseTemplateInstance.id;
     }
 
     let valueSets: Array<{ name: string; oid: string }> = [];
@@ -103,11 +103,11 @@ const ExpressionPhrase: React.FC<ExpressionPhraseProps> = ({ baseElements, insta
     );
 
     if (phraseTemplateInstanceIsConjunction) {
-      (phraseTemplateInstance.childInstances || []).forEach(child => {
+      phraseTemplateInstance.childInstances.forEach(child => {
         let secondPhraseExpressions: ExpressionSentenceValue[] = [];
         if (child.childInstances && phraseTemplateInstance.usedBy) {
           // Groups expression phrases list the names of the elements within the group. They only go one level deep.
-          const childNames = (child.childInstances || []).map(c => {
+          const childNames = child.childInstances.map(c => {
             const nameField = getFieldWithId(c.fields, 'element_name');
             return { name: (nameField as { value?: string })?.value || '' };
           });

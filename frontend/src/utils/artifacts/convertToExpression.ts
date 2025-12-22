@@ -170,16 +170,16 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
     // Apply any user provided values needed
     switch (modifier.id) {
       case 'WithUnit': {
-        expressionSentenceValues[modifier.id].modifierText = `${modifier.values?.unit || ''}`;
+        expressionSentenceValues[modifier.id].modifierText = `${modifier.values?.unit}`;
         break;
       }
       case 'ValueComparisonNumber': {
         const minOperatorWord = getOperation((modifier.values?.minOperator as string) || '');
         const maxOperatorWord = getOperation((modifier.values?.maxOperator as string) || '');
-        expressionSentenceValues[modifier.id].modifierText = `is ${minOperatorWord} ${modifier.values?.minValue || ''}`;
+        expressionSentenceValues[modifier.id].modifierText = `is ${minOperatorWord} ${modifier.values?.minValue}`;
         if (maxOperatorWord) {
           expressionSentenceValues[modifier.id].modifierText +=
-            ` and is ${maxOperatorWord} ${modifier.values?.maxValue || ''}`;
+            ` and is ${maxOperatorWord} ${modifier.values?.maxValue}`;
         }
         break;
       }
@@ -187,16 +187,16 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
         const minOperatorWord = getOperation((modifier.values?.minOperator as string) || '');
         const maxOperatorWord = getOperation((modifier.values?.maxOperator as string) || '');
         expressionSentenceValues[modifier.id].modifierText =
-          `is ${minOperatorWord} ${modifier.values?.minValue || ''} ${modifier.values?.unit || ''}`;
+          `is ${minOperatorWord} ${modifier.values?.minValue} ${modifier.values?.unit}`;
         if (maxOperatorWord) {
           expressionSentenceValues[modifier.id].modifierText +=
-            ` and is ${maxOperatorWord} ${modifier.values?.maxValue || ''} ${modifier.values?.unit || ''}`;
+            ` and is ${maxOperatorWord} ${modifier.values?.maxValue} ${modifier.values?.unit}`;
         }
         break;
       }
       case 'Qualifier': {
         const qualifierText = (modifier.values?.qualifier as string) || '';
-        let valueSetText = (modifier.values?.valueSet as { name?: string })?.name || '';
+        let valueSetText = (modifier.values?.valueSet as { name?: string })?.name;
         if (!valueSetText) {
           const code = modifier.values?.code as { display?: string; code?: string; system?: string } | undefined;
           if (code) {
@@ -221,7 +221,7 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
       case 'StartsWithString': {
         expressionSentenceValues[modifier.id].leadingText = 'whose value';
         expressionSentenceValues[modifier.id].modifierText =
-          `${_.lowerCase(modifier.name)} "${modifier.values?.value || ''}"`;
+          `${_.lowerCase(modifier.name)} "${modifier.values?.value}"`;
         break;
       }
       case 'BeforeTimePrecise':
@@ -256,7 +256,7 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
       case 'AfterDecimal': {
         expressionSentenceValues[modifier.id].leadingText =
           modifier.name === 'Contains' ? 'whose value' : 'whose value is';
-        expressionSentenceValues[modifier.id].modifierText += ` ${modifier.values?.value || ''}`;
+        expressionSentenceValues[modifier.id].modifierText += ` ${modifier.values?.value}`;
         break;
       }
       case 'ContainsDateTime':
@@ -277,8 +277,7 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
       case 'AfterQuantity': {
         expressionSentenceValues[modifier.id].leadingText =
           modifier.name === 'Contains' ? 'whose value' : 'whose value is';
-        expressionSentenceValues[modifier.id].modifierText +=
-          ` ${modifier.values?.value || ''} '${modifier.values?.unit || ''}'`;
+        expressionSentenceValues[modifier.id].modifierText += ` ${modifier.values?.value} '${modifier.values?.unit}'`;
         break;
       }
       case 'LookBackObservation':
@@ -290,7 +289,7 @@ function getExpressionSentenceValue(modifier: Modifier): ExpressionSentenceValue
       case 'LookBackProcedure':
       case 'LookBackEncounter': {
         expressionSentenceValues[modifier.id].modifierText =
-          `within the last ${modifier.values?.value || ''} ${modifier.values?.unit || ''}`;
+          `within the last ${modifier.values?.value} ${modifier.values?.unit}`;
         break;
       }
       case 'BooleanComparison': {
@@ -457,7 +456,7 @@ function getOrderedExpressionSentenceArrayForAgeRange(
   const maxAgeField = getFieldWithId(ageFields, 'max_age') as Field | undefined;
   const unitField = getFieldWithId(ageFields, 'unit_of_time') as Field | undefined;
 
-  const ageUnitString = `${((unitField?.value as { name?: string }) || {})?.name || ''}`;
+  const ageUnitString = `${((unitField?.value as { name?: string }) || {})?.name}`;
 
   if (minAgeField?.value && maxAgeField?.value) {
     // The minimum age and the maximum age are both added
@@ -503,7 +502,7 @@ function getOrderedExpressionSentenceArrayForGender(genderFields: Field[]): Expr
   const genderField = getFieldWithId(genderFields, 'gender') as Field | undefined;
   if (genderField?.value) {
     const value = genderField.value as { name?: string };
-    orderedExpressionArray.push({ label: value.name || '', isTag: true });
+    orderedExpressionArray.push({ label: value.name, isTag: true });
   }
 
   return orderedExpressionArray;

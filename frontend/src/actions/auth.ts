@@ -65,8 +65,8 @@ function loginSuccess(username: string) {
 function loginFailure(error: AxiosError) {
   return {
     type: types.LOGIN_FAILURE,
-    status: error.response?.status ?? 0,
-    statusText: error.response?.statusText ?? ''
+    status: error.response!.status,
+    statusText: error.response!.statusText
   };
 }
 
@@ -115,8 +115,8 @@ function logoutSuccess() {
 function logoutFailure(error: AxiosError) {
   return {
     type: types.LOGOUT_FAILURE,
-    status: error.response?.status ?? 0,
-    statusText: error.response?.statusText ?? ''
+    status: error.response!.status,
+    statusText: error.response!.statusText
   };
 }
 
@@ -157,8 +157,8 @@ function userSettingsSuccess(settings: { termsAcceptedDate?: string | null }) {
 function userSettingsFailure(error: AxiosError) {
   return {
     type: types.USER_SETTINGS_FAILURE,
-    status: error.response?.status ?? 0,
-    statusText: error.response?.statusText ?? ''
+    status: error.response!.status,
+    statusText: error.response!.statusText
   };
 }
 
@@ -190,8 +190,8 @@ function updateUserSettingsSuccess(settings: { termsAcceptedDate?: string | null
 function updateUserSettingsFailure(error: AxiosError) {
   return {
     type: types.UPDATE_USER_SETTINGS_FAILURE,
-    status: error.response?.status ?? 0,
-    statusText: error.response?.statusText ?? ''
+    status: error.response!.status,
+    statusText: error.response!.statusText
   };
 }
 

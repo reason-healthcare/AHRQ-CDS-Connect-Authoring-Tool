@@ -22,8 +22,8 @@ const SelectModifier: React.FC<SelectModifierProps> = ({ handleUpdateModifier, n
   });
   const conversionFunctions = data ?? [];
   const options = conversionFunctions.map(option => ({
-    value: option.id || option.name || '',
-    label: option.description || option.id || option.name || ''
+    value: option.id || option.name,
+    label: option.description || option.id || option.name
   }));
   const fieldStyles = useFieldStyles();
   const styles = useStyles();

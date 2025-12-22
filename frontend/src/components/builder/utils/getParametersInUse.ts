@@ -32,11 +32,7 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
         typeof referenceFieldWithValue.value === 'object' &&
         'id' in referenceFieldWithValue.value
       ) {
-        addParameterUsage(
-          parametersInUse,
-          (referenceFieldWithValue.value as { id: string }).id,
-          element.uniqueId || ''
-        );
+        addParameterUsage(parametersInUse, (referenceFieldWithValue.value as { id: string }).id, element.uniqueId);
       } else if (
         referenceFieldWithValue?.id === 'externalCqlReference' &&
         referenceFieldWithValue.value &&
@@ -50,7 +46,7 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
           ?.map(arg => arg.value)
           .forEach(arg => {
             if (arg?.argSource && arg?.selected && arg.argSource === 'parameter') {
-              addParameterUsage(parametersInUse, arg.selected, element.uniqueId || '');
+              addParameterUsage(parametersInUse, arg.selected, element.uniqueId);
             }
           });
       }
@@ -65,7 +61,7 @@ export function getParametersInUse(allElements: Instance[]): ParameterUsage[] {
           const modifierValues = modifier.values.value as Array<{ argSource?: string; selected?: string }>;
           modifierValues?.forEach(arg => {
             if (arg?.argSource && arg?.selected && arg.argSource === 'parameter') {
-              addParameterUsage(parametersInUse, arg.selected, element.uniqueId || '');
+              addParameterUsage(parametersInUse, arg.selected, element.uniqueId);
             }
           });
         }

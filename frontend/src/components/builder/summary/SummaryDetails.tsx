@@ -82,7 +82,7 @@ const SummaryDetails: React.FC<SummaryDetailsProps> = ({ summaryType, summaryDet
         : summaryDetails.childInstances?.map((child, index) => (
             <InclusionExclusionCard
               key={index}
-              children={child.childInstances || []}
+              children={child.childInstances}
               depth={0}
               label={child.elementType}
               linkId={child.elementId}

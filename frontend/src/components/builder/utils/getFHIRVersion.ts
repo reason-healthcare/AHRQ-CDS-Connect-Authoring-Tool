@@ -15,8 +15,8 @@ export const getFHIRVersion = (
   const hasExternalCql = externalCqlList && externalCqlList.some(lib => lib.linkedArtifactId === artifactId);
   const hasServiceRequest = elementsInclude(elements, 'Service Request');
   const hasCustomModifier = elements.some(({ modifiers }) => modifiers?.some(({ where }) => where));
-  const hasRecommendationSuggestion = (artifact.recommendations || []).some(rec => (rec.suggestions || []).length > 0);
-  if (hasExternalCql || hasCustomModifier || hasRecommendationSuggestion) return artifact.fhirVersion || '';
+  const hasRecommendationSuggestion = artifact.recommendations.some(rec => rec.suggestions.length > 0);
+  if (hasExternalCql || hasCustomModifier || hasRecommendationSuggestion) return artifact.fhirVersion;
 
   if (hasServiceRequest) {
     return '4.0.x';

@@ -17,24 +17,20 @@ export function updateArtifact(artifactToUpdate: Artifact, props: Partial<Artifa
     const librariesInUse = getLibrariesInUse(allElements);
 
     // Add uniqueId to list on base element to mark where it is used.
-    if (Array.isArray(artifact.baseElements)) {
-      artifact.baseElements.forEach((element: BaseElement) => {
-        const elementInUse = baseElementsInUse.find(
-          (usedBaseEl: { baseElementId?: string }) => usedBaseEl.baseElementId === element.uniqueId
-        );
-        element.usedBy = elementInUse ? (elementInUse as { usedBy?: string[] }).usedBy || [] : [];
-      });
-    }
+    artifact.baseElements.forEach((element: BaseElement) => {
+      const elementInUse = baseElementsInUse.find(
+        (usedBaseEl: { baseElementId?: string }) => usedBaseEl.baseElementId === element.uniqueId
+      );
+      element.usedBy = elementInUse ? (elementInUse as { usedBy?: string[] }).usedBy : [];
+    });
 
     // Add uniqueId to list on parameter to mark where it is used.
-    if (Array.isArray(artifact.parameters)) {
-      artifact.parameters.forEach((parameter: Parameter) => {
-        const parameterInUse = parametersInUse.find(
-          (usedParameter: { parameterId?: string }) => usedParameter.parameterId === parameter.uniqueId
-        );
-        parameter.usedBy = parameterInUse ? (parameterInUse as { usedBy?: string[] }).usedBy || [] : [];
-      });
-    }
+    artifact.parameters.forEach((parameter: Parameter) => {
+      const parameterInUse = parametersInUse.find(
+        (usedParameter: { parameterId?: string }) => usedParameter.parameterId === parameter.uniqueId
+      );
+      parameter.usedBy = parameterInUse ? (parameterInUse as { usedBy?: string[] }).usedBy : [];
+    });
 
     return dispatch({
       type: types.UPDATE_ARTIFACT,

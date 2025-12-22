@@ -70,11 +70,11 @@ const Subpopulation: React.FC<SubpopulationProps> = ({
         value: (subpopulation as { subpopulationName?: string }).subpopulationName as string
       }}
       handleAddElement={() => {}} // Adding elements isn't handled by this wrapper GroupElement
-      handleDeleteElement={() => handleDeleteSubpopulationElement(subpopulation.uniqueId || '')}
+      handleDeleteElement={() => handleDeleteSubpopulationElement(subpopulation.uniqueId)}
       handleUpdateElement={field => {
         // GroupElement passes { [fieldId]: value }, extract the value for subpopulation_title
         const fieldValue = (field as { subpopulation_title?: string }).subpopulation_title || '';
-        handleUpdateSubpopulationElement(fieldValue, subpopulation.uniqueId || '');
+        handleUpdateSubpopulationElement(fieldValue, subpopulation.uniqueId);
       }}
       hasErrors={hasErrors}
       label={'Subpopulation'}

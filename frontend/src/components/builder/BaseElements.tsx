@@ -64,12 +64,12 @@ const BaseElements: React.FC<BaseElementsProps> = ({
   if (!artifact) return null;
 
   const { baseElements } = artifact;
-  const parameters = artifact.parameters?.filter(({ name }) => name?.length) || [];
+  const parameters = artifact.parameters.filter(({ name }) => name?.length);
   const allElements = getAllElements(artifact) ?? [];
   const instanceNames = getElementNames(allElements);
 
   const getChildsPath = (id: string | undefined): string => {
-    const childIndex = baseElements?.findIndex(instance => instance.uniqueId === id) ?? -1;
+    const childIndex = baseElements.findIndex(instance => instance.uniqueId === id);
     return `${childIndex}`;
   };
 
@@ -79,20 +79,20 @@ const BaseElements: React.FC<BaseElementsProps> = ({
     if (instance.conjunction) {
       const nameField = getFieldWithId((instance as Instance).fields, 'element_name');
       if (nameField) {
-        (nameField as { value?: string }).value = `Base Element ${(baseElements?.length || 0) + 1}`;
+        (nameField as { value?: string }).value = `Base Element ${baseElements.length + 1}`;
       }
     }
     addBaseElement(instance as Instance);
   };
 
   const updateBaseElements = (newBaseElement: Instance, index: number): void => {
-    const baseElementsCopy = _.cloneDeep(baseElements || []);
+    const baseElementsCopy = _.cloneDeep(baseElements);
     baseElementsCopy[index] = newBaseElement;
     updateBaseElementLists(baseElementsCopy, 'baseElements');
   };
 
   const deleteBaseElements = (index: number): void => {
-    const baseElementsCopy = _.cloneDeep(baseElements || []);
+    const baseElementsCopy = _.cloneDeep(baseElements);
     baseElementsCopy.splice(index, 1);
 
     // Update Base Elements and update FHIRVersion because
@@ -103,7 +103,7 @@ const BaseElements: React.FC<BaseElementsProps> = ({
 
   return (
     <>
-      {baseElements?.map((baseElement, i) => {
+      {baseElements.map((baseElement, i) => {
         if (baseElement.conjunction) {
           return (
             <div key={baseElement.uniqueId} id={baseElement.uniqueId}>
@@ -122,7 +122,7 @@ const BaseElements: React.FC<BaseElementsProps> = ({
         return (
           <div key={baseElement.uniqueId} id={baseElement.uniqueId}>
             <ArtifactElement
-              alerts={getElementErrors(baseElement, allElements, baseElements || [], instanceNames, parameters)}
+              alerts={getElementErrors(baseElement, allElements, baseElements, instanceNames, parameters)}
               allowIndent={false}
               baseElementInUsedList={false} // Since this is not a list, this prop is always false
               elementInstance={baseElement}
@@ -133,12 +133,12 @@ const BaseElements: React.FC<BaseElementsProps> = ({
               hasErrors={hasWarnings(
                 baseElement,
                 instanceNames,
-                baseElements || [],
+                baseElements,
                 parameters,
                 allElements,
                 validateReturnType
               )}
-              label={getLabelForInstance(baseElement, baseElements || [])}
+              label={getLabelForInstance(baseElement, baseElements)}
               updateModifiers={(modifiers: unknown[], fhirVersion?: string | null) =>
                 updateInstanceModifiers(
                   'baseElements',

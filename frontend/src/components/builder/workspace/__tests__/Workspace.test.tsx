@@ -237,8 +237,8 @@ describe('<Workspace />', () => {
             };
           };
         };
-        const [instance] = updateAction.artifact?.expTreeInclude?.childInstances || [];
-        const [modifier] = instance?.modifiers || [];
+        const [instance] = updateAction.artifact?.expTreeInclude?.childInstances;
+        const [modifier] = instance?.modifiers;
 
         expect(updateAction).toBeDefined();
         expect(updateAction.type).toEqual(types.UPDATE_ARTIFACT);
@@ -273,8 +273,8 @@ describe('<Workspace />', () => {
             };
           };
         };
-        const [instance] = updateAction.artifact?.expTreeInclude?.childInstances || [];
-        const [modifier] = instance?.modifiers || [];
+        const [instance] = updateAction.artifact?.expTreeInclude?.childInstances;
+        const [modifier] = instance?.modifiers;
 
         expect(updateAction).toBeDefined();
         expect(updateAction.type).toEqual(types.UPDATE_ARTIFACT);
@@ -308,7 +308,7 @@ describe('<Workspace />', () => {
           };
         };
         const [instance] = updateAction.artifact?.expTreeInclude?.childInstances || [];
-        const [modifier] = instance?.modifiers || [];
+        const [modifier] = instance?.modifiers;
 
         expect(updateAction).toBeDefined();
         expect(updateAction.type).toEqual(types.UPDATE_ARTIFACT);
@@ -344,7 +344,7 @@ describe('<Workspace />', () => {
           };
         };
         const [instance] = updateAction.artifact?.expTreeInclude?.childInstances || [];
-        const [modifier] = instance?.modifiers || [];
+        const [modifier] = instance?.modifiers;
 
         expect(updateAction).toBeDefined();
         expect(updateAction.type).toEqual(types.UPDATE_ARTIFACT);
@@ -378,7 +378,7 @@ describe('<Workspace />', () => {
           };
         };
         const [instance] = updateAction.artifact?.expTreeInclude?.childInstances || [];
-        const [modifier] = instance?.modifiers || [];
+        const [modifier] = instance?.modifiers;
 
         expect(updateAction).toBeDefined();
         expect(updateAction.type).toEqual(types.UPDATE_ARTIFACT);

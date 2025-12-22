@@ -64,10 +64,10 @@ const ListGroup: React.FC<ListGroupProps> = ({
   const artifact = useAppSelector(state => state.artifacts.artifact);
   const allElements = getAllElements(artifact) ?? [];
   const instanceNames = getElementNames(allElements);
-  const baseElements = artifact?.baseElements || [];
-  const parameters = (artifact?.parameters || []).filter(({ name }) => name?.length);
+  const baseElements = artifact.baseElements;
+  const parameters = artifact.parameters.filter(({ name }) => name?.length);
   const isListInstanceUsed = isBaseElementListUsed(listInstance);
-  const isAndOrElement = isElementAndOr(listInstance.id || '');
+  const isAndOrElement = isElementAndOr(listInstance.id);
   const alerts = getListGroupErrors(listInstance, instanceNames, baseElements, parameters, allElements);
   const hasNestedWarning = hasGroupNestedWarning(
     listInstance.childInstances,
@@ -113,7 +113,7 @@ const ListGroup: React.FC<ListGroupProps> = ({
       treeName,
       instance,
       parentPath,
-      uid || listInstance.uniqueId || null,
+      uid || listInstance.uniqueId,
       currentIndex,
       incomingTree,
       newReturnType
@@ -130,7 +130,7 @@ const ListGroup: React.FC<ListGroupProps> = ({
       path,
       toAdd
     );
-    deleteInstance(treeName, path, toAdd, listInstance.uniqueId || null, newReturnType);
+    deleteInstance(treeName, path, toAdd, listInstance.uniqueId, newReturnType);
   };
 
   const editInstanceInGroup = (
@@ -139,7 +139,7 @@ const ListGroup: React.FC<ListGroupProps> = ({
     path: string,
     editingConjunction: boolean
   ): void => {
-    editInstance(treeName, fields, path, editingConjunction, listInstance.uniqueId || null);
+    editInstance(treeName, fields, path, editingConjunction, listInstance.uniqueId);
   };
 
   const updateInstanceModifiersInGroup = (treeName: string, modifiers: unknown[], path: string): void => {
@@ -148,7 +148,7 @@ const ListGroup: React.FC<ListGroupProps> = ({
       modifiers,
       path
     );
-    updateInstanceModifiers(treeName, modifiers, path, listInstance.uniqueId || null, newReturnType);
+    updateInstanceModifiers(treeName, modifiers, path, listInstance.uniqueId, newReturnType);
   };
 
   return (
@@ -174,7 +174,7 @@ const ListGroup: React.FC<ListGroupProps> = ({
         disableAddElement={isListInstanceUsed}
         disableIndent={!isAndOrElement}
         editInstance={editInstanceInGroup}
-        elementUniqueId={listInstance.uniqueId || ''} // Ensures the current Base Element list isn't added to itself from ElementSelect
+        elementUniqueId={listInstance.uniqueId} // Ensures the current Base Element list isn't added to itself from ElementSelect
         instance={listInstance}
         options={isAndOrElement ? '' : 'listOperations'}
         root={true}

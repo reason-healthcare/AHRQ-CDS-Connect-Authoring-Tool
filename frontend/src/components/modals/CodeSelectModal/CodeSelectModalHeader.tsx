@@ -65,7 +65,7 @@ const CodeSelectModalHeader: React.FC<CodeSelectModalHeaderProps> = ({
             className={styles.formInput}
             id="select-code-system"
             label="Code system"
-            onChange={event => setCodeSystem(event.target.value || null)}
+            onChange={event => setCodeSystem(event.target.value)}
             options={codeSystemOptions.map(opt => ({ value: opt.value, label: opt.label }))}
             value={codeSystem || ''}
           />

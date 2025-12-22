@@ -67,10 +67,10 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
   const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
   const [selectedCqlOption, setSelectedCqlOption] = useState<string | null>(null);
   const artifact = useAppSelector(state => state.artifacts.artifact);
-  const { _id: artifactId } = artifact || { _id: undefined };
+  const { _id: artifactId } = artifact;
   const { data: externalCqlList } = useQuery<ExternalCqlLibrary[]>({
     queryKey: ['externalCql', { artifactId }],
-    queryFn: () => fetchExternalCqlList({ artifactId: artifactId || '' }),
+    queryFn: () => fetchExternalCqlList({ artifactId }),
     enabled: artifactId != null
   });
   const { data: elementTemplates } = useQuery<Template[]>({
@@ -82,7 +82,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
   const background = (indentParity && (styles as Record<string, string>)[indentParity]) ?? '';
 
   const elementOptions = useMemo<ElementOption[]>(() => {
-    if (!artifact || !elementTemplates) return [];
+    if (!elementTemplates) return [];
     const filterOut = ['Medications', 'Operations', excludeListOperations && 'List Operations'].filter(
       Boolean
     ) as string[];
@@ -101,19 +101,19 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
               'Medication Statement': 'medicationStatements',
               'Medication Request': 'medicationRequests'
             };
-            const value = valueMap[entry.name || ''] || changeToCase(entry.name || '', 'camelCase');
+            const value = valueMap[entry.name] || changeToCase(entry.name, 'camelCase');
             const options = getElementEntries({
               entryType: value,
               artifact,
               elementTemplates,
-              externalCqlList: externalCqlList || [],
+              externalCqlList,
               parentElementId
             });
-            const hasEmptyList = (options?.length || 0) === 0;
+            const hasEmptyList = options?.length === 0;
             const isVersionLocked =
               artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
             const isVsacOption = VSAC_OPTIONS.includes(value as (typeof VSAC_OPTIONS)[number]);
-            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : entry.name || '';
+            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : entry.name;
 
             return {
               label,
@@ -129,17 +129,17 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
 
     // Regular template handling
     const regularOptions = elementTemplates
-      .filter(template => !(template as { suppress?: boolean }).suppress && !filterOut.includes(template.name || ''))
+      .filter(template => !(template as { suppress?: boolean }).suppress && !filterOut.includes(template.name))
       .map(template => {
-        const value = changeToCase(template.name || '', 'camelCase');
+        const value = changeToCase(template.name, 'camelCase');
         const options = getElementEntries({
           entryType: value,
           artifact,
           elementTemplates,
-          externalCqlList: externalCqlList || [],
+          externalCqlList,
           parentElementId
         });
-        const hasEmptyList = (options?.length || 0) === 0;
+        const hasEmptyList = options?.length === 0;
         const isVersionLocked =
           artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
 
@@ -210,7 +210,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
       const element = generateElement({
         artifact,
         cqlOption: null,
-        externalCqlList: externalCqlList || [],
+        externalCqlList,
         option: selectedOption,
         subOption: subOptionValue,
         template,
@@ -239,7 +239,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
       const element = generateElement({
         artifact,
         cqlOption: cqlOptionValue,
-        externalCqlList: externalCqlList || [],
+        externalCqlList,
         option: selectedOption,
         subOption: selectedSubOption,
         template,
@@ -277,7 +277,7 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
       const element = generateElement({
         artifact,
         cqlOption: null,
-        externalCqlList: externalCqlList || [],
+        externalCqlList,
         option: selectedOption,
         subOption: null,
         template,

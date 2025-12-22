@@ -26,7 +26,7 @@ const ValueSetSelectModal: React.FC<ValueSetSelectModalProps> = ({
   readOnly = false,
   savedValueSet
 }) => {
-  const [selectedValueSet, setSelectedValueSet] = useState<ValueSet | null>(savedValueSet || null);
+  const [selectedValueSet, setSelectedValueSet] = useState<ValueSet | null>(savedValueSet);
   const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
   const [searchCount, setSearchCount] = useState({ count: 0, total: 0 });
   const selectedValueSetRef = useLatest(selectedValueSet);

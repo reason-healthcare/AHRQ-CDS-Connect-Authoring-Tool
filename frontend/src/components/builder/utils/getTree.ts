@@ -11,7 +11,7 @@ export const getTree = (
   if (uid == null) {
     return { tree };
   }
-  const array = (artifact[treeName]?.childInstances || []) as ExpressionTree[];
+  const array = artifact[treeName]?.childInstances as ExpressionTree[];
   const index = array.findIndex(e => e.uniqueId === uid);
   return { array, tree: array[index], index };
 };

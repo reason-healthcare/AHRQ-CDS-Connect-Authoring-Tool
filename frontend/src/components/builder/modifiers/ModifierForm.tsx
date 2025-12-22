@@ -53,9 +53,9 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
             minValue?: number | string;
           }>()}
           values={{
-            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
+            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator ?? '',
             maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
-            minOperator: (modifier.values as { minOperator?: string })?.minOperator || '',
+            minOperator: (modifier.values as { minOperator?: string })?.minOperator ?? '',
             minValue: (modifier.values as { minValue?: string | number })?.minValue ?? ''
           }}
         />
@@ -71,11 +71,11 @@ const ModifierForm: React.FC<ModifierFormProps> = ({ elementInstance, handleUpda
             unit?: string | null;
           }>()}
           values={{
-            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator || '',
+            maxOperator: (modifier.values as { maxOperator?: string })?.maxOperator ?? '',
             maxValue: (modifier.values as { maxValue?: string | number })?.maxValue ?? '',
-            minOperator: (modifier.values as { minOperator?: string })?.minOperator || '',
+            minOperator: (modifier.values as { minOperator?: string })?.minOperator ?? '',
             minValue: (modifier.values as { minValue?: string | number })?.minValue ?? '',
-            unit: (modifier.values as { unit?: string })?.unit || ''
+            unit: (modifier.values as { unit?: string })?.unit ?? ''
           }}
         />
       );

@@ -36,13 +36,13 @@ function convertParameters(params: Parameter[] = []): Record<string, unknown> {
         paramsObj[p.name] = p.value === 'true';
         break;
       case 'datetime': {
-        const value = p.value as { str?: string };
-        paramsObj[p.name] = cql.DateTime.parse(value.str?.slice(1) || '');
+        const value = p.value as { str: string };
+        paramsObj[p.name] = cql.DateTime.parse(value.str.slice(1));
         break;
       }
       case 'decimal': {
         const value = p.value as { decimal?: string };
-        paramsObj[p.name] = parseFloat(value.decimal || '0');
+        paramsObj[p.name] = parseFloat(value.decimal);
         break;
       }
       case 'integer':
@@ -70,18 +70,12 @@ function convertParameters(params: Parameter[] = []): Record<string, unknown> {
       }
       case 'interval_of_decimal': {
         const value = p.value as { firstDecimal?: string; secondDecimal?: string };
-        paramsObj[p.name] = new cql.Interval(
-          parseFloat(value.firstDecimal || '0'),
-          parseFloat(value.secondDecimal || '0')
-        );
+        paramsObj[p.name] = new cql.Interval(parseFloat(value.firstDecimal), parseFloat(value.secondDecimal));
         break;
       }
       case 'interval_of_integer': {
         const value = p.value as { firstInteger?: string; secondInteger?: string };
-        paramsObj[p.name] = new cql.Interval(
-          parseInt(value.firstInteger || '0', 10),
-          parseInt(value.secondInteger || '0', 10)
-        );
+        paramsObj[p.name] = new cql.Interval(parseInt(value.firstInteger), parseInt(value.secondInteger));
         break;
       }
       case 'interval_of_quantity': {
@@ -97,23 +91,23 @@ function convertParameters(params: Parameter[] = []): Record<string, unknown> {
         break;
       case 'system_code': {
         const value = p.value as { code?: string; uri?: string };
-        paramsObj[p.name] = new cql.Code(value.code || '', value.uri);
+        paramsObj[p.name] = new cql.Code(value.code, value.uri);
         break;
       }
       case 'system_concept': {
         const value = p.value as { code?: string; uri?: string };
-        paramsObj[p.name] = new cql.Concept([new cql.Code(value.code || '', value.uri)]);
+        paramsObj[p.name] = new cql.Concept([new cql.Code(value.code, value.uri)]);
         break;
       }
       case 'system_quantity': {
         const value = p.value as { quantity?: number; unit?: string };
-        paramsObj[p.name] = new cql.Quantity(value.quantity || 0, value.unit);
+        paramsObj[p.name] = new cql.Quantity(value.quantity, value.unit);
         break;
       }
       case 'time': {
-        const value = p.value as { str?: string };
+        const value = p.value as { str: string };
         // CQL exec doesn't expose a Time class, so we must construct a DT and then get the Time
-        paramsObj[p.name] = cql.DateTime.parse(`0000-01-01${value.str?.slice(1) || ''}`).getTime();
+        paramsObj[p.name] = cql.DateTime.parse(`0000-01-01${value.str.slice(1)}`).getTime();
         break;
       }
       default: // do nothing
@@ -135,7 +129,7 @@ const executeArtifact = async ({
 
   // Set up the library
   const elmFile = JSON.parse(
-    _.find(elmFiles, f => f.name.replace(/[\s-\\/]/g, '') === artifactName.replace(/[\s-\\/]/g, ''))?.content || '{}'
+    _.find(elmFiles, f => f.name.replace(/[\s-\\/]/g, '') === artifactName.replace(/[\s-\\/]/g, '')).content
   );
   const libraries = _.filter(
     elmFiles,
@@ -161,14 +155,7 @@ const executeArtifact = async ({
   patientSource.loadBundles(patients);
 
   // Ensure value sets, downloading any missing value sets
-  const valueSets = (elmFile.library?.valueSets?.def || []).map(
-    (vs: { name?: string; id?: string; version?: string }) => ({
-      name: vs.name || '',
-      id: vs.id || '',
-      version: vs.version
-    })
-  );
-  await codeService.ensureValueSets(valueSets, vsacApiKey);
+  await codeService.ensureValueSets(elmFile.library?.valueSets?.def || [], vsacApiKey);
 
   // Value sets are loaded, so execute!
   const executor = new cql.Executor(library, codeService as never, cqlExecParams);
