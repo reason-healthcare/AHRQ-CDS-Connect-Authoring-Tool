@@ -113,8 +113,8 @@ const GroupElement: React.FC<GroupElementProps> = ({
       handleDelete={handleDeleteElement}
       handleIndent={handleIndent}
       handleOutdent={handleOutdent}
-      handleUpdateComment={updatedField => handleUpdateElement({ [updatedField.id]: updatedField.value })}
-      handleUpdateTitleField={updatedField => handleUpdateElement({ [updatedField.id]: updatedField.value })}
+      handleUpdateComment={updatedField => handleUpdateElement(updatedField)}
+      handleUpdateTitleField={updatedField => handleUpdateElement(updatedField)}
       hasErrors={hasErrors}
       indentParity={indentParity}
       isBaseElement={false} // Groups will never be base element uses

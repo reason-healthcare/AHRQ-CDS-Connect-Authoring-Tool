@@ -18,6 +18,9 @@ export interface Modifier {
   returnType?: string;
   id?: string;
   type?: string;
+  name?: string;
+  argumentTypes?: string[];
+  arguments?: Record<string, unknown>;
 }
 
 export interface Instance {

@@ -74,7 +74,8 @@ const Summary: React.FC<SummaryProps> = ({ handleSaveArtifact }) => {
       />
       <SummaryDetails
         summaryType="recommendations"
-        summaryDetails={{ recommendations: artifact.recommendations || [] }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        summaryDetails={{ recommendations: (artifact.recommendations || []) as any }}
       />
     </>
   );

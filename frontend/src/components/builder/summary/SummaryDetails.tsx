@@ -1,20 +1,28 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import InclusionExclusionCard, { type InclusionExclusionChild } from './InclusionExclusionCard';
+import InclusionExclusionCard from './InclusionExclusionCard';
 import RecommendationCard from './RecommendationCard';
 import { useSpacingStyles, useTextStyles } from 'styles/hooks';
 import useStyles from './styles';
-import type { Recommendation } from '../../../types/artifact';
+
+interface ChildInstance {
+  childInstances?: ChildInstance[];
+  elementType?: string;
+  elementId?: string;
+  elementName?: string;
+  operand?: string;
+}
 
 interface RecommendationSummaryItem {
-  recommendationId?: string;
-  recommendationText?: string;
+  uid?: string;
+  text?: string;
+  [key: string]: unknown;
 }
 
 interface SummaryDetailsData {
-  childInstances?: InclusionExclusionChild[];
-  recommendations?: RecommendationSummaryItem[] | Recommendation[];
+  childInstances?: ChildInstance[];
+  recommendations?: RecommendationSummaryItem[];
   operand?: string;
 }
 
@@ -52,37 +60,20 @@ const SummaryDetails: React.FC<SummaryDetailsProps> = ({ summaryType, summaryDet
       )}
 
       {isRecommendation
-        ? summaryDetails.recommendations?.map((recommendation, index) => {
-            if ('recommendationId' in recommendation) {
-              const item = recommendation as RecommendationSummaryItem;
-              return (
-                <RecommendationCard
-                  key={index}
-                  depth={0}
-                  label="Recommendation"
-                  linkId={item.recommendationId}
-                  recommendation={undefined}
-                  text={item.recommendationText || ''}
-                />
-              );
-            } else {
-              const rec = recommendation as Recommendation;
-              return (
-                <RecommendationCard
-                  key={index}
-                  depth={0}
-                  label="Recommendation"
-                  linkId={rec.uid}
-                  recommendation={rec}
-                  text={rec.text || ''}
-                />
-              );
-            }
-          })
+        ? summaryDetails.recommendations?.map((recommendation, index) => (
+            <RecommendationCard
+              key={index}
+              depth={0}
+              label="Recommendation"
+              linkId={recommendation.uid}
+              recommendation={recommendation as any}
+              text={recommendation.text}
+            />
+          ))
         : summaryDetails.childInstances?.map((child, index) => (
             <InclusionExclusionCard
               key={index}
-              children={child.childInstances}
+              children={child.childInstances as any}
               depth={0}
               label={child.elementType}
               linkId={child.elementId}

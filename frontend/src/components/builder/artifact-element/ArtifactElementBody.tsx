@@ -154,8 +154,8 @@ const ArtifactElementBody: React.FC<ArtifactElementBodyProps> = ({
                 typeof field.id === 'string'
             )
             .map(field => field as Field)}
-          handleUpdateField={(field: Field) => {
-            handleUpdateElement({ [field.id]: field.value });
+          handleUpdateField={(update: Record<string, unknown>) => {
+            handleUpdateElement(update);
           }}
         />
       )}

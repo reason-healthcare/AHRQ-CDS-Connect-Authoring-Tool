@@ -4,7 +4,7 @@ import type { Field } from '../../../types/artifact';
 
 interface StringFieldProps {
   field: Field;
-  handleUpdateField: (field: Field) => void;
+  handleUpdateField: (update: Record<string, string>) => void;
   isDisabled?: boolean;
 }
 
@@ -15,7 +15,7 @@ const StringField: React.FC<StringFieldProps> = ({ field, handleUpdateField, isD
     hiddenLabel
     inputProps={{ 'aria-label': field.name }}
     onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-      handleUpdateField({ ...field, value: event.target.value })
+      handleUpdateField({ [field.id]: event.target.value })
     }
     value={(field.value as string) || ''}
   />

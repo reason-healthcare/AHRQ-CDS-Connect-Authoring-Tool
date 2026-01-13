@@ -131,10 +131,10 @@ describe('<Subpopulation />', () => {
   });
 
   it('renders an element select inside the subpopulation', async () => {
-    const { getAllByLabelText } = renderComponent();
+    const { getAllByText } = renderComponent();
 
     await waitFor(() => {
-      expect(getAllByLabelText(/select element type/i)).toHaveLength(1);
+      expect(getAllByText(/new element:/i)).toHaveLength(1);
     });
   });
 

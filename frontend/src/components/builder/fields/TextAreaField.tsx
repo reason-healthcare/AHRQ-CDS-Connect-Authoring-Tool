@@ -4,7 +4,7 @@ import type { Field } from '../../../types/artifact';
 
 interface TextAreaFieldProps {
   field: Field;
-  handleUpdateField: (field: Field) => void;
+  handleUpdateField: (update: Record<string, string>) => void;
 }
 
 const TextAreaField: React.FC<TextAreaFieldProps> = ({ field, handleUpdateField }) => (
@@ -14,7 +14,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({ field, handleUpdateField 
     multiline
     inputProps={{ 'aria-label': field.name }}
     onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      handleUpdateField({ ...field, value: event.target.value })
+      handleUpdateField({ [field.id]: event.target.value })
     }
     value={(field.value as string) || ''}
   />

@@ -287,7 +287,7 @@ export function hasGroupNestedWarning(
   baseElements: BaseElement[],
   parameters: Parameter[],
   allInstancesInAllTrees: Instance[],
-  validateReturnType: boolean | null | undefined
+  validateReturnType?: boolean | null | undefined
 ): boolean {
   let hasNestedWarning = false;
   childInstances.forEach(child => {

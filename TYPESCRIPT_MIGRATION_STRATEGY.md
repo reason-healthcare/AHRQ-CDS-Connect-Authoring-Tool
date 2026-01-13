@@ -1403,3 +1403,77 @@ This matches the actual data structure where:
 - **Action**: Reverted to original test structure
 - **Lesson**: TypeScript conversion should not add new functionality, only add types
 
+### Behavioral Regression Fixes (Post-Migration)
+
+The following files had behavioral changes introduced during the TypeScript migration that were reverted to match original JavaScript behavior:
+
+#### Dropdown Component Fix (Committed: cdbbc871)
+- **File**: `frontend/src/components/elements/Dropdown/Dropdown.tsx`
+- **Issue**: Migration added a wrapper `<div>` around the `<TextField>`, causing layout issues (dropdowns cut off in modals)
+- **Fix**: Removed the wrapper `<div>` to restore original DOM structure
+- **Lesson**: Don't add unnecessary wrapper elements during migration
+
+#### Field Component Callback API Reversion
+- **Files**: `StringField.tsx`, `TextAreaField.tsx`, `NumberField.tsx`, `ValueSetField.tsx`
+- **Issue**: Migration changed callback pattern from `handleUpdateField({ [field.id]: value })` to `handleUpdateField({ ...field, value })`, breaking consumers that expected the original format
+- **Fix**: Reverted to original `{ [field.id]: value }` callback format
+- **Related Updates**: Updated type signatures in `ElementCard.tsx`, `ElementCardHeader.tsx`, `FieldsTemplate.tsx`, `ArtifactElement.tsx`, `ArtifactElementBody.tsx` to match
+- **Lesson**: Don't change callback API contracts during migration; only add types to existing APIs
+
+#### Parameters Component Structure Reversion
+- **File**: `frontend/src/components/builder/parameters/Parameters.tsx`
+- **Issues**:
+  - Changed from Fragment (`<>`) root to `<div>` root
+  - Changed from separate "Expand All"/"Collapse All" buttons to single toggle button
+  - Changed button text from "New parameter" to "Add Parameter"
+  - Changed button position from bottom to top
+  - Changed `deleteParameter(index)` to `deleteParameter(uniqueId)`
+  - Added `<h3>Parameters</h3>` heading and "No parameters defined." message (not in original)
+- **Fix**: Reverted to original JS structure with Fragment root, separate expand/collapse buttons, "New parameter" button at bottom, and index-based operations
+- **Test Fix**: Updated `Parameters.test.tsx` to expect `/new parameter/i` instead of `/add parameter/i`
+- **Lesson**: TypeScript migration should preserve DOM structure and component behavior exactly
+
+#### ElementSelect Component Fixes
+- **File**: `frontend/src/components/builder/element-select/ElementSelect.tsx`
+- **Issue**: Third dropdown (for external CQL definitions) wrapped `handleSelectElement` in a function that passed `{ value }` instead of the raw value, breaking external CQL element creation
+- **Fix**: Pass `handleSelectElement` directly as in original JS
+- **Test Fixes**: Updated `ElementSelect.test.tsx`:
+  - Changed label from `'Select Element Type'` to `'Element type'`
+  - Added back "New element:" text check
+  - Changed expected option count from 14 to 16
+- **Lesson**: Don't wrap callbacks unnecessarily; preserve original function signatures
+
+#### SummaryDetails Type Alignment
+- **Files**: `SummaryDetails.tsx`, `Summary.tsx`
+- **Issue**: `RecommendationSummaryItem` interface didn't match the actual `Recommendation` type from artifacts
+- **Fix**: Updated interface to use `uid` and `text` properties matching `Recommendation`, added `as any` cast in `Summary.tsx` for pragmatic type compatibility
+- **Lesson**: Keep interfaces aligned with actual data structures used at runtime
+
+#### GroupElement Callback Reversion
+- **File**: `frontend/src/components/builder/group-element/GroupElement.tsx`
+- **Issue**: Migration changed `handleUpdateComment` and `handleUpdateTitleField` callbacks to extract `.id` and `.value` properties from the update object, but the field components pass `{ [fieldId]: value }` format
+- **Fix**: Reverted to passing the update object directly: `handleUpdateComment={updatedField => handleUpdateElement(updatedField)}`
+- **Lesson**: Don't transform callback parameters; preserve the original data flow
+
+#### ListGroup UpdateElement Simplification
+- **File**: `frontend/src/components/builder/ListGroup.tsx`
+- **Issue**: Migration added complex logic to handle both `{ id, value }` and `{ [fieldId]: value }` formats, but only the latter is used
+- **Fix**: Simplified to use the original `{ [fieldId]: value }` format directly
+- **Lesson**: Don't add compatibility shims for formats that aren't used
+
+#### ModifierSelectorRow Callback Fix
+- **File**: `frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelectorRow.tsx`
+- **Issue**: Migration wrapped `handleUpdateModifier` with logic expecting a `Modifier` object with `.values` property, but the modifier form components pass values directly
+- **Fix**: Reverted to passing `handleUpdateModifier` directly without wrapping
+- **Lesson**: Understand the actual callback contract before adding type transformations
+
+#### Test File Reversions to Match Original JS Behavior
+- **Files**: `NumberField.test.tsx`, `ValueSetField.test.tsx`, `Subpopulation.test.tsx`, `BaseElements.test.tsx`
+- **Issues**:
+  - `NumberField.test.tsx`: Expected `{ ...field, value }` format instead of `{ age: 10 }`
+  - `ValueSetField.test.tsx`: Expected full field object instead of `{ unit_of_time: {...} }`
+  - `Subpopulation.test.tsx`: Used `getAllByLabelText(/select element type/i)` instead of `getAllByText(/new element:/i)`
+  - `BaseElements.test.tsx`: Used `getByLabelText('Select Element Type')` instead of `getByLabelText('Element type')`
+- **Fix**: Reverted all test expectations to match original JavaScript behavior
+- **Lesson**: Tests must be updated alongside source files when reverting to original behavior; the migrated tests were aligned with migrated (incorrect) component behavior
+

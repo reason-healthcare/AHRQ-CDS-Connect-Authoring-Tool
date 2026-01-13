@@ -136,14 +136,14 @@ describe('<BaseElements />', () => {
 
   it('should render ElementSelect to add new base elements', () => {
     const { getByLabelText } = renderComponent({});
-    expect(getByLabelText('Select Element Type')).toBeInTheDocument();
+    expect(getByLabelText('Element type')).toBeInTheDocument();
   });
 
   it('should call addBaseElement when adding a new base element', async () => {
     const addBaseElement = jest.fn();
     const { getByLabelText, getByRole } = renderComponent({ addBaseElement, baseElements: [] });
 
-    const elementSelect = getByLabelText('Select Element Type');
+    const elementSelect = getByLabelText('Element type');
     await userEvent.click(elementSelect);
     await waitFor(() => userEvent.click(getByRole('option', { name: /demographics/i })));
     await waitFor(() => userEvent.click(getByLabelText('Demographics Element')));

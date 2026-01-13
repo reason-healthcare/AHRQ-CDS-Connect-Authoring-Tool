@@ -3,20 +3,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import pluralize from 'pluralize';
+import _ from 'lodash';
 
-// eslint-disable-next-line import/no-unresolved
 import { useAppSelector } from '../../../store/hooks';
-
 import ElementSelectActions from './ElementSelectActions';
 import ElementSelectDropdown from './ElementSelectDropdown';
-import { getElementEntries } from './utils';
+import { getElementEntries, generateElement } from './utils';
 import { sortAlphabeticallyByKey } from 'utils/sort';
 import { changeToCase } from 'utils/strings';
 import { fetchExternalCqlList } from 'queries/external-cql';
 import fetchTemplates from 'queries/fetchTemplates';
+import useStyles from './styles';
 import type { Template, ExternalCqlLibrary } from '../../../types/query';
 import type { Instance } from '../../../utils/instances';
-import useStyles from './styles';
 
 export const VSAC_OPTIONS = [
   'allergyIntolerances',
@@ -29,31 +28,35 @@ export const VSAC_OPTIONS = [
   'observations',
   'procedures',
   'serviceRequest'
-] as const;
+];
+
+interface ElementOption {
+  hasEmptyList?: boolean;
+  isDisabled?: boolean;
+  isVersionLocked?: boolean;
+  label: string;
+  options?: ElementOption[];
+  value: string;
+  vsacAuthRequired?: boolean;
+  [key: string]: unknown;
+}
 
 interface ElementSelectProps {
   excludeListOperations?: boolean;
-  handleAddElement: (template: Instance) => void;
+  handleAddElement: (element: Instance) => void;
   indentParity?: string;
   isDisabled?: boolean;
   parentElementId?: string;
 }
 
-interface ElementOption {
-  label: string;
-  value: string;
-  options?: Array<{ label: string; value: string; options?: Array<{ value: string; label: string }> }>;
-  hasEmptyList?: boolean;
-  isVersionLocked?: boolean;
-  vsacAuthRequired?: boolean;
-  isDisabled?: boolean;
-  [key: string]:
-    | string
-    | number
-    | boolean
-    | React.ReactNode
-    | Array<{ label: string; value: string; options?: Array<{ value: string; label: string }> }>
-    | undefined;
+interface VsacSelection {
+  display?: string;
+  code?: string;
+  codeSystem?: { name: string; id: string };
+  name?: string;
+  oid?: string;
+  value?: string;
+  [key: string]: unknown;
 }
 
 const ElementSelect: React.FC<ElementSelectProps> = ({
@@ -63,15 +66,15 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
   isDisabled,
   parentElementId
 }) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
-  const [selectedCqlOption, setSelectedCqlOption] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<ElementOption | null>(null);
+  const [selectedSuboption, setSelectedSuboption] = useState<ElementOption | null>(null);
+  const [selectedCqlOption, setSelectedCqlOption] = useState<ElementOption | null>(null);
+  const [showVSACSelect, setShowVSACSelect] = useState(false);
   const artifact = useAppSelector(state => state.artifacts.artifact);
   const { _id: artifactId } = artifact;
   const { data: externalCqlList } = useQuery<ExternalCqlLibrary[]>({
     queryKey: ['externalCql', { artifactId }],
-    queryFn: () => fetchExternalCqlList({ artifactId }),
-    enabled: artifactId != null
+    queryFn: () => fetchExternalCqlList({ artifactId })
   });
   const { data: elementTemplates } = useQuery<Template[]>({
     queryKey: ['templates'],
@@ -79,57 +82,18 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
     staleTime: Infinity
   });
   const styles = useStyles();
-  const background = (indentParity && (styles as Record<string, string>)[indentParity]) ?? '';
+
+  const background = (styles as Record<string, string>)[indentParity as string] ?? '';
 
   const elementOptions = useMemo<ElementOption[]>(() => {
     if (!elementTemplates) return [];
-    const filterOut = ['Medications', 'Operations', excludeListOperations && 'List Operations'].filter(
-      Boolean
-    ) as string[];
+    const filterOut = ['Medications', 'Operations', excludeListOperations && 'List Operations'].filter(Boolean);
     const versionLockMap: Record<string, string[]> = {
       serviceRequest: ['4.0.0', '4.0.1', '4.0.x']
     };
 
-    // Special handling for Medications template - create separate options for each entry
-    const medicationsTemplate = elementTemplates.find(template => template.name === 'Medications');
-    const medicationsOptions: ElementOption[] = medicationsTemplate
-      ? medicationsTemplate.entries
-          .filter(entry => entry.name === 'Medication Statement' || entry.name === 'Medication Request')
-          .map(entry => {
-            // Map entry names to VSAC_OPTIONS values
-            const valueMap: Record<string, string> = {
-              'Medication Statement': 'medicationStatements',
-              'Medication Request': 'medicationRequests'
-            };
-            const value = valueMap[entry.name] || changeToCase(entry.name, 'camelCase');
-            const options = getElementEntries({
-              entryType: value,
-              artifact,
-              elementTemplates,
-              externalCqlList,
-              parentElementId
-            });
-            const hasEmptyList = options?.length === 0;
-            const isVersionLocked =
-              artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
-            const isVsacOption = VSAC_OPTIONS.includes(value as (typeof VSAC_OPTIONS)[number]);
-            const label = isVsacOption && entry.name ? pluralize.singular(entry.name) : entry.name;
-
-            return {
-              label,
-              value,
-              options,
-              hasEmptyList,
-              isVersionLocked,
-              vsacAuthRequired: isVsacOption,
-              isDisabled: hasEmptyList && !isVsacOption
-            };
-          })
-      : [];
-
-    // Regular template handling
-    const regularOptions = elementTemplates
-      .filter(template => !(template as { suppress?: boolean }).suppress && !filterOut.includes(template.name))
+    const result = elementTemplates
+      .filter(template => !template.suppress && !filterOut.includes(template.name))
       .map(template => {
         const value = changeToCase(template.name, 'camelCase');
         const options = getElementEntries({
@@ -143,242 +107,126 @@ const ElementSelect: React.FC<ElementSelectProps> = ({
         const isVersionLocked =
           artifact.fhirVersion !== '' && !(versionLockMap[value]?.includes(artifact.fhirVersion) ?? true);
 
-        // For VSAC options, use singular form to match test expectations
-        const isVsacOption = VSAC_OPTIONS.includes(value as (typeof VSAC_OPTIONS)[number]);
-        const label = isVsacOption && template.name ? pluralize.singular(template.name) : template.name || '';
-
         return {
-          label,
-          value,
-          options,
           hasEmptyList,
+          isDisabled: hasEmptyList || isVersionLocked,
           isVersionLocked,
-          vsacAuthRequired: isVsacOption,
-          isDisabled: hasEmptyList && !isVsacOption
+          label: VSAC_OPTIONS.includes(value) ? pluralize.singular(template.name) : template.name,
+          options,
+          value,
+          vsacAuthRequired: Boolean(VSAC_OPTIONS.includes(value))
         };
       });
 
-    const result = [...medicationsOptions, ...regularOptions]
-      .filter(option => !option.isVersionLocked)
-      .sort(sortAlphabeticallyByKey<ElementOption>('label'));
+    // add medication statement and medication request
+    const medicationOptions: ElementOption[] = [
+      { isDisabled: false, label: 'Medication Statement', value: 'medicationStatement', vsacAuthRequired: true },
+      { isDisabled: false, label: 'Medication Request', value: 'medicationRequest', vsacAuthRequired: true }
+    ];
 
-    return result;
-  }, [elementTemplates, excludeListOperations, artifact, externalCqlList, parentElementId]);
+    return [...result, ...medicationOptions].sort(sortAlphabeticallyByKey('label'));
+  }, [artifact, elementTemplates, excludeListOperations, externalCqlList, parentElementId]);
 
-  const selectedOptionData = useMemo(
-    () => elementOptions.find(option => option.value === selectedOption),
-    [elementOptions, selectedOption]
-  );
-
-  if (!artifact) return null;
+  const handleClearOptions = (): void => {
+    setSelectedOption(null);
+    setSelectedSuboption(null);
+    setSelectedCqlOption(null);
+    setShowVSACSelect(false);
+  };
 
   const handleSelectOption = (optionValue: string): void => {
-    const option = elementOptions.find(opt => opt.value === optionValue);
-    if (option) {
-      setSelectedOption(option.value);
-      setSelectedSubOption(null);
-      setSelectedCqlOption(null);
-    }
-  };
-
-  const handleSelectSubOption = (subOptionValue: string): void => {
-    setSelectedSubOption(subOptionValue);
-
-    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption) return;
-
-    // Check if this is external CQL with nested options
-    if (selectedOption === 'externalCql') {
-      // External CQL has nested structure - don't generate element yet, show next dropdown
-      return;
-    }
-
-    // VSAC options without sub-options should not call this - they show ElementSelectActions instead
-    const isVsacOption = VSAC_OPTIONS.includes(selectedOption as (typeof VSAC_OPTIONS)[number]);
-    if (isVsacOption && (!selectedOptionData.options || selectedOptionData.options.length === 0)) {
-      return;
-    }
-
-    // Import generateElement from utils
-    const { generateElement } = require('./utils');
-    // For medicationStatements/medicationRequests, use Medications template
-    let templateName = selectedOption;
-    if (selectedOption === 'medicationStatement' || selectedOption === 'medicationRequest') {
-      templateName = 'medications';
-    }
-    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === templateName);
-    if (template) {
-      const element = generateElement({
-        artifact,
-        cqlOption: null,
-        externalCqlList,
-        option: selectedOption,
-        subOption: subOptionValue,
-        template,
-        vsacCode: null,
-        vsacValueSet: null,
-        vsacType: null
-      });
-      if (element) {
-        handleAddElement(element as Instance);
-        setSelectedOption(null);
-        setSelectedSubOption(null);
-        setSelectedCqlOption(null);
-      }
-    }
-  };
-
-  const handleSelectCqlOption = (cqlOptionValue: string): void => {
-    setSelectedCqlOption(cqlOptionValue);
-
-    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption || !selectedSubOption) return;
-
-    // Import generateElement from utils
-    const { generateElement } = require('./utils');
-    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === selectedOption);
-    if (template) {
-      const element = generateElement({
-        artifact,
-        cqlOption: cqlOptionValue,
-        externalCqlList,
-        option: selectedOption,
-        subOption: selectedSubOption,
-        template,
-        vsacCode: null,
-        vsacValueSet: null,
-        vsacType: null
-      });
-      if (element) {
-        handleAddElement(element as Instance);
-        setSelectedOption(null);
-        setSelectedSubOption(null);
-        setSelectedCqlOption(null);
-      }
-    }
-  };
-
-  interface CodeSelection {
-    display: string;
-    code: string;
-    codeSystem: { name: string; id: string };
-  }
-
-  interface ValueSetSelection {
-    name: string;
-    oid: string;
-  }
-
-  const handleSelectElement = (vsacData: CodeSelection | ValueSetSelection, vsacType: 'codes' | 'valueSets'): void => {
-    if (!selectedOptionData || !elementTemplates || !artifact || !selectedOption) return;
-
-    // Import generateElement from utils
-    const { generateElement } = require('./utils');
-    const template = elementTemplates.find(t => changeToCase(t.name || '', 'camelCase') === selectedOption);
-    if (template) {
-      const element = generateElement({
-        artifact,
-        cqlOption: null,
-        externalCqlList,
-        option: selectedOption,
-        subOption: null,
-        template,
-        vsacCode: vsacType === 'codes' ? (vsacData as CodeSelection) : null,
-        vsacValueSet: vsacType === 'valueSets' ? (vsacData as ValueSetSelection) : null,
-        vsacType
-      });
-      if (element) {
-        handleAddElement(element as Instance);
-        setSelectedOption(null);
-        setSelectedSubOption(null);
-        setSelectedCqlOption(null);
-      }
-    }
-  };
-
-  const handleClose = (): void => {
-    setSelectedOption(null);
-    setSelectedSubOption(null);
+    setSelectedSuboption(null);
     setSelectedCqlOption(null);
+    const option = elementOptions.find(option => option.value === optionValue);
+    if (option) {
+      setSelectedOption(option);
+      setShowVSACSelect(!!option.vsacAuthRequired);
+    }
+  };
+
+  const handleSelectElement = (selectedElement: any, vsacType?: string): void => {
+    if (!selectedOption || !elementTemplates) return;
+
+    let templateName: string;
+    if (['And', 'Or'].includes(selectedElement.value || '')) templateName = 'Operations';
+    else if (['medicationRequest', 'medicationStatement'].includes(selectedOption.value)) templateName = 'Medications';
+    else templateName = changeToCase(selectedOption.value, 'capitalCase');
+    const template = _.cloneDeep(elementTemplates.find(template => template.name === templateName));
+
+    const element = generateElement({
+      artifact,
+      cqlOption: selectedOption.value === 'externalCql' ? selectedElement : null,
+      externalCqlList,
+      option: selectedOption.value,
+      subOption: selectedSuboption?.value || selectedElement.value,
+      template,
+      vsacCode: vsacType === 'codes' ? selectedElement : null,
+      vsacValueSet: vsacType === 'valueSets' ? selectedElement : null,
+
+      vsacType: vsacType as any
+    });
+
+    handleAddElement(element as Instance);
+    handleClearOptions();
+  };
+
+  const handleSelectSuboption = (suboptionValue: string): void => {
+    if (!selectedOption) return;
+    const suboption = selectedOption.options?.find(option => option.value === suboptionValue);
+    if (suboption?.options) {
+      setSelectedSuboption(suboption);
+      setSelectedCqlOption(null);
+    } else if (suboption) {
+      handleSelectElement(suboption as VsacSelection);
+    }
   };
 
   return (
-    <Card className={background} style={{ marginTop: '10px' }}>
+    <Card className={background}>
       <CardContent>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <ElementSelectDropdown
-            options={elementOptions}
-            handleSelectOption={(value: string) => handleSelectOption(value)}
-            isDisabled={isDisabled}
-            label="Select Element Type"
-            value={selectedOption}
-            showFooter={false}
-          />
+        <div className={styles.elementSelect}>
+          <div className={styles.elementSelectGroup}>
+            <div className={styles.elementSelectLabel}>New element:</div>
 
-          <IconButton aria-label="close" onClick={handleClose} size="small">
-            <CloseIcon />
-          </IconButton>
-        </div>
+            <div className={styles.elementSelectDropdowns}>
+              <ElementSelectDropdown
+                handleSelectOption={handleSelectOption}
+                isDisabled={isDisabled}
+                label="Element type"
+                options={(elementOptions || []) as any}
+                showFooter
+                value={selectedOption?.value || ''}
+              />
 
-        {selectedOptionData && (
-          <>
-            {selectedOptionData.options &&
-              Array.isArray(selectedOptionData.options) &&
-              selectedOptionData.options.length > 0 && (
-                <div style={{ marginTop: '10px' }}>
-                  <ElementSelectDropdown
-                    options={selectedOptionData.options}
-                    handleSelectOption={(value: string) => handleSelectSubOption(value)}
-                    isDisabled={isDisabled}
-                    label={
-                      selectedOptionData.value === 'baseElements'
-                        ? 'Base Element'
-                        : selectedOptionData.value === 'parameters'
-                          ? 'Parameters Element'
-                          : selectedOptionData.value === 'externalCql'
-                            ? 'External CQL Element'
-                            : `${selectedOptionData.label} Element`
-                    }
-                    value={selectedSubOption}
-                    showFooter={false}
-                  />
-                </div>
+              {selectedOption && !selectedOption.vsacAuthRequired && (
+                <ElementSelectDropdown
+                  handleSelectOption={handleSelectSuboption}
+                  label={selectedOption.value === 'baseElements' ? 'Base Element' : `${selectedOption.label} Element`}
+                  options={(selectedOption.options || []) as any}
+                  value={selectedSuboption?.value || ''}
+                />
               )}
-            {selectedOption === 'externalCql' &&
-              selectedSubOption &&
-              selectedOptionData.options &&
-              Array.isArray(selectedOptionData.options) &&
-              (() => {
-                const selectedCqlLibrary = (
-                  selectedOptionData.options as Array<{
-                    value: string;
-                    options?: Array<{
-                      value: string;
-                      label: string;
-                      [key: string]: string | number | boolean | React.ReactNode | undefined;
-                    }>;
-                  }>
-                ).find(opt => opt.value === selectedSubOption);
-                return selectedCqlLibrary &&
-                  selectedCqlLibrary.options &&
-                  Array.isArray(selectedCqlLibrary.options) &&
-                  selectedCqlLibrary.options.length > 0 ? (
-                  <div style={{ marginTop: '10px' }}>
-                    <ElementSelectDropdown
-                      options={selectedCqlLibrary.options}
-                      handleSelectOption={(value: string) => handleSelectCqlOption(value)}
-                      isDisabled={isDisabled}
-                      label="Definition, function, or parameter"
-                      value={selectedCqlOption}
-                      showFooter={false}
-                    />
-                  </div>
-                ) : null;
-              })()}
-            {VSAC_OPTIONS.includes(selectedOptionData.value as (typeof VSAC_OPTIONS)[number]) && (
-              <ElementSelectActions handleSelectElement={handleSelectElement} />
-            )}
-          </>
-        )}
+
+              {selectedSuboption && (
+                <ElementSelectDropdown
+                  handleSelectOption={handleSelectElement}
+                  label="Definition, function, or parameter"
+                  options={(selectedSuboption.options || []) as any}
+                  value={selectedCqlOption?.value || ''}
+                />
+              )}
+            </div>
+          </div>
+
+          {selectedOption && (
+            <IconButton aria-label="close" onClick={() => handleClearOptions()} size="large">
+              <CloseIcon />
+            </IconButton>
+          )}
+        </div>
       </CardContent>
+
+      {showVSACSelect && <ElementSelectActions handleSelectElement={handleSelectElement} />}
     </Card>
   );
 };

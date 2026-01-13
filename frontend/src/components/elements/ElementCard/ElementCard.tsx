@@ -23,8 +23,8 @@ interface ElementCardProps {
   handleDelete: () => void;
   handleIndent?: () => void;
   handleOutdent?: () => void;
-  handleUpdateComment: (field: Field) => void;
-  handleUpdateTitleField: (field: Field) => void;
+  handleUpdateComment: (update: Record<string, string>) => void;
+  handleUpdateTitleField: (update: Record<string, string>) => void;
   hasErrors?: boolean;
   indentParity?: string;
   isBaseElement?: boolean;

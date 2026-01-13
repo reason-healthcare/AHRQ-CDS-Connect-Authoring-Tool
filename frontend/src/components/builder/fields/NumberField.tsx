@@ -7,7 +7,7 @@ import type { Field } from '../../../types/artifact';
 
 interface NumberFieldProps {
   field: Field & { exclusive?: boolean };
-  handleUpdateField: (field: Field & { exclusive?: boolean }) => void;
+  handleUpdateField: (update: Record<string, unknown>) => void;
   isInteger?: boolean | string;
 }
 
@@ -18,11 +18,11 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, handleUpdateField, isI
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const newValue =
       isInteger === 'integer' || isInteger === true ? parseInt(event.target.value, 10) : parseFloat(event.target.value);
-    handleUpdateField({ ...field, value: newValue });
+    handleUpdateField({ [field.id]: newValue });
   };
 
   const handleChangeExclusive = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    handleUpdateField({ ...field, exclusive: event.target.checked });
+    handleUpdateField({ [field.id]: event.target.value });
   };
 
   return (

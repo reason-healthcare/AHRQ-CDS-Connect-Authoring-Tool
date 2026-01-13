@@ -33,12 +33,7 @@ describe('<NumberField />', () => {
 
     fireEvent.change(numberInput, { target: { value: '10' } });
 
-    expect(handleUpdateField).toHaveBeenCalledWith({
-      exclusive: false,
-      id: 'age',
-      name: 'age',
-      value: 10
-    });
+    expect(handleUpdateField).toHaveBeenCalledWith({ age: 10 });
   });
 
   it('changes input with type float', () => {
@@ -49,11 +44,6 @@ describe('<NumberField />', () => {
 
     fireEvent.change(numberInput, { target: { value: '10.02345' } });
 
-    expect(handleUpdateField).toHaveBeenCalledWith({
-      exclusive: false,
-      id: 'age',
-      name: 'age',
-      value: 10.02345
-    });
+    expect(handleUpdateField).toHaveBeenCalledWith({ age: 10.02345 });
   });
 });

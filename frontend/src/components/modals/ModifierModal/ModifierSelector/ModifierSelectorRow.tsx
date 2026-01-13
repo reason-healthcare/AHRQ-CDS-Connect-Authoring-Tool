@@ -46,13 +46,7 @@ const ModifierSelectorRow: React.FC<ModifierSelectorRowProps> = ({
           <CardContent className={styles.modifierCardContent}>
             <ModifierForm
               elementInstance={elementInstance}
-              handleUpdateModifier={(updatedModifier: Modifier | Modifier[]) => {
-                // ModifierForm passes full modifier, but we need to extract just the values
-                const modifierToUpdate = Array.isArray(updatedModifier) ? updatedModifier[0] : updatedModifier;
-                if (modifierToUpdate && modifierToUpdate.values) {
-                  handleUpdateModifier(modifierToUpdate.values);
-                }
-              }}
+              handleUpdateModifier={handleUpdateModifier}
               modifier={modifier}
             />
 

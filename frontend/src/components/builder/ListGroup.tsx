@@ -79,16 +79,11 @@ const ListGroup: React.FC<ListGroupProps> = ({
   );
   const hasErrors = alerts.filter(a => a.showAlert && a.alertSeverity === 'error').length > 0 || hasNestedWarning;
 
-  const updateElement = (field: Record<string, unknown> | { id?: string; value?: unknown }): void => {
-    // Field comes in as { id, name, type, value } from StringField
-    // Or as { [fieldId]: value } from GroupElement's handleUpdateComment/handleUpdateTitleField
-    // We need to extract the id and value to update the field
-    const fieldId = (field as { id?: string }).id || Object.keys(field)[0];
-    const value =
-      (field as { value?: unknown }).value !== undefined ? (field as { value?: unknown }).value : field[fieldId];
+  const updateElement = (field: Record<string, unknown>): void => {
+    const fieldId = Object.keys(field)[0];
     const fieldToUpdate = getFieldWithId(listInstance.fields, fieldId);
     if (fieldToUpdate) {
-      (fieldToUpdate as { value?: unknown }).value = value;
+      (fieldToUpdate as { value?: unknown }).value = field[fieldId];
       updateLists(listInstance);
     }
   };

@@ -12,8 +12,8 @@ interface ElementCardHeaderProps {
   alerts?: AlertType[];
   collapsedContent?: React.ReactElement;
   commentField: Field;
-  handleUpdateComment: (field: Field) => void;
-  handleUpdateTitleField: (field: Field) => void;
+  handleUpdateComment: (update: Record<string, string>) => void;
+  handleUpdateTitleField: (update: Record<string, string>) => void;
   hasErrors: boolean;
   showComment: boolean;
   showContent: boolean;

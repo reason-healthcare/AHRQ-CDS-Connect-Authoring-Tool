@@ -111,11 +111,7 @@ describe('<ValueSetField />', () => {
     await waitFor(() => userEvent.click(screen.getByText('hours')));
 
     expect(handleUpdateField).toHaveBeenCalledWith({
-      id: 'unit_of_time',
-      name: 'Unit of Time',
-      select: 'demographics/units_of_time',
-      type: 'valueset',
-      value: {
+      unit_of_time: {
         id: 'h',
         name: 'hours',
         value: 'AgeInHours()'

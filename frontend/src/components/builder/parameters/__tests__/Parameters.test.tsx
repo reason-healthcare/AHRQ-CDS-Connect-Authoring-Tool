@@ -130,7 +130,7 @@ describe('<Parameters />', () => {
     const newParameters = _.cloneDeep(parameters);
     renderComponent({ handleUpdateParameters });
 
-    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /add parameter/i })));
+    await waitFor(() => userEvent.click(screen.getByRole('button', { name: /new parameter/i })));
 
     expect(handleUpdateParameters).toHaveBeenCalledWith(
       newParameters.concat([

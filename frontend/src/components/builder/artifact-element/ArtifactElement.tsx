@@ -119,8 +119,8 @@ const ArtifactElement: React.FC<ArtifactElementProps> = ({
         handleDelete={handleDeleteElement}
         handleIndent={handleIndent}
         handleOutdent={handleOutdent}
-        handleUpdateComment={(field: Field) => handleUpdateElement({ comment: field.value })}
-        handleUpdateTitleField={(field: Field) => handleUpdateElement({ element_name: field.value })}
+        handleUpdateComment={(update: Record<string, string>) => handleUpdateElement({ comment: update.comment })}
+        handleUpdateTitleField={(update: Record<string, string>) => handleUpdateElement({ element_name: update.element_name })}
         hasErrors={hasErrors}
         indentParity={indentParity}
         label={label}

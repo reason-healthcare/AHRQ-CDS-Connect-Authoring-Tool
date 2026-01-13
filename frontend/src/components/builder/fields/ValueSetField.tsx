@@ -17,7 +17,7 @@ interface ValueSetOption {
 
 interface ValueSetFieldProps {
   field: Field & { select?: string; value?: ValueSetOption };
-  handleUpdateField: (field: Field) => void;
+  handleUpdateField: (update: Record<string, unknown>) => void;
 }
 
 const ValueSetField: React.FC<ValueSetFieldProps> = ({ field, handleUpdateField }) => {
@@ -39,15 +39,9 @@ const ValueSetField: React.FC<ValueSetFieldProps> = ({ field, handleUpdateField 
         id={field.id}
         label={field.name}
         labelKey="name"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const selectedValueSet = valueSets.find(valueSet => valueSet.id === event.target.value);
-          if (selectedValueSet) {
-            handleUpdateField({
-              ...field,
-              value: selectedValueSet as Field['value']
-            });
-          }
-        }}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          handleUpdateField({ [field.id]: valueSets.find(valueSet => valueSet.id === event.target.value) })
+        }
         options={valueSets.map(vs => ({ ...vs, label: vs.name, value: vs.id }))}
         value={
           valueSets.length > 0 && field.value && typeof field.value === 'object' && 'id' in field.value

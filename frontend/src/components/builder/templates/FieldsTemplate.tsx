@@ -7,7 +7,7 @@ import { useFieldStyles } from 'styles/hooks';
 
 interface FieldTemplateProps {
   field: Field;
-  handleUpdateField: (field: Field) => void;
+  handleUpdateField: (update: Record<string, unknown>) => void;
 }
 
 const FieldTemplate: React.FC<FieldTemplateProps> = ({ field, handleUpdateField }) => {
@@ -50,7 +50,7 @@ const FieldTemplate: React.FC<FieldTemplateProps> = ({ field, handleUpdateField 
 
 interface FieldsTemplateProps {
   fields: Field[];
-  handleUpdateField: (field: Field) => void;
+  handleUpdateField: (update: Record<string, unknown>) => void;
 }
 
 const FieldsTemplate: React.FC<FieldsTemplateProps> = ({ fields, handleUpdateField }) => (
