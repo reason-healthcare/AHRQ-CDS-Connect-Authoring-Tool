@@ -8,6 +8,16 @@ import { getLocalConfiguration } from '../../src/auth/configPassport.js';
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+// Type for the config structure used in tests
+interface TestConfig {
+  auth: {
+    ldap: {
+      active: boolean;
+      server: Record<string, unknown>;
+    };
+  };
+}
+
 describe('configPassport', () => {
   let getLdapConfiguration: (
     req: { body: { username: string; password: string } },
@@ -15,7 +25,7 @@ describe('configPassport', () => {
   ) => void;
 
   describe('#getLdapConfiguration', () => {
-    let config: Record<string, unknown>;
+    let config: TestConfig;
     let mockConfig: { default: { get: sinon.SinonStub } };
     let mockFs: { default: { readFileSync: sinon.SinonStub } };
 
@@ -151,7 +161,7 @@ describe('configPassport', () => {
       getLocalConfiguration(
         'bob',
         'p@$$w0rd!',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.eql({ uid: 'bob', password: 'p@$$w0rd!' });
           done();
@@ -164,7 +174,7 @@ describe('configPassport', () => {
       getLocalConfiguration(
         'bob',
         'wrongpassword',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.be.false;
           done();
@@ -177,7 +187,7 @@ describe('configPassport', () => {
       getLocalConfiguration(
         'nonexistentuser',
         'anypassword',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.be.false;
           done();
@@ -191,12 +201,12 @@ describe('configPassport', () => {
       getLocalConfiguration(
         'nonexistentuser',
         'anypassword',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.be.false;
           done();
         },
-        'users' as Record<string, string>
+        'users' as unknown as Record<string, string>
       );
     });
   });

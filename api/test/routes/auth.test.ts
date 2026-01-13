@@ -18,8 +18,8 @@ describe('Route: /authoring/api/auth/login', () => {
   beforeEach(() => {
     fakeLogout = sinon.fake.yields();
     [app, options] = setupExpressApp((app: express.Application) => {
-      app.use(async (req, res, next) => {
-        (req as { logout?: sinon.SinonSpy }).logout = fakeLogout;
+      app.use(async (req, _res, next) => {
+        (req as unknown as { logout?: sinon.SinonSpy }).logout = fakeLogout;
         next();
       });
     });
@@ -95,7 +95,7 @@ describe('Route: /authoring/api/auth/login', () => {
       };
       const mockAuthenticate = sinon.fake.returns(mockAuthInvoker);
       sinon.replace(passport, 'authenticate', mockAuthenticate);
-      options.user = 'leroy' as { uid: string };
+      options.user = 'leroy' as unknown as { uid: string };
       request(app)
         .post('/authoring/api/auth/login')
         .send({ username: 'bob', password: 'limecurd' })
@@ -119,8 +119,8 @@ describe('Route: /authoring/api/auth/logout', () => {
   beforeEach(() => {
     fakeLogout = sinon.fake.yields();
     [app, options] = setupExpressApp((app: express.Application) => {
-      app.use(async (req, res, next) => {
-        (req as { logout?: sinon.SinonSpy }).logout = fakeLogout;
+      app.use(async (req, _res, next) => {
+        (req as unknown as { logout?: sinon.SinonSpy }).logout = fakeLogout;
         next();
       });
     });

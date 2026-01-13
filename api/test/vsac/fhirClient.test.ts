@@ -6,16 +6,16 @@ import * as FHIRMocks from './fixtures/FHIRfixtures.js';
 import { importChaiExpect } from '../utils.js';
 
 describe('FHIRClient', () => {
-  let expect;
+  let expect: Chai.ExpectStatic;
 
   // Helper function for testing promises that are expected to return an error
-  const shouldThrowError = (result, errorCode) => {
+  const shouldThrowError = (result: Promise<unknown>, errorCode: number) => {
     const errorMessage = `expected a response with status ${errorCode}`;
     return result
       .then(() => {
         throw new Error(errorMessage);
       })
-      .catch(err => {
+      .catch((err: { message: string; response?: { status: number } }) => {
         if (err.message === errorMessage) {
           throw err;
         }
@@ -104,7 +104,7 @@ describe('FHIRClient', () => {
     it('should get a value set by OID and strip -{version}', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet);
+      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet) as typeof FHIRMocks.ValueSet & { version?: string };
       vsWithVersion.id = '9876-54321';
       vsWithVersion.version = '54321';
 
@@ -135,7 +135,7 @@ describe('FHIRClient', () => {
     it('should get a value set by OID and NOT strip anything after a - if it is just part of the id', () => {
       const [username, password] = ['test-user', 'test-pass'];
 
-      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet);
+      const vsWithVersion = lodash.cloneDeep(FHIRMocks.ValueSet) as typeof FHIRMocks.ValueSet & { version?: string };
       vsWithVersion.id = '9876-6789-321'; // Valid id with - characters
       vsWithVersion.version = '54321'; // version differs from the last -321 portion
 
@@ -328,17 +328,22 @@ describe('FHIRClient', () => {
         .reply(200, FHIRMocks.ValueSetWithCounts);
       const result = client.searchForValueSets('Diabetes', username, password);
       const expResults = FHIRMocks.SearchWithPurpose.entry.map(v => {
+        // Cast to any to access optional properties that may not be in all fixture variants
+        const resource = v.resource as typeof v.resource & {
+          description?: string;
+          extension?: Array<{ url: string; valueDate?: string }>;
+        };
         return {
           codeSystem: [],
-          name: v.resource.title || v.resource.name,
-          steward: v.resource.publisher,
-          oid: v.resource.id,
+          name: resource.title || resource.name,
+          steward: resource.publisher,
+          oid: resource.id,
           codeCount: 33,
-          description: v.resource.description || '',
-          experimental: v.resource.experimental || false,
-          date: v.resource.date || '',
+          description: resource.description || '',
+          experimental: resource.experimental || false,
+          date: resource.date || '',
           lastReviewDate:
-            v.resource.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
+            resource.extension?.find(e => e.url === 'http://hl7.org/fhir/StructureDefinition/resource-lastReviewDate')
               ?.valueDate || '',
           status: v.resource.status,
           purpose: null as null | {

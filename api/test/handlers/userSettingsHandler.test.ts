@@ -22,7 +22,7 @@ class FakeResponse {
 
   constructor() {
     this.store = { headers: {} };
-    this.sent = {};
+    this.sent = { headers: {} };
   }
 
   json(json: unknown): FakeResponse {

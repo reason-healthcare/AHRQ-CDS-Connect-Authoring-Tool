@@ -5,7 +5,9 @@ import _ from 'lodash';
 import cqlHandler from '../../src/handlers/cqlHandler.js';
 import { importChaiExpect } from '../utils.js';
 
-const baseArtifact: Record<string, unknown> = {
+// Using 'any' for test artifacts to allow flexible test data structures
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const baseArtifact: any = {
   name: 'a test',
   version: null,
   dataModel: { name: 'FHIR', version: '4.0.1' },
@@ -28,7 +30,7 @@ describe('cqlHandler', () => {
 
   describe('#buildCQL', () => {
     describe('Element Names', () => {
-      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
+      const raw = _.cloneDeep(baseArtifact);
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -245,7 +247,7 @@ describe('cqlHandler', () => {
     });
 
     describe('Subpopulations', () => {
-      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
+      const raw = _.cloneDeep(baseArtifact);
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -504,7 +506,7 @@ describe('cqlHandler', () => {
       });
 
       it('should return null subpopulations when Inpopulation is not true', () => {
-        const withOneRec = _.cloneDeep(raw) as Record<string, unknown>;
+        const withOneRec = _.cloneDeep(raw);
         withOneRec.recommendations.splice(1);
         const artifact = cqlHandler.buildCQL(withOneRec);
         const converted = artifact.toString();
@@ -520,7 +522,7 @@ describe('cqlHandler', () => {
       });
 
       it('should use the specified subpopulation boolean logic in the rationale logic', () => {
-        const withRationales = _.cloneDeep(raw) as Record<string, unknown>;
+        const withRationales = _.cloneDeep(raw);
         withRationales.recommendations[1].rationale = 'subpop 1 with rationale';
         withRationales.recommendations[4].rationale = 'fallback rationale';
         const artifact = cqlHandler.buildCQL(withRationales);
@@ -537,7 +539,7 @@ describe('cqlHandler', () => {
       });
 
       it('should properly export the error logic as CQL', () => {
-        const withErrors = _.cloneDeep(raw) as Record<string, unknown>;
+        const withErrors = _.cloneDeep(raw);
         withErrors.errorStatement = {
           id: 'root',
           ifThenClauses: [
@@ -599,7 +601,7 @@ describe('cqlHandler', () => {
 
       it('should not check InPopulation for subpopulations when there is no recommendation', () => {
         // TODO: I'm not sure why we do it this way; as it's not really a subpopulation if you don't check InPopulation!
-        const noRecs = _.cloneDeep(raw) as Record<string, unknown>;
+        const noRecs = _.cloneDeep(raw);
         noRecs.recommendations = [];
         const artifact = cqlHandler.buildCQL(noRecs);
         const converted = artifact.toString();
@@ -615,7 +617,7 @@ describe('cqlHandler', () => {
     });
 
     describe('Modifiers', () => {
-      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
+      const raw = _.cloneDeep(baseArtifact);
       raw.expTreeInclude = {
         id: 'And',
         name: '',
@@ -732,7 +734,7 @@ describe('cqlHandler', () => {
         path: ''
       };
       raw.errorStatement = { ifThenClauses: [], elseClause: '' };
-      const rawQuery = _.cloneDeep(raw) as Record<string, unknown>;
+      const rawQuery = _.cloneDeep(raw);
       rawQuery.expTreeInclude.childInstances[0].modifiers = [
         {
           inputTypes: ['list_of_allergy_intolerances'],
@@ -761,7 +763,7 @@ describe('cqlHandler', () => {
           }
         }
       ];
-      const rawStandardAndQuery = _.cloneDeep(raw) as Record<string, unknown>;
+      const rawStandardAndQuery = _.cloneDeep(raw);
       rawStandardAndQuery.expTreeInclude.childInstances[0].modifiers = [
         {
           id: 'ActiveOrConfirmedAllergyIntolerance',
@@ -806,7 +808,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.x)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
+        const rawQueryR4 = _.cloneDeep(rawQuery);
         rawQueryR4.dataModel.version = '4.0.x';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -817,7 +819,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.1)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
+        const rawQueryR4 = _.cloneDeep(rawQuery);
         rawQueryR4.dataModel.version = '4.0.1';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -828,7 +830,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (R4 4.0.0)', () => {
-        const rawQueryR4 = _.cloneDeep(rawQuery) as Record<string, unknown>;
+        const rawQueryR4 = _.cloneDeep(rawQuery);
         rawQueryR4.dataModel.version = '4.0.0';
         const artifact = cqlHandler.buildCQL(rawQueryR4);
         const converted = artifact.toString();
@@ -839,7 +841,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (STU3)', () => {
-        const rawQuerySTU3 = _.cloneDeep(rawQuery) as Record<string, unknown>;
+        const rawQuerySTU3 = _.cloneDeep(rawQuery);
         rawQuerySTU3.dataModel.version = '3.0.0';
         const artifact = cqlHandler.buildCQL(rawQuerySTU3);
         const converted = artifact.toString();
@@ -850,7 +852,7 @@ describe('cqlHandler', () => {
       });
 
       it('should export query modifiers as CQL queries (DSTU2)', () => {
-        const rawQueryDSTU2 = _.cloneDeep(rawQuery) as Record<string, unknown>;
+        const rawQueryDSTU2 = _.cloneDeep(rawQuery);
         rawQueryDSTU2.dataModel.version = '1.0.2';
         const artifact = cqlHandler.buildCQL(rawQueryDSTU2);
         const converted = artifact.toString();
@@ -871,7 +873,7 @@ describe('cqlHandler', () => {
     });
 
     describe('CQL Operator Templates', () => {
-      const raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
+      const raw = _.cloneDeep(baseArtifact);
       raw.expTreeInclude = {
         id: 'And',
         name: 'And',
@@ -983,7 +985,7 @@ describe('cqlHandler', () => {
         path: ''
       };
       raw.errorStatement = { ifThenClauses: [], elseClause: '' };
-      const rawBaseQuery = _.cloneDeep(raw) as Record<string, unknown>;
+      const rawBaseQuery = _.cloneDeep(raw);
 
       beforeEach(() => {
         rawBaseQuery.expTreeInclude.childInstances[0].modifiers = [
@@ -1065,7 +1067,7 @@ describe('cqlHandler', () => {
             }
           ]
         };
-        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery) as Record<string, unknown>;
+        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery);
         ((stu3RawBaseQuery.dataModel = { name: 'FHIR', version: '3.0.0' }),
           (stu3RawBaseQuery.expTreeInclude.childInstances[1].modifiers[0].where = templateTest));
         const artifact = cqlHandler.buildCQL(stu3RawBaseQuery);
@@ -1084,7 +1086,7 @@ describe('cqlHandler', () => {
             }
           ]
         };
-        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery) as Record<string, unknown>;
+        const stu3RawBaseQuery = _.cloneDeep(rawBaseQuery);
         ((stu3RawBaseQuery.dataModel = { name: 'FHIR', version: '1.0.2' }),
           (stu3RawBaseQuery.expTreeInclude.childInstances[1].modifiers[0].where = templateTest));
         const artifact = cqlHandler.buildCQL(stu3RawBaseQuery);
@@ -2440,9 +2442,10 @@ describe('cqlHandler', () => {
     });
 
     describe('Suggestions', () => {
-      let raw: Record<string, unknown>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let raw: any;
       beforeEach(() => {
-        raw = _.cloneDeep(baseArtifact) as Record<string, unknown>;
+        raw = _.cloneDeep(baseArtifact);
         raw.expTreeInclude = {
           id: 'And',
           name: 'And',
@@ -3049,7 +3052,7 @@ ServiceRequest {\r
         .reply(200, outputContent, outputHeaders);
 
       // Make the request!
-      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, false, err => {
+      cqlHandler.makeCQLtoELMRequest(inputFiles, inputFileStreams, false, (err: Error | null) => {
         try {
           expect(err).to.be.null;
           done();

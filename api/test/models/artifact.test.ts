@@ -97,7 +97,7 @@ describe('Artifact', () => {
         }
       });
       const datePL = testDates.toPublishableLibrary();
-      expect(_.isEqual(difference(datePL, testPublishableLibraryWithDates), {})).to.equal(true);
+      expect(_.isEqual(difference(datePL as unknown as Record<string, unknown>, testPublishableLibraryWithDates), {})).to.equal(true);
     });
 
     it('should create a CPG Artifact with context and dates and export as a Publishable Library', () => {
@@ -115,7 +115,7 @@ describe('Artifact', () => {
         ]
       });
       const contextPL = testContext.toPublishableLibrary();
-      expect(_.isEqual(difference(contextPL, testPublishableLibraryWithDatesAndContext), {})).to.equal(true);
+      expect(_.isEqual(difference(contextPL as unknown as Record<string, unknown>, testPublishableLibraryWithDatesAndContext), {})).to.equal(true);
     });
 
     it('should create a mostly complete CPG Artifact and export as a Publishable Library', () => {
@@ -156,7 +156,7 @@ describe('Artifact', () => {
         ]
       });
       const cpgPL = testArtifact.toPublishableLibrary();
-      expect(_.isEqual(difference(cpgPL, testPublishableLibrary), {})).to.equal(true);
+      expect(_.isEqual(difference(cpgPL as unknown as Record<string, unknown>, testPublishableLibrary), {})).to.equal(true);
     });
 
     it('should create a mostly complete CPG Artifact with expanded context and export as a Publishable Library', () => {
@@ -220,7 +220,7 @@ describe('Artifact', () => {
         ]
       });
       const ecPL = testCtxArtifact.toPublishableLibrary();
-      expect(_.isEqual(difference(ecPL, testExpandedContext), {})).to.equal(true);
+      expect(_.isEqual(difference(ecPL as unknown as Record<string, unknown>, testExpandedContext), {})).to.equal(true);
     });
   });
 });

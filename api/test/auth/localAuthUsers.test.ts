@@ -8,7 +8,7 @@ describe('localAuthUsers', () => {
     it('should callback with a user object when a user is found', done => {
       findByUsername(
         'bob',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.eql({ uid: 'bob', password: 'p@$$w0rd!' });
           done();
@@ -20,7 +20,7 @@ describe('localAuthUsers', () => {
     it('should callback with nulls when a user is not found', done => {
       findByUsername(
         'gerald',
-        (err, user) => {
+        (err: Error | null, user: unknown) => {
           expect(err).to.be.null;
           expect(user).to.be.null;
           done();

@@ -55,7 +55,8 @@ describe('Route: /authoring/api/cql/', () => {
         .expect('Content-Type', /zip/)
         .expect(200)
         .buffer()
-        .parse(binaryParser)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .parse(binaryParser as any)
         .end(function (err, res) {
           if (err) return done(err);
 
@@ -89,7 +90,8 @@ describe('Route: /authoring/api/cql/', () => {
         .expect('Content-Type', /zip/)
         .expect(200)
         .buffer()
-        .parse(binaryParser)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .parse(binaryParser as any)
         .end(function (err, res) {
           if (err) return done(err);
           unzipper.Open.buffer(res.body)
@@ -122,7 +124,8 @@ describe('Route: /authoring/api/cql/', () => {
         .expect('Content-Type', /zip/)
         .expect(200)
         .buffer()
-        .parse(binaryParser)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .parse(binaryParser as any)
         .end(function (err, res) {
           if (err) return done(err);
           unzipper.Open.buffer(res.body)
@@ -420,9 +423,10 @@ function mockMakeCQLtoELMRequestForSimpleArtifact(
 }
 
 function mockArtifactFindOneForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox.stub(Artifact, 'findOne').returns({
     exec: err ? sandbox.stub().rejects(err) : sandbox.stub().resolves(new Artifact(SimpleArtifact))
-  });
+  } as any);
 }
 
 function mockFormatCQLForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
@@ -440,9 +444,10 @@ function mockCQLTranslatorForError(): void {
 
 function mockDatabaseForSuccess(sandbox: sinon.SinonSandbox): void {
   // Mock CQL Library query
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox.stub(CQLLibrary, 'find').returns({
     exec: sandbox.stub().resolves([])
-  });
+  } as any);
 
   // Mock Artifact query
   const mockArtifact = {
@@ -459,26 +464,28 @@ function mockDatabaseForSuccess(sandbox: sinon.SinonSandbox): void {
     })
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox.stub(Artifact, 'findOne').returns({
     exec: sandbox.stub().resolves(mockArtifact)
-  });
+  } as any);
 }
 
 function mockCQLLibraryFindForSimpleArtifact(sandbox: sinon.SinonSandbox, err?: Error): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox.stub(CQLLibrary, 'find').returns({
     exec: err ? sandbox.stub().rejects(err) : sandbox.stub().resolves([])
-  });
+  } as any);
 }
 
 // Special parser to convert binary stream to a buffer
 function binaryParser(
-  res: { setEncoding: (encoding: string) => void; data: string; on: (event: string, callback: () => void) => void },
+  res: { setEncoding: (encoding: string) => void; data: string; on: (event: string, callback: (chunk?: string) => void) => void },
   callback: (err: null, buffer: Buffer) => void
 ): void {
   res.setEncoding('binary');
   res.data = '';
-  res.on('data', function (chunk: string) {
-    res.data += chunk;
+  res.on('data', function (chunk?: string) {
+    res.data += chunk || '';
   });
   res.on('end', function () {
     callback(null, Buffer.from(res.data, 'binary'));

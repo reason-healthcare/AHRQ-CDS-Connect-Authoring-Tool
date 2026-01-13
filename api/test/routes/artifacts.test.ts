@@ -396,7 +396,7 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
             ])
           })
       );
-      const fakeLibraryCreate = fake.resolves();
+      const fakeLibraryCreate = fake.resolves(undefined);
       replace(CQLLibrary, 'create', fakeLibraryCreate);
       request(app)
         .post('/authoring/api/artifacts/456/duplicate')
@@ -418,7 +418,7 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
           expect(artifactCreateArg.createdAt).to.be.undefined;
           // Ensure the first duplicate library was created with right linkage, right name, and fresh id / dates
           const libraryCreateArg1 = fakeLibraryCreate.firstCall.firstArg;
-          expect(libraryCreateArg1).to.include.eql({
+          expect(libraryCreateArg1).to.deep.include({
             linkedArtifactId: new mongoose.Types.ObjectId(res.body._id),
             name: 'CQL Library X'
           });
@@ -427,7 +427,7 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
           expect(libraryCreateArg1.createdAt).to.be.undefined;
           // Ensure the second duplicate library was created with right linkage, right name, and fresh id / dates
           const libraryCreateArg2 = fakeLibraryCreate.secondCall.firstArg;
-          expect(libraryCreateArg2).to.include.eql({
+          expect(libraryCreateArg2).to.deep.include({
             linkedArtifactId: new mongoose.Types.ObjectId(res.body._id),
             name: 'CQL Library Y'
           });
@@ -479,7 +479,7 @@ describe('Route: /authoring/api/artifacts/:artifact/duplicate', () => {
           .withArgs({ linkedArtifactId: '456' })
           .returns({ exec: fake.resolves([]) })
       );
-      const fakeLibraryCreate = fake.resolves();
+      const fakeLibraryCreate = fake.resolves(undefined);
       replace(CQLLibrary, 'create', fakeLibraryCreate);
       request(app)
         .post('/authoring/api/artifacts/456/duplicate')

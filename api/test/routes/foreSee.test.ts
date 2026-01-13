@@ -26,8 +26,9 @@ describe('Route: /authoring/api/foresee.js', () => {
 
   describe('GET', () => {
     it('should get the foresee staging embed script when it is configured', done => {
-      sandbox.stub(config, 'get').withArgs('foreSee.active').returns(true);
-      config.get.callThrough();
+      const getStub = sandbox.stub(config, 'get');
+      getStub.callThrough();
+      getStub.withArgs('foreSee.active').returns(true);
 
       request(app)
         .get('/authoring/api/foresee.js')
@@ -40,8 +41,9 @@ describe('Route: /authoring/api/foresee.js', () => {
     });
 
     it('should not get the foresee staging embed script when it is not configured', done => {
-      sandbox.stub(config, 'get').withArgs('foreSee.active').returns(false);
-      config.get.callThrough();
+      const getStub = sandbox.stub(config, 'get');
+      getStub.callThrough();
+      getStub.withArgs('foreSee.active').returns(false);
 
       request(app)
         .get('/authoring/api/foresee.js')
