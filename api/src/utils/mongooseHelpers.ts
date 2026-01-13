@@ -17,3 +17,4 @@ export function documentToPlainObject<T extends Document>(doc: T): Record<string
 export function documentsToPlainObjects<T extends Document>(docs: T[]): Array<Record<string, unknown>> {
   return docs.map(doc => documentToPlainObject(doc));
 }
+

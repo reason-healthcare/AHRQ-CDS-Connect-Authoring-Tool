@@ -1,0 +1,1895 @@
+{
+  "summary": {
+    "filesAnalyzed": 335,
+    "filesWithIssues": 39,
+    "totalIssues": 90,
+    "bySeverity": {
+      "critical": 2,
+      "high": 0,
+      "medium": 88,
+      "low": 0
+    }
+  },
+  "issuesByFile": {
+    "frontend/src/components/builder/artifact-element/SelectModifierAction.tsx": [
+      {
+        "file": "frontend/src/components/builder/artifact-element/SelectModifierAction.tsx",
+        "original": "frontend/src/components/builder/artifact-element/SelectModifierAction.js",
+        "type": "||",
+        "line": 27,
+        "variable": "elementInstance.returnType",
+        "defaultValue": "'",
+        "context": "modifiersByInputType[elementInstance.returnType || ''] || []",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/artifact-element/SelectModifierAction.tsx",
+        "original": "frontend/src/components/builder/artifact-element/SelectModifierAction.js",
+        "type": "||",
+        "line": 39,
+        "variable": "returnType",
+        "defaultValue": "'",
+        "context": "const relevantModifiers = filterRelevantModifiers(modifiersByInputType[returnTyp",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/element-select/utils.ts": [
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 253,
+        "variable": "selectedCqlEntry.name",
+        "defaultValue": "'",
+        "context": "{ id: 'element_name', type: 'string', name: 'Element Name', value: selectedCqlEn",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 282,
+        "variable": "parameter.name",
+        "defaultValue": "'",
+        "context": "name: parameter.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 284,
+        "variable": "parameter.type",
+        "defaultValue": "'",
+        "context": "returnType: parameter.type || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 287,
+        "variable": "parameter.name",
+        "defaultValue": "'",
+        "context": "{ id: 'element_name', type: 'string', name: 'Element Name', value: parameter.nam",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 308,
+        "variable": "name",
+        "defaultValue": "'",
+        "context": "? (vsacCodeOrValueSet as VsacValueSet)?.name || ''",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 315,
+        "variable": "vsacType",
+        "defaultValue": "'",
+        "context": "[vsacType || 'codes']: [vsacCodeOrValueSet]",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 361,
+        "variable": "entry.name",
+        "defaultValue": "'",
+        "context": "label: entry.name || ''",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 399,
+        "variable": "entry.name",
+        "defaultValue": "'",
+        "context": "label: entry.name || ''",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/element-select/utils.ts",
+        "original": "frontend/src/components/builder/element-select/utils.js",
+        "type": "||",
+        "line": 405,
+        "variable": "entry.name",
+        "defaultValue": "'",
+        "context": "label: entry.name || ''",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/error-statement/ElseClause.tsx": [
+      {
+        "file": "frontend/src/components/builder/error-statement/ElseClause.tsx",
+        "original": "frontend/src/components/builder/error-statement/ElseClause.js",
+        "type": "||",
+        "line": 72,
+        "variable": "statement.elseClause",
+        "defaultValue": "'",
+        "context": "value={statement.elseClause || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/error-statement/IfConditionSelect.tsx": [
+      {
+        "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+        "type": "||",
+        "line": 69,
+        "variable": "parameter.name",
+        "defaultValue": "'",
+        "context": "label: parameter.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+        "type": "||",
+        "line": 70,
+        "variable": "parameter.name",
+        "defaultValue": "'",
+        "context": "value: parameter.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+        "type": "||",
+        "line": 75,
+        "variable": "subpopulation.subpopulationName",
+        "defaultValue": "'",
+        "context": "label: subpopulation.subpopulationName || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+        "type": "||",
+        "line": 77,
+        "variable": "subpopulation.special_subpopulationName",
+        "defaultValue": "'",
+        "context": "? subpopulation.special_subpopulationName || ''",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/error-statement/IfThenClause.tsx": [
+      {
+        "file": "frontend/src/components/builder/error-statement/IfThenClause.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfThenClause.js",
+        "type": "||",
+        "line": 135,
+        "variable": "statement.id",
+        "defaultValue": "'",
+        "context": "statementId={statement.id || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/error-statement/IfThenClause.tsx",
+        "original": "frontend/src/components/builder/error-statement/IfThenClause.js",
+        "type": "||",
+        "line": 136,
+        "variable": "ifThenClause.thenClause",
+        "defaultValue": "'",
+        "context": "thenClause={ifThenClause.thenClause || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/external-cql/ExternalCqlDetailsModalSection.tsx": [
+      {
+        "file": "frontend/src/components/builder/external-cql/ExternalCqlDetailsModalSection.tsx",
+        "original": "frontend/src/components/builder/external-cql/ExternalCqlDetailsModalSection.js",
+        "type": "||",
+        "line": 70,
+        "variable": "definition.calculatedReturnType",
+        "defaultValue": "'",
+        "context": ": changeToCase(definition.calculatedReturnType || '', 'capitalCase')}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx": [
+      {
+        "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+        "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+        "type": "||",
+        "line": 111,
+        "variable": "a.name",
+        "defaultValue": "'",
+        "context": "const aWithDefaults = { name: a.name || '', version: a.version || '', ...a };",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+        "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+        "type": "||",
+        "line": 111,
+        "variable": "a.version",
+        "defaultValue": "'",
+        "context": "const aWithDefaults = { name: a.name || '', version: a.version || '', ...a };",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+        "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+        "type": "||",
+        "line": 112,
+        "variable": "b.name",
+        "defaultValue": "'",
+        "context": "const bWithDefaults = { name: b.name || '', version: b.version || '', ...b };",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+        "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+        "type": "||",
+        "line": 112,
+        "variable": "b.version",
+        "defaultValue": "'",
+        "context": "const bWithDefaults = { name: b.name || '', version: b.version || '', ...b };",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/external-cql/utils.ts": [
+      {
+        "file": "frontend/src/components/builder/external-cql/utils.ts",
+        "original": "frontend/src/components/builder/external-cql/utils.js",
+        "type": "||",
+        "line": 39,
+        "variable": "library.name",
+        "defaultValue": "'",
+        "context": "libraryName: library.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/utils.ts",
+        "original": "frontend/src/components/builder/external-cql/utils.js",
+        "type": "||",
+        "line": 40,
+        "variable": "definition.name",
+        "defaultValue": "'",
+        "context": "elementName: definition.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/utils.ts",
+        "original": "frontend/src/components/builder/external-cql/utils.js",
+        "type": "||",
+        "line": 48,
+        "variable": "library.name",
+        "defaultValue": "'",
+        "context": "libraryName: library.name || '',",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/external-cql/utils.ts",
+        "original": "frontend/src/components/builder/external-cql/utils.js",
+        "type": "||",
+        "line": 49,
+        "variable": "func.name",
+        "defaultValue": "'",
+        "context": "elementName: func.name || '',",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/fields/UcumField.tsx": [
+      {
+        "file": "frontend/src/components/builder/fields/UcumField.tsx",
+        "original": "frontend/src/components/builder/fields/UcumField.js",
+        "type": "||",
+        "line": 28,
+        "variable": "term",
+        "defaultValue": "'",
+        "context": "if (reason === 'input' || reason === 'clear') setUcumTerm(term || '');",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/modifiers/ExternalModifier.tsx": [
+      {
+        "file": "frontend/src/components/builder/modifiers/ExternalModifier.tsx",
+        "original": "frontend/src/components/builder/modifiers/ExternalModifier.js",
+        "type": "||",
+        "line": 67,
+        "variable": "calculated",
+        "defaultValue": "'",
+        "context": "argumentType={argumentTypes[argIndex]?.calculated || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/parameters/Parameter.tsx": [
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 65,
+        "variable": "type",
+        "defaultValue": "'",
+        "context": "const editorErrorResult = getEditorErrors(type || '', editorValue);",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 88,
+        "variable": "label",
+        "defaultValue": "'",
+        "context": "{ label: typeOptions.find(({ value }) => value === type)?.label || '', isTag: tr",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 103,
+        "variable": "uniqueId",
+        "defaultValue": "'",
+        "context": "commentField={{ id: uniqueId || '', name: 'Comment', value: typeof comment === '",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 117,
+        "variable": "uniqueId",
+        "defaultValue": "'",
+        "context": "titleField={{ id: uniqueId || '', value: typeof name === 'string' ? name : '' }}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 145,
+        "variable": "type",
+        "defaultValue": "'",
+        "context": "value={type || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+        "original": "frontend/src/components/builder/parameters/Parameter.js",
+        "type": "||",
+        "line": 154,
+        "variable": "type",
+        "defaultValue": "'",
+        "context": "type={type || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/parameters/utils.ts": [
+      {
+        "file": "frontend/src/components/builder/parameters/utils.ts",
+        "original": "frontend/src/components/builder/parameters/utils.js",
+        "type": "||",
+        "line": 45,
+        "variable": "parameter.type",
+        "defaultValue": "'",
+        "context": "const editorErrors = getEditorErrors(parameter.type || '', editorValue);",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/recommendations/RecommendationAction.tsx": [
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationAction.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationAction.js",
+        "type": "||",
+        "line": 22,
+        "variable": "action.description",
+        "defaultValue": "'",
+        "context": "<div>{action.description || ''}</div>",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/recommendations/RecommendationActionModal.tsx": [
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationActionModal.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationActionModal.js",
+        "type": "||",
+        "line": 95,
+        "variable": "action.description",
+        "defaultValue": "'",
+        "context": ": { description: action.description || '', resource: action.resource as ActionRe",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationActionModal.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationActionModal.js",
+        "type": "??",
+        "line": 121,
+        "variable": "codeValue",
+        "defaultValue": "{",
+        "context": "const { code = '', display = '', system = '', uri = '' } = codeValue ?? {};",
+        "severity": "critical"
+      }
+    ],
+    "frontend/src/components/builder/recommendations/RecommendationLink.tsx": [
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+        "type": "||",
+        "line": 35,
+        "variable": "link.type",
+        "defaultValue": "'",
+        "context": "value={link.type || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+        "type": "||",
+        "line": 44,
+        "variable": "link.label",
+        "defaultValue": "'",
+        "context": "value={link.label || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+        "type": "||",
+        "line": 55,
+        "variable": "link.url",
+        "defaultValue": "'",
+        "context": "value={link.url || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/recommendations/RecommendationSuggestion.tsx": [
+      {
+        "file": "frontend/src/components/builder/recommendations/RecommendationSuggestion.tsx",
+        "original": "frontend/src/components/builder/recommendations/RecommendationSuggestion.js",
+        "type": "||",
+        "line": 74,
+        "variable": "suggestion.label",
+        "defaultValue": "'",
+        "context": "value={suggestion.label || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/summary/InclusionExclusionCard.tsx": [
+      {
+        "file": "frontend/src/components/builder/summary/InclusionExclusionCard.tsx",
+        "original": "frontend/src/components/builder/summary/InclusionExclusionCard.js",
+        "type": "||",
+        "line": 82,
+        "variable": "child.elementName",
+        "defaultValue": "'",
+        "context": "text={child.elementName || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/summary/RecommendationCard.tsx": [
+      {
+        "file": "frontend/src/components/builder/summary/RecommendationCard.tsx",
+        "original": "frontend/src/components/builder/summary/RecommendationCard.js",
+        "type": "||",
+        "line": 48,
+        "variable": "subpopulation.subpopulationName",
+        "defaultValue": "'",
+        "context": "text={subpopulation.subpopulationName || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/summary/RecommendationCard.tsx",
+        "original": "frontend/src/components/builder/summary/RecommendationCard.js",
+        "type": "||",
+        "line": 66,
+        "variable": "suggestion.label",
+        "defaultValue": "'",
+        "context": "<RecommendationCard key={index} depth={1} label=\"Suggestion\" text={suggestion.la",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/summary/SummaryDetails.tsx": [
+      {
+        "file": "frontend/src/components/builder/summary/SummaryDetails.tsx",
+        "original": "frontend/src/components/builder/summary/SummaryDetails.js",
+        "type": "||",
+        "line": 65,
+        "variable": "item.recommendationText",
+        "defaultValue": "'",
+        "context": "text={item.recommendationText || ''}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/builder/summary/SummaryDetails.tsx",
+        "original": "frontend/src/components/builder/summary/SummaryDetails.js",
+        "type": "||",
+        "line": 77,
+        "variable": "rec.text",
+        "defaultValue": "'",
+        "context": "text={rec.text || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/templates/ArgumentsTemplate.tsx": [
+      {
+        "file": "frontend/src/components/builder/templates/ArgumentsTemplate.tsx",
+        "original": "frontend/src/components/builder/templates/ArgumentsTemplate.js",
+        "type": "??",
+        "line": 155,
+        "variable": "newSelection",
+        "defaultValue": "'",
+        "context": "selected: typeof newSelection === 'string' ? newSelection : String(newSelection ",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/templates/ReferenceTemplate.tsx": [
+      {
+        "file": "frontend/src/components/builder/templates/ReferenceTemplate.tsx",
+        "original": "frontend/src/components/builder/templates/ReferenceTemplate.js",
+        "type": "||",
+        "line": 42,
+        "variable": "id",
+        "defaultValue": "'",
+        "context": "return (referenceField.value as { id?: string })?.id || '';",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/builder/workspace/Workspace.tsx": [
+      {
+        "file": "frontend/src/components/builder/workspace/Workspace.tsx",
+        "original": "frontend/src/components/builder/workspace/Workspace.js",
+        "type": "||",
+        "line": 34,
+        "variable": "id",
+        "defaultValue": "'",
+        "context": "const externalCqlQuery = { artifactId: id || '' };",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/elements/ElementCard/ElementExpressionPhrase.tsx": [
+      {
+        "file": "frontend/src/components/elements/ElementCard/ElementExpressionPhrase.tsx",
+        "original": "frontend/src/components/elements/ElementCard/ElementExpressionPhrase.js",
+        "type": "||",
+        "line": 38,
+        "variable": "expression.tooltipText",
+        "defaultValue": "'",
+        "context": "<Tooltip key={index} enabled={!!expression.tooltipText} title={expression.toolti",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.tsx": [
+      {
+        "file": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.tsx",
+        "original": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.js",
+        "type": "||",
+        "line": 50,
+        "variable": "id",
+        "defaultValue": "'",
+        "context": ": codeSystemOptions.find(codeSystemOption => codeSystemOption.value === selected",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.tsx",
+        "original": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.js",
+        "type": "||",
+        "line": 54,
+        "variable": "apiKey",
+        "defaultValue": "'",
+        "context": "await mutateAsync({ code: codeRef.current, system, apiKey: apiKey || '' });",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ModifierModal/ModifierBuilder/ConjunctionCard.tsx": [
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/ConjunctionCard.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/ConjunctionCard.js",
+        "type": "??",
+        "line": 94,
+        "variable": "conjunctionType",
+        "defaultValue": "'",
+        "context": "<ToggleSwitch className={styles.indent} onToggle={handleToggleSwitch} value={con",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ModifierModal/ModifierBuilder/OperandTemplate.tsx": [
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/OperandTemplate.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/OperandTemplate.js",
+        "type": "??",
+        "line": 32,
+        "variable": "operand.typeSpecifier?.editorType",
+        "defaultValue": "'",
+        "context": "type={changeToCase(operand.typeSpecifier?.editorType ?? '', 'snakeCase')}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts": [
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+        "type": "??",
+        "line": 24,
+        "variable": "operandValue",
+        "defaultValue": "'",
+        "context": "expression = expression.concat(` ${changeToCase(String(operandValue ?? ''), 'noC",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+        "type": "??",
+        "line": 39,
+        "variable": "rule.operator.name",
+        "defaultValue": "'",
+        "context": "rule.operator.displayName ?? changeToCase(rule.operator.name ?? '', 'noCase')",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+        "type": "??",
+        "line": 65,
+        "variable": "valueStr",
+        "defaultValue": "'",
+        "context": "codeValueExpression = codeValueExpression.concat(valueStr ?? '');",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+        "type": "??",
+        "line": 106,
+        "variable": "rule.conjunctionType",
+        "defaultValue": "'",
+        "context": "`${isComplete && previousIsComplete ? '(' : ''}${getRulesExpression(rule.rules, ",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ModifierModal/ModifierModal.tsx": [
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierModal.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierModal.js",
+        "type": "||",
+        "line": 55,
+        "variable": "elementInstance.returnType",
+        "defaultValue": "'",
+        "context": "Boolean(resourceMap[elementInstance.returnType || '']) &&",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierModal.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierModal.js",
+        "type": "||",
+        "line": 172,
+        "variable": "elementInstance.returnType",
+        "defaultValue": "'",
+        "context": "elementInstanceReturnType={elementInstance.returnType || ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.tsx": [
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.js",
+        "type": "??",
+        "line": 56,
+        "variable": "modifiersQuery.data?.modifierMap",
+        "defaultValue": "{",
+        "context": "const modifierMap = modifiersQuery.data?.modifierMap ?? {};",
+        "severity": "critical"
+      },
+      {
+        "file": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.tsx",
+        "original": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.js",
+        "type": "??",
+        "line": 65,
+        "variable": "returnTypeWithNewModifiers",
+        "defaultValue": "'",
+        "context": "const modifiersForType = modifiersByInputType[returnTypeWithNewModifiers ?? ''] ",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ValueSetSelectModal/ValueSetDetailsTable.tsx": [
+      {
+        "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetDetailsTable.tsx",
+        "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetDetailsTable.js",
+        "type": "||",
+        "line": 27,
+        "variable": "apiKey",
+        "defaultValue": "'",
+        "context": "const query = { oid: valueSetOid, apiKey: apiKey || '' };",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx": [
+      {
+        "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+        "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+        "type": "||",
+        "line": 101,
+        "variable": "valueSet.steward",
+        "defaultValue": "'",
+        "context": "<TableCell>{valueSet.steward || ''}</TableCell>",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+        "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+        "type": "||",
+        "line": 194,
+        "variable": "keyword",
+        "defaultValue": "'",
+        "context": "const query = { keyword: keyword || '', apiKey: apiKey || '' };",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+        "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+        "type": "||",
+        "line": 194,
+        "variable": "apiKey",
+        "defaultValue": "'",
+        "context": "const query = { keyword: keyword || '', apiKey: apiKey || '' };",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/testing/PatientsTableRow.tsx": [
+      {
+        "file": "frontend/src/components/testing/PatientsTableRow.tsx",
+        "original": "frontend/src/components/testing/PatientsTableRow.js",
+        "type": "||",
+        "line": 111,
+        "variable": "patient._id",
+        "defaultValue": "'",
+        "context": "await asyncDeletePatient({ patient: { _id: patient._id || '' } });",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/testing/TestResults.tsx": [
+      {
+        "file": "frontend/src/components/testing/TestResults.tsx",
+        "original": "frontend/src/components/testing/TestResults.js",
+        "type": "||",
+        "line": 72,
+        "variable": "patientId",
+        "defaultValue": "`",
+        "context": "key={patientId || `patient-${Math.random()}`}",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/testing/TestResults.tsx",
+        "original": "frontend/src/components/testing/TestResults.js",
+        "type": "||",
+        "line": 74,
+        "variable": "patientId",
+        "defaultValue": "'",
+        "context": "results={results.patientResults[patientId || ''] || {}}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/components/testing/modals/ExecuteCQLModal.tsx": [
+      {
+        "file": "frontend/src/components/testing/modals/ExecuteCQLModal.tsx",
+        "original": "frontend/src/components/testing/modals/ExecuteCQLModal.js",
+        "type": "||",
+        "line": 53,
+        "variable": "version",
+        "defaultValue": "'",
+        "context": "const dataModel = { name: 'FHIR', version: version || '' };",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/components/testing/modals/ExecuteCQLModal.tsx",
+        "original": "frontend/src/components/testing/modals/ExecuteCQLModal.js",
+        "type": "||",
+        "line": 104,
+        "variable": "artifactToExecute.name",
+        "defaultValue": "'",
+        "context": "value={artifactToExecute ? artifactToExecute.name || '' : ''}",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/utils/artifacts/convertToExpression.ts": [
+      {
+        "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+        "original": "frontend/src/utils/artifacts/convertToExpression.js",
+        "type": "||",
+        "line": 627,
+        "variable": "descriptorExpression.modifierText",
+        "defaultValue": "'",
+        "context": "const descriptorText = descriptorExpression.modifierText || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+        "original": "frontend/src/utils/artifacts/convertToExpression.js",
+        "type": "||",
+        "line": 642,
+        "variable": "listExpression.modifierText",
+        "defaultValue": "'",
+        "context": "const listText = listExpression.modifierText || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+        "original": "frontend/src/utils/artifacts/convertToExpression.js",
+        "type": "||",
+        "line": 705,
+        "variable": "referenceElementName",
+        "defaultValue": "'",
+        "context": "orderedExpressionArray.push({ label: referenceElementName || '', isTag: true });",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+        "original": "frontend/src/utils/artifacts/convertToExpression.js",
+        "type": "||",
+        "line": 725,
+        "variable": "userDefinedExpression.modifierExpression",
+        "defaultValue": "'",
+        "context": "orderedExpressionArray.push({ label: userDefinedExpression.modifierExpression ||",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/utils/instances.ts": [
+      {
+        "file": "frontend/src/utils/instances.ts",
+        "original": "frontend/src/utils/instances.js",
+        "type": "||",
+        "line": 70,
+        "variable": "returnType",
+        "defaultValue": "'",
+        "context": "if (modifiers.length === 0) return returnType || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/instances.ts",
+        "original": "frontend/src/utils/instances.js",
+        "type": "||",
+        "line": 84,
+        "variable": "returnType",
+        "defaultValue": "'",
+        "context": "return returnType || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/instances.ts",
+        "original": "frontend/src/utils/instances.js",
+        "type": "||",
+        "line": 180,
+        "variable": "instance.name",
+        "defaultValue": "'",
+        "context": "let label = instance.name || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/instances.ts",
+        "original": "frontend/src/utils/instances.js",
+        "type": "||",
+        "line": 185,
+        "variable": "originalBaseElement.name",
+        "defaultValue": "'",
+        "context": "label = originalBaseElement.type === 'parameter' ? 'Parameter' : originalBaseEle",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/utils/propertyParsers.ts": [
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 69,
+        "variable": "text",
+        "defaultValue": "'",
+        "context": "return text || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 79,
+        "variable": "c.text",
+        "defaultValue": "'",
+        "context": "return c.text || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 87,
+        "variable": "name",
+        "defaultValue": "'",
+        "context": "return name || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 168,
+        "variable": "n.text",
+        "defaultValue": "'",
+        "context": "return n.text || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 229,
+        "variable": "r.display",
+        "defaultValue": "'",
+        "context": "return r.display || '';",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/propertyParsers.ts",
+        "original": "frontend/src/utils/propertyParsers.js",
+        "type": "||",
+        "line": 231,
+        "variable": "r.reference",
+        "defaultValue": "'",
+        "context": "return r.reference || '';",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/utils/strings.ts": [
+      {
+        "file": "frontend/src/utils/strings.ts",
+        "original": "frontend/src/utils/strings.js",
+        "type": "??",
+        "line": 46,
+        "variable": "str",
+        "defaultValue": "'",
+        "context": "return (value as { str?: string }).str ?? '';",
+        "severity": "medium"
+      }
+    ],
+    "frontend/src/utils/warnings.ts": [
+      {
+        "file": "frontend/src/utils/warnings.ts",
+        "original": "frontend/src/utils/warnings.js",
+        "type": "||",
+        "line": 247,
+        "variable": "current.id",
+        "defaultValue": "'",
+        "context": "[current.id || '']: (",
+        "severity": "medium"
+      },
+      {
+        "file": "frontend/src/utils/warnings.ts",
+        "original": "frontend/src/utils/warnings.js",
+        "type": "||",
+        "line": 320,
+        "variable": "child.returnType",
+        "defaultValue": "'",
+        "context": "child.returnType || '',",
+        "severity": "medium"
+      }
+    ]
+  },
+  "issues": [
+    {
+      "file": "frontend/src/components/builder/artifact-element/SelectModifierAction.tsx",
+      "original": "frontend/src/components/builder/artifact-element/SelectModifierAction.js",
+      "type": "||",
+      "line": 27,
+      "variable": "elementInstance.returnType",
+      "defaultValue": "'",
+      "context": "modifiersByInputType[elementInstance.returnType || ''] || []",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/artifact-element/SelectModifierAction.tsx",
+      "original": "frontend/src/components/builder/artifact-element/SelectModifierAction.js",
+      "type": "||",
+      "line": 39,
+      "variable": "returnType",
+      "defaultValue": "'",
+      "context": "const relevantModifiers = filterRelevantModifiers(modifiersByInputType[returnTyp",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 253,
+      "variable": "selectedCqlEntry.name",
+      "defaultValue": "'",
+      "context": "{ id: 'element_name', type: 'string', name: 'Element Name', value: selectedCqlEn",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 282,
+      "variable": "parameter.name",
+      "defaultValue": "'",
+      "context": "name: parameter.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 284,
+      "variable": "parameter.type",
+      "defaultValue": "'",
+      "context": "returnType: parameter.type || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 287,
+      "variable": "parameter.name",
+      "defaultValue": "'",
+      "context": "{ id: 'element_name', type: 'string', name: 'Element Name', value: parameter.nam",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 308,
+      "variable": "name",
+      "defaultValue": "'",
+      "context": "? (vsacCodeOrValueSet as VsacValueSet)?.name || ''",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 315,
+      "variable": "vsacType",
+      "defaultValue": "'",
+      "context": "[vsacType || 'codes']: [vsacCodeOrValueSet]",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 361,
+      "variable": "entry.name",
+      "defaultValue": "'",
+      "context": "label: entry.name || ''",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 399,
+      "variable": "entry.name",
+      "defaultValue": "'",
+      "context": "label: entry.name || ''",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/element-select/utils.ts",
+      "original": "frontend/src/components/builder/element-select/utils.js",
+      "type": "||",
+      "line": 405,
+      "variable": "entry.name",
+      "defaultValue": "'",
+      "context": "label: entry.name || ''",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/ElseClause.tsx",
+      "original": "frontend/src/components/builder/error-statement/ElseClause.js",
+      "type": "||",
+      "line": 72,
+      "variable": "statement.elseClause",
+      "defaultValue": "'",
+      "context": "value={statement.elseClause || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+      "type": "||",
+      "line": 69,
+      "variable": "parameter.name",
+      "defaultValue": "'",
+      "context": "label: parameter.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+      "type": "||",
+      "line": 70,
+      "variable": "parameter.name",
+      "defaultValue": "'",
+      "context": "value: parameter.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+      "type": "||",
+      "line": 75,
+      "variable": "subpopulation.subpopulationName",
+      "defaultValue": "'",
+      "context": "label: subpopulation.subpopulationName || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfConditionSelect.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfConditionSelect.js",
+      "type": "||",
+      "line": 77,
+      "variable": "subpopulation.special_subpopulationName",
+      "defaultValue": "'",
+      "context": "? subpopulation.special_subpopulationName || ''",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfThenClause.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfThenClause.js",
+      "type": "||",
+      "line": 135,
+      "variable": "statement.id",
+      "defaultValue": "'",
+      "context": "statementId={statement.id || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/error-statement/IfThenClause.tsx",
+      "original": "frontend/src/components/builder/error-statement/IfThenClause.js",
+      "type": "||",
+      "line": 136,
+      "variable": "ifThenClause.thenClause",
+      "defaultValue": "'",
+      "context": "thenClause={ifThenClause.thenClause || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/ExternalCqlDetailsModalSection.tsx",
+      "original": "frontend/src/components/builder/external-cql/ExternalCqlDetailsModalSection.js",
+      "type": "||",
+      "line": 70,
+      "variable": "definition.calculatedReturnType",
+      "defaultValue": "'",
+      "context": ": changeToCase(definition.calculatedReturnType || '', 'capitalCase')}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+      "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+      "type": "||",
+      "line": 111,
+      "variable": "a.name",
+      "defaultValue": "'",
+      "context": "const aWithDefaults = { name: a.name || '', version: a.version || '', ...a };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+      "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+      "type": "||",
+      "line": 111,
+      "variable": "a.version",
+      "defaultValue": "'",
+      "context": "const aWithDefaults = { name: a.name || '', version: a.version || '', ...a };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+      "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+      "type": "||",
+      "line": 112,
+      "variable": "b.name",
+      "defaultValue": "'",
+      "context": "const bWithDefaults = { name: b.name || '', version: b.version || '', ...b };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/ExternalCqlTable.tsx",
+      "original": "frontend/src/components/builder/external-cql/ExternalCqlTable.js",
+      "type": "||",
+      "line": 112,
+      "variable": "b.version",
+      "defaultValue": "'",
+      "context": "const bWithDefaults = { name: b.name || '', version: b.version || '', ...b };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/utils.ts",
+      "original": "frontend/src/components/builder/external-cql/utils.js",
+      "type": "||",
+      "line": 39,
+      "variable": "library.name",
+      "defaultValue": "'",
+      "context": "libraryName: library.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/utils.ts",
+      "original": "frontend/src/components/builder/external-cql/utils.js",
+      "type": "||",
+      "line": 40,
+      "variable": "definition.name",
+      "defaultValue": "'",
+      "context": "elementName: definition.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/utils.ts",
+      "original": "frontend/src/components/builder/external-cql/utils.js",
+      "type": "||",
+      "line": 48,
+      "variable": "library.name",
+      "defaultValue": "'",
+      "context": "libraryName: library.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/external-cql/utils.ts",
+      "original": "frontend/src/components/builder/external-cql/utils.js",
+      "type": "||",
+      "line": 49,
+      "variable": "func.name",
+      "defaultValue": "'",
+      "context": "elementName: func.name || '',",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/fields/UcumField.tsx",
+      "original": "frontend/src/components/builder/fields/UcumField.js",
+      "type": "||",
+      "line": 28,
+      "variable": "term",
+      "defaultValue": "'",
+      "context": "if (reason === 'input' || reason === 'clear') setUcumTerm(term || '');",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/modifiers/ExternalModifier.tsx",
+      "original": "frontend/src/components/builder/modifiers/ExternalModifier.js",
+      "type": "||",
+      "line": 67,
+      "variable": "calculated",
+      "defaultValue": "'",
+      "context": "argumentType={argumentTypes[argIndex]?.calculated || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 65,
+      "variable": "type",
+      "defaultValue": "'",
+      "context": "const editorErrorResult = getEditorErrors(type || '', editorValue);",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 88,
+      "variable": "label",
+      "defaultValue": "'",
+      "context": "{ label: typeOptions.find(({ value }) => value === type)?.label || '', isTag: tr",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 103,
+      "variable": "uniqueId",
+      "defaultValue": "'",
+      "context": "commentField={{ id: uniqueId || '', name: 'Comment', value: typeof comment === '",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 117,
+      "variable": "uniqueId",
+      "defaultValue": "'",
+      "context": "titleField={{ id: uniqueId || '', value: typeof name === 'string' ? name : '' }}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 145,
+      "variable": "type",
+      "defaultValue": "'",
+      "context": "value={type || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/Parameter.tsx",
+      "original": "frontend/src/components/builder/parameters/Parameter.js",
+      "type": "||",
+      "line": 154,
+      "variable": "type",
+      "defaultValue": "'",
+      "context": "type={type || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/parameters/utils.ts",
+      "original": "frontend/src/components/builder/parameters/utils.js",
+      "type": "||",
+      "line": 45,
+      "variable": "parameter.type",
+      "defaultValue": "'",
+      "context": "const editorErrors = getEditorErrors(parameter.type || '', editorValue);",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationAction.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationAction.js",
+      "type": "||",
+      "line": 22,
+      "variable": "action.description",
+      "defaultValue": "'",
+      "context": "<div>{action.description || ''}</div>",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationActionModal.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationActionModal.js",
+      "type": "||",
+      "line": 95,
+      "variable": "action.description",
+      "defaultValue": "'",
+      "context": ": { description: action.description || '', resource: action.resource as ActionRe",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationActionModal.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationActionModal.js",
+      "type": "??",
+      "line": 121,
+      "variable": "codeValue",
+      "defaultValue": "{",
+      "context": "const { code = '', display = '', system = '', uri = '' } = codeValue ?? {};",
+      "severity": "critical"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+      "type": "||",
+      "line": 35,
+      "variable": "link.type",
+      "defaultValue": "'",
+      "context": "value={link.type || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+      "type": "||",
+      "line": 44,
+      "variable": "link.label",
+      "defaultValue": "'",
+      "context": "value={link.label || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationLink.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationLink.js",
+      "type": "||",
+      "line": 55,
+      "variable": "link.url",
+      "defaultValue": "'",
+      "context": "value={link.url || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/recommendations/RecommendationSuggestion.tsx",
+      "original": "frontend/src/components/builder/recommendations/RecommendationSuggestion.js",
+      "type": "||",
+      "line": 74,
+      "variable": "suggestion.label",
+      "defaultValue": "'",
+      "context": "value={suggestion.label || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/summary/InclusionExclusionCard.tsx",
+      "original": "frontend/src/components/builder/summary/InclusionExclusionCard.js",
+      "type": "||",
+      "line": 82,
+      "variable": "child.elementName",
+      "defaultValue": "'",
+      "context": "text={child.elementName || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/summary/RecommendationCard.tsx",
+      "original": "frontend/src/components/builder/summary/RecommendationCard.js",
+      "type": "||",
+      "line": 48,
+      "variable": "subpopulation.subpopulationName",
+      "defaultValue": "'",
+      "context": "text={subpopulation.subpopulationName || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/summary/RecommendationCard.tsx",
+      "original": "frontend/src/components/builder/summary/RecommendationCard.js",
+      "type": "||",
+      "line": 66,
+      "variable": "suggestion.label",
+      "defaultValue": "'",
+      "context": "<RecommendationCard key={index} depth={1} label=\"Suggestion\" text={suggestion.la",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/summary/SummaryDetails.tsx",
+      "original": "frontend/src/components/builder/summary/SummaryDetails.js",
+      "type": "||",
+      "line": 65,
+      "variable": "item.recommendationText",
+      "defaultValue": "'",
+      "context": "text={item.recommendationText || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/summary/SummaryDetails.tsx",
+      "original": "frontend/src/components/builder/summary/SummaryDetails.js",
+      "type": "||",
+      "line": 77,
+      "variable": "rec.text",
+      "defaultValue": "'",
+      "context": "text={rec.text || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/templates/ArgumentsTemplate.tsx",
+      "original": "frontend/src/components/builder/templates/ArgumentsTemplate.js",
+      "type": "??",
+      "line": 155,
+      "variable": "newSelection",
+      "defaultValue": "'",
+      "context": "selected: typeof newSelection === 'string' ? newSelection : String(newSelection ",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/templates/ReferenceTemplate.tsx",
+      "original": "frontend/src/components/builder/templates/ReferenceTemplate.js",
+      "type": "||",
+      "line": 42,
+      "variable": "id",
+      "defaultValue": "'",
+      "context": "return (referenceField.value as { id?: string })?.id || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/builder/workspace/Workspace.tsx",
+      "original": "frontend/src/components/builder/workspace/Workspace.js",
+      "type": "||",
+      "line": 34,
+      "variable": "id",
+      "defaultValue": "'",
+      "context": "const externalCqlQuery = { artifactId: id || '' };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/elements/ElementCard/ElementExpressionPhrase.tsx",
+      "original": "frontend/src/components/elements/ElementCard/ElementExpressionPhrase.js",
+      "type": "||",
+      "line": 38,
+      "variable": "expression.tooltipText",
+      "defaultValue": "'",
+      "context": "<Tooltip key={index} enabled={!!expression.tooltipText} title={expression.toolti",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.tsx",
+      "original": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.js",
+      "type": "||",
+      "line": 50,
+      "variable": "id",
+      "defaultValue": "'",
+      "context": ": codeSystemOptions.find(codeSystemOption => codeSystemOption.value === selected",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.tsx",
+      "original": "frontend/src/components/modals/CodeSelectModal/CodeSelectModal.js",
+      "type": "||",
+      "line": 54,
+      "variable": "apiKey",
+      "defaultValue": "'",
+      "context": "await mutateAsync({ code: codeRef.current, system, apiKey: apiKey || '' });",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/ConjunctionCard.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/ConjunctionCard.js",
+      "type": "??",
+      "line": 94,
+      "variable": "conjunctionType",
+      "defaultValue": "'",
+      "context": "<ToggleSwitch className={styles.indent} onToggle={handleToggleSwitch} value={con",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/OperandTemplate.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/OperandTemplate.js",
+      "type": "??",
+      "line": 32,
+      "variable": "operand.typeSpecifier?.editorType",
+      "defaultValue": "'",
+      "context": "type={changeToCase(operand.typeSpecifier?.editorType ?? '', 'snakeCase')}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+      "type": "??",
+      "line": 24,
+      "variable": "operandValue",
+      "defaultValue": "'",
+      "context": "expression = expression.concat(` ${changeToCase(String(operandValue ?? ''), 'noC",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+      "type": "??",
+      "line": 39,
+      "variable": "rule.operator.name",
+      "defaultValue": "'",
+      "context": "rule.operator.displayName ?? changeToCase(rule.operator.name ?? '', 'noCase')",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+      "type": "??",
+      "line": 65,
+      "variable": "valueStr",
+      "defaultValue": "'",
+      "context": "codeValueExpression = codeValueExpression.concat(valueStr ?? '');",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.ts",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierBuilder/utils/getModifierExpression.js",
+      "type": "??",
+      "line": 106,
+      "variable": "rule.conjunctionType",
+      "defaultValue": "'",
+      "context": "`${isComplete && previousIsComplete ? '(' : ''}${getRulesExpression(rule.rules, ",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierModal.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierModal.js",
+      "type": "||",
+      "line": 55,
+      "variable": "elementInstance.returnType",
+      "defaultValue": "'",
+      "context": "Boolean(resourceMap[elementInstance.returnType || '']) &&",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierModal.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierModal.js",
+      "type": "||",
+      "line": 172,
+      "variable": "elementInstance.returnType",
+      "defaultValue": "'",
+      "context": "elementInstanceReturnType={elementInstance.returnType || ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.js",
+      "type": "??",
+      "line": 56,
+      "variable": "modifiersQuery.data?.modifierMap",
+      "defaultValue": "{",
+      "context": "const modifierMap = modifiersQuery.data?.modifierMap ?? {};",
+      "severity": "critical"
+    },
+    {
+      "file": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.tsx",
+      "original": "frontend/src/components/modals/ModifierModal/ModifierSelector/ModifierSelector.js",
+      "type": "??",
+      "line": 65,
+      "variable": "returnTypeWithNewModifiers",
+      "defaultValue": "'",
+      "context": "const modifiersForType = modifiersByInputType[returnTypeWithNewModifiers ?? ''] ",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetDetailsTable.tsx",
+      "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetDetailsTable.js",
+      "type": "||",
+      "line": 27,
+      "variable": "apiKey",
+      "defaultValue": "'",
+      "context": "const query = { oid: valueSetOid, apiKey: apiKey || '' };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+      "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+      "type": "||",
+      "line": 101,
+      "variable": "valueSet.steward",
+      "defaultValue": "'",
+      "context": "<TableCell>{valueSet.steward || ''}</TableCell>",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+      "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+      "type": "||",
+      "line": 194,
+      "variable": "keyword",
+      "defaultValue": "'",
+      "context": "const query = { keyword: keyword || '', apiKey: apiKey || '' };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.tsx",
+      "original": "frontend/src/components/modals/ValueSetSelectModal/ValueSetSearchResultsTable.js",
+      "type": "||",
+      "line": 194,
+      "variable": "apiKey",
+      "defaultValue": "'",
+      "context": "const query = { keyword: keyword || '', apiKey: apiKey || '' };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/testing/PatientsTableRow.tsx",
+      "original": "frontend/src/components/testing/PatientsTableRow.js",
+      "type": "||",
+      "line": 111,
+      "variable": "patient._id",
+      "defaultValue": "'",
+      "context": "await asyncDeletePatient({ patient: { _id: patient._id || '' } });",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/testing/TestResults.tsx",
+      "original": "frontend/src/components/testing/TestResults.js",
+      "type": "||",
+      "line": 72,
+      "variable": "patientId",
+      "defaultValue": "`",
+      "context": "key={patientId || `patient-${Math.random()}`}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/testing/TestResults.tsx",
+      "original": "frontend/src/components/testing/TestResults.js",
+      "type": "||",
+      "line": 74,
+      "variable": "patientId",
+      "defaultValue": "'",
+      "context": "results={results.patientResults[patientId || ''] || {}}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/testing/modals/ExecuteCQLModal.tsx",
+      "original": "frontend/src/components/testing/modals/ExecuteCQLModal.js",
+      "type": "||",
+      "line": 53,
+      "variable": "version",
+      "defaultValue": "'",
+      "context": "const dataModel = { name: 'FHIR', version: version || '' };",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/components/testing/modals/ExecuteCQLModal.tsx",
+      "original": "frontend/src/components/testing/modals/ExecuteCQLModal.js",
+      "type": "||",
+      "line": 104,
+      "variable": "artifactToExecute.name",
+      "defaultValue": "'",
+      "context": "value={artifactToExecute ? artifactToExecute.name || '' : ''}",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+      "original": "frontend/src/utils/artifacts/convertToExpression.js",
+      "type": "||",
+      "line": 627,
+      "variable": "descriptorExpression.modifierText",
+      "defaultValue": "'",
+      "context": "const descriptorText = descriptorExpression.modifierText || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+      "original": "frontend/src/utils/artifacts/convertToExpression.js",
+      "type": "||",
+      "line": 642,
+      "variable": "listExpression.modifierText",
+      "defaultValue": "'",
+      "context": "const listText = listExpression.modifierText || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+      "original": "frontend/src/utils/artifacts/convertToExpression.js",
+      "type": "||",
+      "line": 705,
+      "variable": "referenceElementName",
+      "defaultValue": "'",
+      "context": "orderedExpressionArray.push({ label: referenceElementName || '', isTag: true });",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/artifacts/convertToExpression.ts",
+      "original": "frontend/src/utils/artifacts/convertToExpression.js",
+      "type": "||",
+      "line": 725,
+      "variable": "userDefinedExpression.modifierExpression",
+      "defaultValue": "'",
+      "context": "orderedExpressionArray.push({ label: userDefinedExpression.modifierExpression ||",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/instances.ts",
+      "original": "frontend/src/utils/instances.js",
+      "type": "||",
+      "line": 70,
+      "variable": "returnType",
+      "defaultValue": "'",
+      "context": "if (modifiers.length === 0) return returnType || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/instances.ts",
+      "original": "frontend/src/utils/instances.js",
+      "type": "||",
+      "line": 84,
+      "variable": "returnType",
+      "defaultValue": "'",
+      "context": "return returnType || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/instances.ts",
+      "original": "frontend/src/utils/instances.js",
+      "type": "||",
+      "line": 180,
+      "variable": "instance.name",
+      "defaultValue": "'",
+      "context": "let label = instance.name || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/instances.ts",
+      "original": "frontend/src/utils/instances.js",
+      "type": "||",
+      "line": 185,
+      "variable": "originalBaseElement.name",
+      "defaultValue": "'",
+      "context": "label = originalBaseElement.type === 'parameter' ? 'Parameter' : originalBaseEle",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 69,
+      "variable": "text",
+      "defaultValue": "'",
+      "context": "return text || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 79,
+      "variable": "c.text",
+      "defaultValue": "'",
+      "context": "return c.text || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 87,
+      "variable": "name",
+      "defaultValue": "'",
+      "context": "return name || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 168,
+      "variable": "n.text",
+      "defaultValue": "'",
+      "context": "return n.text || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 229,
+      "variable": "r.display",
+      "defaultValue": "'",
+      "context": "return r.display || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/propertyParsers.ts",
+      "original": "frontend/src/utils/propertyParsers.js",
+      "type": "||",
+      "line": 231,
+      "variable": "r.reference",
+      "defaultValue": "'",
+      "context": "return r.reference || '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/strings.ts",
+      "original": "frontend/src/utils/strings.js",
+      "type": "??",
+      "line": 46,
+      "variable": "str",
+      "defaultValue": "'",
+      "context": "return (value as { str?: string }).str ?? '';",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/warnings.ts",
+      "original": "frontend/src/utils/warnings.js",
+      "type": "||",
+      "line": 247,
+      "variable": "current.id",
+      "defaultValue": "'",
+      "context": "[current.id || '']: (",
+      "severity": "medium"
+    },
+    {
+      "file": "frontend/src/utils/warnings.ts",
+      "original": "frontend/src/utils/warnings.js",
+      "type": "||",
+      "line": 320,
+      "variable": "child.returnType",
+      "defaultValue": "'",
+      "context": "child.returnType || '',",
+      "severity": "medium"
+    }
+  ]
+}

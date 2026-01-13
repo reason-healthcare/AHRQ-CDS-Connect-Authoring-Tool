@@ -12,7 +12,7 @@ The TypeScript migration introduced `||` and `??` operators that change runtime 
 | High | 12 | 12 | ✅ Complete |
 | Medium | 88 | 0 | ✅ Reviewed - Intentional |
 
-**Tests:** 708 passing, 4 failing (pre-existing failures, not caused by these fixes)
+**Tests:** 712 passing, 3 skipped ✅
 
 ### Medium Priority Review
 
@@ -43,7 +43,7 @@ These patterns don't change application behavior meaningfully - they convert `un
 | `getFHIRVersion.ts` | Removed `recommendations || []`, `suggestions || []` |
 | `ElementCard.tsx` | Removed `hasErrors || false`, `disableTitleField || false` |
 | `baseElements.ts` | Removed `instance.fields || []` (2 instances) |
-| `warnings.ts` | Removed `modifiers || []` |
+| `warnings.ts` | Removed `modifiers || []`; restored `instanceCommentValue || ''` for comparison |
 | `ModifiersTemplate.tsx` | Removed `modifiers || []` |
 | `getAllElements.ts` | Removed `subpopulations || []` |
 | `ModifierModal.tsx` | Removed `elementInstance.modifiers || []` |

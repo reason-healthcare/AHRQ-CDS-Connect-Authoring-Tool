@@ -2,15 +2,12 @@
  * Helper functions for working with context mappings
  */
 
-interface ContextMappingValue {
-  code: string;
-  display: string;
-}
+import type { Coding } from 'fhir/r4';
 
 interface ContextMapping {
   type: string;
   system: string;
-  [key: string]: string | ContextMappingValue | Record<string, string> | undefined;
+  [key: string]: string | Coding | Record<string, string> | undefined;
 }
 
 /**
@@ -20,12 +17,12 @@ interface ContextMapping {
 export function getContextMappingValue(
   ctxMap: ContextMapping | undefined,
   code: string
-): ContextMappingValue | undefined {
+): Coding | undefined {
   if (!ctxMap) return undefined;
 
   const value = ctxMap[code];
   if (value && typeof value === 'object' && 'code' in value && 'display' in value) {
-    return value as ContextMappingValue;
+    return value as Coding;
   }
   return undefined;
 }
@@ -36,3 +33,4 @@ export function getContextMappingValue(
 export function getContextMappingSystem(ctxMap: ContextMapping | undefined): string {
   return ctxMap?.system || '';
 }
+
